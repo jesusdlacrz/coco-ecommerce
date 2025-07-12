@@ -10,9 +10,10 @@
 
   let { product, onAddToCart }: Props = $props()
 
-  let selectedSize = $state('')
-  let selectedColor = $state('')
-  let quantity = $state(1) // ✅ Ahora por defecto 1 pieza
+  // Estados independientes por producto usando su ID único
+  let selectedSize = $state<string>('')
+  let selectedColor = $state<string>('')
+  let quantity = $state<number>(1) // ✅ Ahora por defecto 1 pieza
 
   const genderColors = {
     men: {
