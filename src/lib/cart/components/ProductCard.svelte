@@ -13,7 +13,7 @@
   // Estados independientes por producto usando su ID único
   let selectedSize = $state<string>('')
   let selectedColor = $state<string>('')
-  let quantity = $state<number>(1) // ✅ Ahora por defecto 1 pieza
+  let quantity = $state<number>(1) 
 
   const genderColors = {
     men: {
@@ -45,7 +45,7 @@
     // Reset selections
     selectedSize = ''
     selectedColor = ''
-    quantity = 1 // ✅ Reset a 1 pieza
+    quantity = 1
   }
 
   function incrementQuantity() {
@@ -53,7 +53,7 @@
   }
 
   function decrementQuantity() {
-    if (quantity > 1) { // ✅ Mínimo 1 pieza
+    if (quantity > 1) { 
       quantity -= 1
     }
   }

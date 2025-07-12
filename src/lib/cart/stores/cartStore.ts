@@ -94,7 +94,6 @@ class CartStore {
     return derived(this.items, ($items) => $items.length === 0)
   }
 
-  // =================== NUEVA LÓGICA: MÍNIMO 4 UNIDADES TOTALES ===================
   get totalUnits() {
     return derived(this.items, ($items) => 
       $items.reduce((total, item) => total + item.quantity, 0)
@@ -136,9 +135,9 @@ class CartStore {
       gender: product.gender,
       size,
       color,
-      quantity: Math.max(quantity, 1), // ✅ Ahora mínimo 1 en lugar de minOrderQuantity
+      quantity: Math.max(quantity, 1),
       sku: product.sku,
-      minOrderQuantity: 1, // ✅ Nuevo mínimo global
+      minOrderQuantity: 1,
       addedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -186,7 +185,7 @@ class CartStore {
     this.items.update(items => {
       const item = items.find(item => item.id === itemId)
       if (item) {
-        item.quantity = Math.max(newQuantity, 1) // ✅ Mínimo 1 en lugar de minOrderQuantity
+        item.quantity = Math.max(newQuantity, 1)
         this.updateItemTimestamp(item)
       }
       return items

@@ -25,7 +25,6 @@
   const menItemsCount = $derived(menItems.reduce((sum, item) => sum + item.quantity, 0))
   const womenItemsCount = $derived(womenItems.reduce((sum, item) => sum + item.quantity, 0))
 
-  // =================== NUEVA LÓGICA: MÍNIMO 4 UNIDADES ===================
   const canCheckout = $derived(totalItems >= 4)
   const missingUnits = $derived(Math.max(0, 4 - totalItems))
 </script>
@@ -33,7 +32,7 @@
 {#if isOpen}
   <!-- Overlay -->
   <button 
-    class="fixed inset-0 bg-black bg-opacity-50 z-40" 
+    class="fixed inset-0 bg-black/50 z-40" 
     onclick={onClose}
     aria-label="Cerrar carrito"
   ></button>
