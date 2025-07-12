@@ -2,7 +2,15 @@
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import CatalogPage from '$lib/cart/components/CatalogPage.svelte';
 	import CartDrawer from '$lib/cart/components/CartDrawer.svelte';
-	import { cartStore, cartItems, cartItemCount, cartTotal } from '$lib/cart/stores/cartStore';
+	import { 
+		cartStore, 
+		cartItems, 
+		cartItemCount, 
+		cartTotal,
+		totalUnits,
+		canProceedToPayment,
+		missingUnitsForPayment
+	} from '$lib/cart/stores/cartStore';
 	import { formatPrice } from '$lib/utils/cartUtils';
 	import { sampleProducts } from '$lib/data/products';
 	import type { Product } from '$lib/types/products';
@@ -79,8 +87,10 @@
 		{activeTab}
 		{menProducts}
 		{womenProducts}
-		cartItemCount={$cartItemCount}
+		totalUnits={$totalUnits}
 		cartTotal={$cartTotal}
+		canProceedToPayment={$canProceedToPayment}
+		missingUnitsForPayment={$missingUnitsForPayment}
 		{formatPrice}
 		onTabChange={handleTabChange}
 		onAddToCart={handleAddToCart}

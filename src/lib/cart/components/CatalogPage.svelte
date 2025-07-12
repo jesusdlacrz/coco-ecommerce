@@ -8,8 +8,10 @@
 		activeTab: 'men' | 'women';
 		menProducts: Product[];
 		womenProducts: Product[];
-		cartItemCount: number;
+		totalUnits: number;
 		cartTotal: number;
+		canProceedToPayment: boolean;
+		missingUnitsForPayment: number;
 		formatPrice: (price: number) => string;
 		onTabChange: (tab: 'men' | 'women') => void;
 		onAddToCart: (product: Product, quantity: number, size: string | null, color: string | null) => void;
@@ -19,8 +21,10 @@
 		activeTab, 
 		menProducts, 
 		womenProducts, 
-		cartItemCount, 
+		totalUnits,
 		cartTotal, 
+		canProceedToPayment,
+		missingUnitsForPayment,
 		formatPrice,
 		onTabChange,
 		onAddToCart 
@@ -38,7 +42,13 @@
 		</p>
 		
 		<!-- Cart Summary -->
-		<CartSummary {cartItemCount} {cartTotal} {formatPrice} />
+		<CartSummary 
+			{totalUnits} 
+			{cartTotal} 
+			{canProceedToPayment}
+			{missingUnitsForPayment}
+			{formatPrice} 
+		/>
 	</div>
 
 	<!-- Category Tabs -->

@@ -24,6 +24,10 @@
   // Valores derivados adicionales para mejorar la reactividad
   const menItemsCount = $derived(menItems.reduce((sum, item) => sum + item.quantity, 0))
   const womenItemsCount = $derived(womenItems.reduce((sum, item) => sum + item.quantity, 0))
+
+  // =================== NUEVA LÓGICA: MÍNIMO 4 UNIDADES ===================
+  const canCheckout = $derived(totalItems >= 4)
+  const missingUnits = $derived(Math.max(0, 4 - totalItems))
 </script>
 
 {#if isOpen}
@@ -185,14 +189,31 @@
     <!-- Footer -->
     {#if cartItems.length > 0}
       <div class="border-t p-4 space-y-4">
+        <!-- Mínimo de unidades -->
+        {#if !canCheckout}
+          <div class="bg-orange-50 border border-orange-200 p-3 rounded-lg">
+            <p class="text-orange-800 text-sm font-medium">
+              📦 {totalItems}/4 unidades mínimas
+            </p>
+            <p class="text-orange-600 text-xs mt-1">
+              Agrega {missingUnits} unidades más para proceder al pago
+            </p>
+          </div>
+        {/if}
+
         <div class="flex justify-between items-center text-lg font-bold">
           <span>Total:</span>
           <span>{formatPrice(total)}</span>
         </div>
 
         <div class="space-y-2">
-          <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
-            Proceder al Checkout
+          <button 
+            class="w-full py-2 px-4 rounded font-medium transition-colors {canCheckout 
+              ? 'bg-green-600 hover:bg-green-700 text-white' 
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'}"
+            disabled={!canCheckout}
+          >
+            {canCheckout ? 'Proceder al Checkout' : `Faltan ${missingUnits} unidades`}
           </button>
           <button onclick={onClearCart} class="w-full border border-gray-300 py-2 px-4 rounded hover:bg-gray-50">
             Limpiar Carrito

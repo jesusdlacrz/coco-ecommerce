@@ -1,4 +1,4 @@
-	<!-- Footer -->
+
 	<footer class="mt-16 border-t bg-white">
 		<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 			<div class="text-center text-gray-600">

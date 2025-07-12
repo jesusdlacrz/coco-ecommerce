@@ -12,7 +12,7 @@
 
   let selectedSize = $state('')
   let selectedColor = $state('')
-  let quantity = $state(product.minOrderQuantity)
+  let quantity = $state(1) // ✅ Ahora por defecto 1 pieza
 
   const genderColors = {
     men: {
@@ -44,7 +44,7 @@
     // Reset selections
     selectedSize = ''
     selectedColor = ''
-    quantity = product.minOrderQuantity
+    quantity = 1 // ✅ Reset a 1 pieza
   }
 
   function incrementQuantity() {
@@ -52,7 +52,7 @@
   }
 
   function decrementQuantity() {
-    if (quantity > product.minOrderQuantity) {
+    if (quantity > 1) { // ✅ Mínimo 1 pieza
       quantity -= 1
     }
   }
@@ -92,7 +92,7 @@
         {/if}
       </div>
       <p class="text-xs text-gray-500">
-        Mín. {product.minOrderQuantity} piezas • Stock: {product.stockQuantity}
+        Stock: {product.stockQuantity} • Precio mayorista disponible
       </p>
     </div>
 
@@ -128,7 +128,7 @@
       <div class="flex items-center space-x-2">
         <button
           onclick={decrementQuantity}
-          disabled={quantity <= product.minOrderQuantity}
+          disabled={quantity <= 1}
           class="p-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
         >
           <Minus class="h-4 w-4" />

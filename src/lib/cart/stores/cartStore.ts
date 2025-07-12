@@ -94,6 +94,27 @@ class CartStore {
     return derived(this.items, ($items) => $items.length === 0)
   }
 
+  // =================== NUEVA LÓGICA: MÍNIMO 4 UNIDADES TOTALES ===================
+  get totalUnits() {
+    return derived(this.items, ($items) => 
+      $items.reduce((total, item) => total + item.quantity, 0)
+    )
+  }
+
+  get canProceedToPayment() {
+    return derived(this.items, ($items) => {
+      const totalUnits = $items.reduce((total, item) => total + item.quantity, 0)
+      return totalUnits >= 4
+    })
+  }
+
+  get missingUnitsForPayment() {
+    return derived(this.items, ($items) => {
+      const totalUnits = $items.reduce((total, item) => total + item.quantity, 0)
+      return Math.max(0, 4 - totalUnits)
+    })
+  }
+
   // =================== PRIVATE HELPERS ===================
   private generateItemId(product: Product, size: string | null, color: string | null): string {
     return `${product.id}-${size || 'no-size'}-${color || 'no-color'}`
@@ -115,9 +136,9 @@ class CartStore {
       gender: product.gender,
       size,
       color,
-      quantity: Math.max(quantity, product.minOrderQuantity),
+      quantity: Math.max(quantity, 1), // ✅ Ahora mínimo 1 en lugar de minOrderQuantity
       sku: product.sku,
-      minOrderQuantity: product.minOrderQuantity,
+      minOrderQuantity: 1, // ✅ Nuevo mínimo global
       addedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -165,7 +186,7 @@ class CartStore {
     this.items.update(items => {
       const item = items.find(item => item.id === itemId)
       if (item) {
-        item.quantity = Math.max(newQuantity, item.minOrderQuantity)
+        item.quantity = Math.max(newQuantity, 1) // ✅ Mínimo 1 en lugar de minOrderQuantity
         this.updateItemTimestamp(item)
       }
       return items
@@ -296,3 +317,8 @@ export const womenItems = cartStore.womenItems
 export const menItemCount = cartStore.menItemCount
 export const womenItemCount = cartStore.womenItemCount
 export const isCartEmpty = cartStore.isEmpty
+
+// =================== NUEVA LÓGICA DE PAGO ===================
+export const totalUnits = cartStore.totalUnits
+export const canProceedToPayment = cartStore.canProceedToPayment
+export const missingUnitsForPayment = cartStore.missingUnitsForPayment
