@@ -2,7 +2,7 @@
 	import CartSummary from './CartSummary.svelte';
 	import CategoryTabs from './CategoryTabs.svelte';
 	import ProductGrid from './ProductGrid.svelte';
-	import type { Product } from '$lib/types/products';
+	import type { Product } from '$lib/shared/model/products';
 
 	interface Props {
 		activeTab: 'men' | 'women';
@@ -14,20 +14,25 @@
 		missingUnitsForPayment: number;
 		formatPrice: (price: number) => string;
 		onTabChange: (tab: 'men' | 'women') => void;
-		onAddToCart: (product: Product, quantity: number, size: string | null, color: string | null) => void;
+		onAddToCart: (
+			product: Product,
+			quantity: number,
+			size: string | null,
+			color: string | null
+		) => void;
 	}
 
-	let { 
-		activeTab, 
-		menProducts, 
-		womenProducts, 
+	let {
+		activeTab,
+		menProducts,
+		womenProducts,
 		totalUnits,
-		cartTotal, 
+		cartTotal,
 		canProceedToPayment,
 		missingUnitsForPayment,
 		formatPrice,
 		onTabChange,
-		onAddToCart 
+		onAddToCart
 	}: Props = $props();
 
 	const currentProducts = $derived(activeTab === 'men' ? menProducts : womenProducts);
@@ -40,29 +45,25 @@
 		<p class="text-gray-600">
 			Precios especiales para mayoristas • Cantidades mínimas por producto
 		</p>
-		
+
 		<!-- Cart Summary -->
-		<CartSummary 
-			{totalUnits} 
-			{cartTotal} 
+		<CartSummary
+			{totalUnits}
+			{cartTotal}
 			{canProceedToPayment}
 			{missingUnitsForPayment}
-			{formatPrice} 
+			{formatPrice}
 		/>
 	</div>
 
 	<!-- Category Tabs -->
-	<CategoryTabs 
-		{activeTab} 
+	<CategoryTabs
+		{activeTab}
 		menProductsCount={menProducts.length}
 		womenProductsCount={womenProducts.length}
-		{onTabChange} 
+		{onTabChange}
 	/>
 
 	<!-- Product Grid -->
-	<ProductGrid 
-		products={currentProducts} 
-		{activeTab} 
-		{onAddToCart} 
-	/>
+	<ProductGrid products={currentProducts} {activeTab} {onAddToCart} />
 </main>

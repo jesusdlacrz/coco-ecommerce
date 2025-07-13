@@ -1,5 +1,4 @@
 <script lang="ts">
-	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import CatalogPage from '$lib/cart/components/CatalogPage.svelte';
 	import CartDrawer from '$lib/cart/components/CartDrawer.svelte';
 	import {
@@ -10,9 +9,9 @@
 		canProceedToPayment,
 		missingUnitsForPayment
 	} from '$lib/cart/stores/cartStore';
-	import { formatPrice } from '$lib/utils/cartUtils';
+	import { formatPrice } from '$lib/shared/utils/cartUtils';
 	import { sampleProducts } from '$lib/data/products';
-	import type { Product } from '$lib/types/products';
+	import type { Product } from '$lib/shared/model/products';
 	import { onMount } from 'svelte';
 
 	// =================== STATE ===================
@@ -104,7 +103,4 @@
 		onRemoveItem={handleRemoveItem}
 		onClearCart={handleClearCart}
 	/>
-
-	<!-- transition cris -->
-	<TransitionLink href="/productos">JEJEJJEJE2</TransitionLink>
 </div>

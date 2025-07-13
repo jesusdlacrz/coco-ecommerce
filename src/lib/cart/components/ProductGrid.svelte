@@ -1,11 +1,16 @@
 <script lang="ts">
 	import ProductCard from './ProductCard.svelte';
-	import type { Product } from '$lib/types/products';
+	import type { Product } from '$lib/shared/model/products';
 
 	interface Props {
 		products: Product[];
 		activeTab: 'men' | 'women';
-		onAddToCart: (product: Product, quantity: number, size: string | null, color: string | null) => void;
+		onAddToCart: (
+			product: Product,
+			quantity: number,
+			size: string | null,
+			color: string | null
+		) => void;
 	}
 
 	let { products, activeTab, onAddToCart }: Props = $props();
