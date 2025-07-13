@@ -2,10 +2,9 @@
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import CatalogPage from '$lib/cart/components/CatalogPage.svelte';
 	import CartDrawer from '$lib/cart/components/CartDrawer.svelte';
-	import { 
-		cartStore, 
-		cartItems, 
-		cartItemCount, 
+	import {
+		cartStore,
+		cartItems,
 		cartTotal,
 		totalUnits,
 		canProceedToPayment,
@@ -30,9 +29,9 @@
 		const handleOpenCart = () => {
 			isCartOpen = true;
 		};
-		
+
 		window.addEventListener('openCart', handleOpenCart);
-		
+
 		return () => {
 			window.removeEventListener('openCart', handleOpenCart);
 		};
@@ -83,7 +82,7 @@
 
 <div class="bg-gray-50">
 	<!-- Main Catalog -->
-	<CatalogPage 
+	<CatalogPage
 		{activeTab}
 		{menProducts}
 		{womenProducts}
@@ -107,7 +106,5 @@
 	/>
 
 	<!-- transition cris -->
-    <TransitionLink href="/productos">JEJEJJEJE2</TransitionLink>
+	<TransitionLink href="/productos">JEJEJJEJE2</TransitionLink>
 </div>
-
-

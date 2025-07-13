@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { ShoppingCart, User } from '@lucide/svelte';
-	import type { Snippet } from 'svelte';
 
 	interface Props {
 		cartItemCount: number;

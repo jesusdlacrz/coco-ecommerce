@@ -8,6 +8,7 @@
 		children?: import('svelte').Snippet;
 	}
 	const { children }: Props = $props();
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let searchQuery = $state('');
 
 	function handleCartClick() {
@@ -20,7 +21,7 @@
 	}
 </script>
 
-<Header 
+<Header
 	cartItemCount={$cartItemCount}
 	onCartClick={handleCartClick}
 	onAccountClick={handleAccountClick}
