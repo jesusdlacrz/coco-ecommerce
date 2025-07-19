@@ -8,44 +8,53 @@
 	}
 
 	let { cartItemCount, onCartClick, onAccountClick }: Props = $props();
+	
+	const navigationButtons = [
+		{ 
+			label: 'Home', 
+			href: '/',
+			action: () => { window.location.href = '/'; }
+		},
+		{ 
+			label: 'Productos', 
+			href: '/productos',
+			action: () => { window.location.href = '/productos'; }
+		},
+		{ 
+			label: 'Catalogo', 
+			href: '/productos',
+			action: () => { window.location.href = '/productos'; }
+		}
+	]; 
 </script>
 
-<header class="border-b bg-white shadow-sm">
+<header>
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="flex h-16 items-center justify-between">
+		<div class="flex h-20 items-center justify-between text-[#484848]">
 			<div class="flex items-center space-x-4">
-				<h1 class="text-2xl font-bold text-gray-900">
-					Coco's <span class="text-blue-600">Store</span>
-				</h1>
-				<span
-					class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800"
+				<button 
+					onclick={() => window.location.href = '/'}
+					class="text-2xl cursor-pointer hover:text-gray-600 transition-colors" 
+					style="font-family: 'Volkhov', serif;"
 				>
-					Mayorista
-				</span>
-			</div>
-
-			<div class="flex items-center space-x-4">
-				<button
-					onclick={onAccountClick}
-					class="flex items-center space-x-2 px-3 py-1 text-sm text-gray-700 hover:text-gray-900"
-				>
-					<User class="h-4 w-4" />
-					<span>Mi Cuenta</span>
+					Coco's 
 				</button>
+			</div>
+			<div class="flex items-center space-x-12">
+				{#each navigationButtons as button}
+				<button 
+					onclick={button.action}
+					class="text-sm cursor-pointer hover:text-gray-600 transition-colors"
+				>
+					<span>{button.label}</span>
+				</button>
+				{/each}
 
 				<button
 					onclick={onCartClick}
-					class="relative flex items-center space-x-2 rounded border border-gray-300 px-3 py-1 hover:bg-gray-50"
+					class="relative flex items-center space-x-2 rounded-lg bg-black p-3 cursor-pointer hover:bg-gray-800 transition-colors"
 				>
-					<ShoppingCart class="h-4 w-4" />
-					<span>Carrito</span>
-					{#if cartItemCount > 0}
-						<span
-							class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white"
-						>
-							{cartItemCount}
-						</span>
-					{/if}
+					<ShoppingCart class="h-5 w-5 text-white" />
 				</button>
 			</div>
 		</div>

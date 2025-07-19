@@ -1,4 +1,4 @@
-import type { Product } from '$lib/types/products'
+import type { Product } from '$lib/shared/model/products'
 
 export const sampleProducts: Product[] = [
   // Productos para Hombres

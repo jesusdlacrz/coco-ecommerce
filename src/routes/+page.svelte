@@ -18,9 +18,9 @@
 	let isCartOpen = $state(false);
 	let activeTab = $state<'men' | 'women'>('men');
 
-	// =================== DERIVED DATA ===================
-	const menProducts = sampleProducts.filter((p) => p.gender === 'men');
-	const womenProducts = sampleProducts.filter((p) => p.gender === 'women');
+	// =================== DERIVED DATA (LAZY LOADING) ===================
+	const menProducts = $derived(sampleProducts.filter((p) => p.gender === 'men'));
+	const womenProducts = $derived(sampleProducts.filter((p) => p.gender === 'women'));
 
 	// =================== LIFECYCLE ===================
 	onMount(() => {
@@ -43,21 +43,15 @@
 		size: string | null,
 		color: string | null
 	) {
-		console.log('Adding to cart:', { product: product.name, quantity, size, color });
 		cartStore.addItem(product, quantity, size, color);
-		console.log('Cart after adding:', $cartItems);
 	}
 
 	function handleUpdateQuantity(itemId: string, quantity: number) {
-		console.log('Updating quantity:', { itemId, quantity });
 		cartStore.updateQuantity(itemId, quantity);
-		console.log('Cart after update:', $cartItems);
 	}
 
 	function handleRemoveItem(itemId: string) {
-		console.log('Removing item:', itemId);
 		cartStore.removeItem(itemId);
-		console.log('Cart after removal:', $cartItems);
 	}
 
 	function handleClearCart() {

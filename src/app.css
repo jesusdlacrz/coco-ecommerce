@@ -1,2 +1,12 @@
 @import 'tailwindcss';
-@plugin '@tailwindcss/typography';
+
+html, body {
+	font-family: 'Poppins', 'Instrument Sans', system-ui, -apple-system, sans-serif;
+	background-color: #fffcec;
+	min-height: 100vh;
+}
+
+#root, [data-sveltekit-preload-data] {
+	background-color: #fffcec;
+	min-height: 100vh;
+}

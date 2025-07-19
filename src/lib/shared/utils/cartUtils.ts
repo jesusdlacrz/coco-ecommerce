@@ -1,4 +1,4 @@
-import type { Product } from '$lib/types/products'
+import type { Product } from '$lib/shared/model/products'
 
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat('es-CO', {

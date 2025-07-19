@@ -26,7 +26,7 @@
 	onCartClick={handleCartClick}
 	onAccountClick={handleAccountClick}
 />
-<main class="min-h-screen">
+<main class="min-h-screen bg-cream">
 	{@render children?.()}
 </main>
 <Footer />
