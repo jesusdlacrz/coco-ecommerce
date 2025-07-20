@@ -37,7 +37,6 @@
 		"vite-plugin-devtools-json": "^0.2.0"
 	},
 	"dependencies": {
-		"@lucide/svelte": "^0.525.0",
 		"@midudev/tailwind-animations": "^0.2.0"
 	}
 }
