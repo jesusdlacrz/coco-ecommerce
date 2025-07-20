@@ -6,7 +6,6 @@
 	import Plus from '$lib/shared/icons/Plus.svelte';
 	import Minus from '$lib/shared/icons/Minus.svelte';
 	import Trash from '$lib/shared/icons/Trash.svelte';
-	import { CartService } from '../services/cartService';
 
 	interface Props {
 		isOpen: boolean;
@@ -39,7 +38,6 @@
 </script>
 
 {#if isOpen}
-	
 	<!-- Overlay -->
 	<button class="fixed inset-0 z-40 bg-black/50" onclick={onClose} aria-label="Cerrar carrito"
 	></button>
