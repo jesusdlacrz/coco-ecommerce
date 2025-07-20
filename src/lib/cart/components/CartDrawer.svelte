@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { formatPrice } from '$lib/shared/utils/cartUtils';
 	import type { CartItem } from '$lib/shared/model/products';
+
 	import X from '$lib/shared/icons/X.svelte';
 	import Plus from '$lib/shared/icons/Plus.svelte';
 	import Minus from '$lib/shared/icons/Minus.svelte';
 	import Trash from '$lib/shared/icons/Trash.svelte';
+	import { CartService } from '../services/cartService';
 
 	interface Props {
 		isOpen: boolean;
@@ -37,6 +39,7 @@
 </script>
 
 {#if isOpen}
+	
 	<!-- Overlay -->
 	<button class="fixed inset-0 z-40 bg-black/50" onclick={onClose} aria-label="Cerrar carrito"
 	></button>
@@ -107,14 +110,16 @@
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
 														disabled={item.quantity <= 1}
-														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
+														class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50 disabled:opacity-50"
 													>
 														<Minus size={12} />
 													</button>
-													<span class="px-3 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
+													<span class="min-w-[2rem] px-3 text-center text-sm font-medium"
+														>{item.quantity}</span
+													>
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 flex items-center justify-center"
+														class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50"
 													>
 														<Plus size={12} />
 													</button>
@@ -179,14 +184,16 @@
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
 														disabled={item.quantity <= 1}
-														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
+														class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50 disabled:opacity-50"
 													>
 														<Minus size={12} />
 													</button>
-													<span class="px-3 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
+													<span class="min-w-[2rem] px-3 text-center text-sm font-medium"
+														>{item.quantity}</span
+													>
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 flex items-center justify-center"
+														class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50"
 													>
 														<Plus size={12} />
 													</button>
@@ -251,14 +258,16 @@
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
 														disabled={item.quantity <= 1}
-														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
+														class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50 disabled:opacity-50"
 													>
 														<Minus size={12} />
 													</button>
-													<span class="px-3 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
+													<span class="min-w-[2rem] px-3 text-center text-sm font-medium"
+														>{item.quantity}</span
+													>
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 flex items-center justify-center"
+														class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50"
 													>
 														<Plus size={12} />
 													</button>
@@ -323,14 +332,16 @@
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
 														disabled={item.quantity <= 1}
-														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
+														class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50 disabled:opacity-50"
 													>
 														<Minus size={12} />
 													</button>
-													<span class="px-3 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
+													<span class="min-w-[2rem] px-3 text-center text-sm font-medium"
+														>{item.quantity}</span
+													>
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 flex items-center justify-center"
+														class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50"
 													>
 														<Plus size={12} />
 													</button>
