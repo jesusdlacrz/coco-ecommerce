@@ -40,20 +40,12 @@
 
 <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 	<!-- Page Header -->
-	<div class="mb-8">
-		<h2 class="mb-2 text-3xl font-bold text-gray-900">Catálogo Mayorista</h2>
-		<p class="text-gray-600">
-			Precios especiales para mayoristas • Cantidades mínimas por producto
+	<div class="mb-8 text-center text-[#484848]">
+		<h2 class="mb-4 text-3xl " style="font-family: 'Volkhov', serif;   font-weight: 400;
+  font-style: normal;">Catálogo</h2>
+		<p class="text-sm text-[#8A8A8A]">
+			Precios especiales para mayoristas, minimo 4 unidades para completar compra.
 		</p>
-
-		<!-- Cart Summary -->
-		<CartSummary
-			{totalUnits}
-			{cartTotal}
-			{canProceedToPayment}
-			{missingUnitsForPayment}
-			{formatPrice}
-		/>
 	</div>
 
 	<!-- Category Tabs -->

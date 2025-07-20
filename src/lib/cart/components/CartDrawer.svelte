@@ -1,7 +1,10 @@
 <script lang="ts">
-	import { Minus, Plus, Trash2, X } from '@lucide/svelte';
 	import { formatPrice } from '$lib/shared/utils/cartUtils';
 	import type { CartItem } from '$lib/shared/model/products';
+	import X from '$lib/shared/icons/X.svelte';
+	import Plus from '$lib/shared/icons/Plus.svelte';
+	import Minus from '$lib/shared/icons/Minus.svelte';
+	import Trash from '$lib/shared/icons/Trash.svelte';
 
 	interface Props {
 		isOpen: boolean;
@@ -43,7 +46,7 @@
 				<p class="text-sm text-gray-600">{totalItems} productos • {formatPrice(total)}</p>
 			</div>
 			<button onclick={onClose} class="rounded p-2 hover:bg-gray-100">
-				<X class="h-5 w-5" />
+				<X size={20} />
 			</button>
 		</div>
 
@@ -102,14 +105,14 @@
 														disabled={item.quantity <= item.minOrderQuantity}
 														class="h-6 w-6 rounded border p-0 hover:bg-gray-50 disabled:opacity-50"
 													>
-														<Minus class="mx-auto h-3 w-3" />
+														<Minus size={12} />
 													</button>
 													<span class="px-2 text-sm">{item.quantity}</span>
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
 														class="h-6 w-6 rounded border p-0 hover:bg-gray-50"
 													>
-														<Plus class="mx-auto h-3 w-3" />
+														<Plus size={12} />
 													</button>
 												</div>
 
@@ -117,7 +120,7 @@
 													onclick={() => onRemoveItem(item.id)}
 													class="h-6 w-6 p-0 text-red-500 hover:text-red-700"
 												>
-													<Trash2 class="mx-auto h-3 w-3" />
+													<Trash size={12} />
 												</button>
 											</div>
 										</div>
@@ -174,14 +177,14 @@
 														disabled={item.quantity <= item.minOrderQuantity}
 														class="h-6 w-6 rounded border p-0 hover:bg-gray-50 disabled:opacity-50"
 													>
-														<Minus class="mx-auto h-3 w-3" />
+														<Minus size={12} />
 													</button>
 													<span class="px-2 text-sm">{item.quantity}</span>
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
 														class="h-6 w-6 rounded border p-0 hover:bg-gray-50"
 													>
-														<Plus class="mx-auto h-3 w-3" />
+														<Plus size={12} />
 													</button>
 												</div>
 
@@ -189,7 +192,7 @@
 													onclick={() => onRemoveItem(item.id)}
 													class="h-6 w-6 p-0 text-red-500 hover:text-red-700"
 												>
-													<Trash2 class="mx-auto h-3 w-3" />
+													<Trash size={12} />
 												</button>
 											</div>
 										</div>

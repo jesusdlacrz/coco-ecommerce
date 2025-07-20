@@ -1,7 +1,9 @@
 <script lang="ts">
-	import { ShoppingCart, Plus, Minus } from '@lucide/svelte';
 	import { formatPrice } from '$lib/shared/utils/cartUtils';
 	import type { Product } from '$lib/shared/model/products';
+	import Plus from '$lib/shared/icons/Plus.svelte';
+	import Minus from '$lib/shared/icons/Minus.svelte';
+	import ShoppingCart from '$lib/shared/icons/ShoppingCart.svelte';
 
 	interface Props {
 		product: Product;
@@ -71,6 +73,8 @@
 				src={product.images[0] || '/placeholder.svg'}
 				alt={product.name}
 				class="h-full w-full rounded-md object-cover"
+				loading="lazy"
+				decoding="async"
 			/>
 		</div>
 
@@ -107,8 +111,8 @@
 		<!-- Selección de talla -->
 		{#if product.sizes.length > 0}
 			<div>
-				<label class="mb-1 block text-sm font-medium text-gray-700">Talla:</label>
-				<select bind:value={selectedSize} class="w-full rounded-md border border-gray-300 p-2">
+				<label for="size-{product.id}" class="mb-1 block text-sm font-medium text-gray-700">Talla:</label>
+				<select id="size-{product.id}" bind:value={selectedSize} class="w-full rounded-md border border-gray-300 p-2">
 					<option value="">Seleccionar talla</option>
 					{#each product.sizes as size (size)}
 						<option value={size}>{size}</option>
@@ -120,8 +124,8 @@
 		<!-- Selección de color -->
 		{#if product.colors.length > 0}
 			<div>
-				<label class="mb-1 block text-sm font-medium text-gray-700">Color:</label>
-				<select bind:value={selectedColor} class="w-full rounded-md border border-gray-300 p-2">
+				<label for="color-{product.id}" class="mb-1 block text-sm font-medium text-gray-700">Color:</label>
+				<select id="color-{product.id}" bind:value={selectedColor} class="w-full rounded-md border border-gray-300 p-2">
 					<option value="">Seleccionar color</option>
 					{#each product.colors as color (color)}
 						<option value={color}>{color}</option>
@@ -132,21 +136,29 @@
 
 		<!-- Cantidad -->
 		<div>
-			<label class="mb-1 block text-sm font-medium text-gray-700">Cantidad:</label>
+			<label for="quantity-{product.id}" class="mb-1 block text-sm font-medium text-gray-700">Cantidad:</label>
 			<div class="flex items-center space-x-2">
 				<button
 					onclick={decrementQuantity}
 					disabled={quantity <= 1}
 					class="rounded border border-gray-300 p-1 hover:bg-gray-50 disabled:opacity-50"
+					aria-label="Disminuir cantidad"
 				>
-					<Minus class="h-4 w-4" />
+					<Minus size={16} />
 				</button>
-				<span class="min-w-[60px] rounded border px-3 py-1 text-center">{quantity}</span>
+				<input 
+					id="quantity-{product.id}"
+					type="number" 
+					bind:value={quantity} 
+					min="1"
+					class="min-w-[60px] rounded border px-3 py-1 text-center"
+				/>
 				<button
 					onclick={incrementQuantity}
 					class="rounded border border-gray-300 p-1 hover:bg-gray-50"
+					aria-label="Aumentar cantidad"
 				>
-					<Plus class="h-4 w-4" />
+					<Plus size={16} />
 				</button>
 			</div>
 		</div>
@@ -155,7 +167,7 @@
 			onclick={handleAddToCart}
 			class="flex w-full items-center justify-center space-x-2 rounded-md px-4 py-2 text-white {colors.primary}"
 		>
-			<ShoppingCart class="h-4 w-4" />
+			<ShoppingCart size={16} />
 			<span>Agregar al Carrito</span>
 		</button>
 	</div>

@@ -8,8 +8,6 @@
 		children?: import('svelte').Snippet;
 	}
 	const { children }: Props = $props();
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let searchQuery = $state('');
 
 	function handleCartClick() {
 		// Dispatch custom event for cart opening
@@ -26,7 +24,9 @@
 	onCartClick={handleCartClick}
 	onAccountClick={handleAccountClick}
 />
-<main class="min-h-screen bg-cream">
+
+<main class="min-h-screen">
 	{@render children?.()}
 </main>
+
 <Footer />

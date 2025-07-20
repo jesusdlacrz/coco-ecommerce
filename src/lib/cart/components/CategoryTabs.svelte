@@ -10,26 +10,24 @@
 </script>
 
 <div class="mb-8">
-	<div class="flex space-x-1 rounded-lg bg-gray-100 p-1">
+	<div class="flex space-x-1 p-1 bg-gray-100 rounded-full">
 		<button
 			onclick={() => onTabChange('men')}
-			class="flex flex-1 items-center justify-center space-x-2 rounded-md px-4 py-2 transition-colors {activeTab ===
-			'men'
-				? 'bg-blue-600 text-white'
-				: 'text-gray-700 hover:text-gray-900'}"
+			class="flex flex-1 items-center justify-center font-light space-x-2 text-sm rounded-full px-6 py-3 transition-all duration-200 {activeTab === 'men'
+				? 'bg-black text-white shadow-md'
+				: 'text-gray-700 hover:text-gray-900 hover:bg-white'}"
 		>
-			<div class="h-3 w-3 rounded-full bg-blue-600"></div>
-			<span>Hombres ({menProductsCount})</span>
+			<span>Hombres</span>
+			<span class="text-xs opacity-75">({menProductsCount})</span>
 		</button>
 		<button
 			onclick={() => onTabChange('women')}
-			class="flex flex-1 items-center justify-center space-x-2 rounded-md px-4 py-2 transition-colors {activeTab ===
-			'women'
-				? 'bg-pink-600 text-white'
-				: 'text-gray-700 hover:text-gray-900'}"
+			class="flex flex-1 items-center justify-center font-light space-x-2 text-sm rounded-full px-6 py-3 transition-all duration-200 {activeTab === 'women'
+				? 'bg-black text-white shadow-md'
+				: 'text-gray-700 hover:text-gray-900 hover:bg-white'}"
 		>
-			<div class="h-3 w-3 rounded-full bg-pink-600"></div>
-			<span>Mujeres ({womenProductsCount})</span>
+			<span>Mujeres</span>
+			<span class="text-xs opacity-75">({womenProductsCount})</span>
 		</button>
 	</div>
 </div>

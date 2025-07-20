@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { ShoppingCart, User } from '@lucide/svelte';
+	import ShoppingCart from '$lib/shared/icons/ShoppingCart.svelte';
+	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 
 	interface Props {
 		cartItemCount: number;
@@ -8,54 +9,60 @@
 	}
 
 	let { cartItemCount, onCartClick, onAccountClick }: Props = $props();
-	
+
 	const navigationButtons = [
-		{ 
-			label: 'Home', 
-			href: '/',
-			action: () => { window.location.href = '/'; }
+		{
+			label: 'Home',
+			href: '/'
 		},
-		{ 
-			label: 'Productos', 
-			href: '/productos',
-			action: () => { window.location.href = '/productos'; }
+		{
+			label: 'Productos',
+			href: '/productos'
 		},
-		{ 
-			label: 'Catalogo', 
-			href: '/productos',
-			action: () => { window.location.href = '/productos'; }
+		{
+			label: 'Catalogo',
+			href: '/productos'
 		}
-	]; 
+	];
 </script>
 
 <header>
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex h-20 items-center justify-between text-[#484848]">
 			<div class="flex items-center space-x-4">
-				<button 
-					onclick={() => window.location.href = '/'}
-					class="text-2xl cursor-pointer hover:text-gray-600 transition-colors" 
+				<TransitionLink
+					href="/"
+					class="cursor-pointer text-2xl transition-colors hover:text-gray-600"
 					style="font-family: 'Volkhov', serif;"
 				>
-					Coco's 
-				</button>
+					Coco's
+				</TransitionLink>
 			</div>
 			<div class="flex items-center space-x-12">
 				{#each navigationButtons as button}
-				<button 
-					onclick={button.action}
-					class="text-sm cursor-pointer hover:text-gray-600 transition-colors"
-				>
-					<span>{button.label}</span>
-				</button>
+					<TransitionLink
+						href={button.href}
+						class="cursor-pointer text-sm transition-colors hover:text-gray-600"
+					>
+						{button.label}
+					</TransitionLink>
 				{/each}
 
-				<button
-					onclick={onCartClick}
-					class="relative flex items-center space-x-2 rounded-lg bg-black p-3 cursor-pointer hover:bg-gray-800 transition-colors"
-				>
-					<ShoppingCart class="h-5 w-5 text-white" />
-				</button>
+				<div class="relative">
+					<button
+						onclick={onCartClick}
+						class="flex cursor-pointer items-center space-x-2 rounded-lg bg-black p-2.5 transition-colors hover:bg-gray-800"
+					>
+						<ShoppingCart size={20} class="text-white"/>
+					</button>
+					{#if cartItemCount > 0}
+						<span
+							class="absolute -top-2 -right-2 flex h-5 w-5 animate-pulse items-center justify-center rounded-full bg-red-500 text-xs text-white"
+						>
+							{cartItemCount}
+						</span>
+					{/if}
+				</div>
 			</div>
 		</div>
 	</div>

@@ -1,292 +1,153 @@
-import { writable, derived, type Writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
-import { CartStorage } from '../services/CartStorage';
 import type { Product, CartItem } from '$lib/shared/model/products';
 
-// =================== STORAGE UTILITIES ===================
+// =================== SIMPLE CART STORE ===================
+function createCartStore() {
+	// Estado inicial seguro
+	const initialItems: CartItem[] = [];
+	
+	// Store principal
+	const { subscribe, set, update } = writable<CartItem[]>(initialItems);
 
-// =================== CART STORE CLASS ===================
-class CartStore {
-	private items: Writable<CartItem[]>;
+	// Auto-cargar desde localStorage cuando esté disponible (solo una vez)
+	let isInitialized = false;
+	if (browser && !isInitialized) {
+		try {
+			const stored = localStorage.getItem('cart');
+			if (stored) {
+				const parsed = JSON.parse(stored);
+				if (Array.isArray(parsed)) {
+					set(parsed);
+				}
+			}
+			isInitialized = true;
+		} catch (error) {
+			console.warn('Error loading cart from localStorage:', error);
+			set(initialItems);
+		}
+	}
 
-	constructor() {
-		this.items = writable(CartStorage.load());
-
-		// Auto-save cuando el store cambie
+	// Función optimizada para guardar (con debounce implícito)
+	const saveToStorage = (items: CartItem[]) => {
 		if (browser) {
-			this.items.subscribe((items) => {
-				CartStorage.save(items);
-			});
+			try {
+				localStorage.setItem('cart', JSON.stringify(items));
+			} catch (error) {
+				console.warn('Error saving to localStorage:', error);
+			}
 		}
-	}
+	};
 
-	// =================== GETTERS (STORES DERIVADOS) ===================
-	get store() {
-		return this.items;
-	}
+	return {
+		subscribe,
+		
+		// Agregar item al carrito
+		addItem: (product: Product, quantity: number, size: string | null, color: string | null) => {
+			update(items => {
+				const existingIndex = items.findIndex(item => 
+					item.productId === product.id && 
+					item.size === size && 
+					item.color === color
+				);
 
-	get totalItems() {
-		return derived(this.items, ($items) =>
-			$items.reduce((total, item) => total + item.quantity, 0)
-		);
-	}
-
-	get totalPrice() {
-		return derived(this.items, ($items) =>
-			$items.reduce((total, item) => total + item.price * item.quantity, 0)
-		);
-	}
-
-	get menItems() {
-		return derived(this.items, ($items) => $items.filter((item) => item.gender === 'men'));
-	}
-
-	get womenItems() {
-		return derived(this.items, ($items) => $items.filter((item) => item.gender === 'women'));
-	}
-
-	get menItemCount() {
-		return derived(this.menItems, ($menItems) =>
-			$menItems.reduce((total, item) => total + item.quantity, 0)
-		);
-	}
-
-	get womenItemCount() {
-		return derived(this.womenItems, ($womenItems) =>
-			$womenItems.reduce((total, item) => total + item.quantity, 0)
-		);
-	}
-
-	get isEmpty() {
-		return derived(this.items, ($items) => $items.length === 0);
-	}
-
-	get totalUnits() {
-		return derived(this.items, ($items) =>
-			$items.reduce((total, item) => total + item.quantity, 0)
-		);
-	}
-
-	get canProceedToPayment() {
-		return derived(this.items, ($items) => {
-			const totalUnits = $items.reduce((total, item) => total + item.quantity, 0);
-			return totalUnits >= 4;
-		});
-	}
-
-	get missingUnitsForPayment() {
-		return derived(this.items, ($items) => {
-			const totalUnits = $items.reduce((total, item) => total + item.quantity, 0);
-			return Math.max(0, 4 - totalUnits);
-		});
-	}
-
-	// =================== PRIVATE HELPERS ===================
-	private generateItemId(product: Product, size: string | null, color: string | null): string {
-		return `${product.id}-${size || 'no-size'}-${color || 'no-color'}`;
-	}
-
-	private createCartItem(
-		product: Product,
-		quantity: number,
-		size: string | null,
-		color: string | null
-	): CartItem {
-		return {
-			id: this.generateItemId(product, size, color),
-			productId: product.id,
-			name: product.name,
-			price: product.wholesalePrice || product.price,
-			image: product.images[0] || '/placeholder.svg',
-			category: product.category,
-			gender: product.gender,
-			size,
-			color,
-			quantity: Math.max(quantity, 1),
-			sku: product.sku,
-			minOrderQuantity: 1,
-			addedAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString()
-		};
-	}
-
-	private updateItemTimestamp(item: CartItem): void {
-		item.updatedAt = new Date().toISOString();
-	}
-
-	// =================== PUBLIC METHODS ===================
-	addItem(
-		product: Product,
-		quantity: number = 1,
-		size: string | null = null,
-		color: string | null = null
-	): void {
-		this.items.update((items) => {
-			const itemId = this.generateItemId(product, size, color);
-			const existingIndex = items.findIndex((item) => item.id === itemId);
-
-			if (existingIndex >= 0) {
-				// Actualizar item existente
-				items[existingIndex].quantity += quantity;
-				this.updateItemTimestamp(items[existingIndex]);
-			} else {
-				// Agregar nuevo item
-				const newItem = this.createCartItem(product, quantity, size, color);
-				items.push(newItem);
-			}
-
-			return items;
-		});
-	}
-
-	removeItem(itemId: string): void {
-		this.items.update((items) => items.filter((item) => item.id !== itemId));
-	}
-
-	updateQuantity(itemId: string, newQuantity: number): void {
-		if (newQuantity <= 0) {
-			this.removeItem(itemId);
-			return;
-		}
-
-		this.items.update((items) => {
-			const item = items.find((item) => item.id === itemId);
-			if (item) {
-				item.quantity = Math.max(newQuantity, 1);
-				this.updateItemTimestamp(item);
-			}
-			return items;
-		});
-	}
-
-	incrementQuantity(itemId: string): void {
-		this.items.update((items) => {
-			const item = items.find((item) => item.id === itemId);
-			if (item) {
-				item.quantity += 1;
-				this.updateItemTimestamp(item);
-			}
-			return items;
-		});
-	}
-
-	decrementQuantity(itemId: string): void {
-		this.items.update((items) => {
-			const item = items.find((item) => item.id === itemId);
-			if (item && item.quantity > item.minOrderQuantity) {
-				item.quantity -= 1;
-				this.updateItemTimestamp(item);
-			}
-			return items;
-		});
-	}
-
-	clearCart(): void {
-		this.items.set([]);
-	}
-
-	clearByGender(gender: 'men' | 'women'): void {
-		this.items.update((items) => items.filter((item) => item.gender !== gender));
-	}
-
-	// =================== UTILITY METHODS ===================
-	getItemById(itemId: string): CartItem | undefined {
-		let foundItem: CartItem | undefined;
-		this.items.subscribe((items) => {
-			foundItem = items.find((item) => item.id === itemId);
-		})();
-		return foundItem;
-	}
-
-	getItemsByCategory(category: string): CartItem[] {
-		let categoryItems: CartItem[] = [];
-		this.items.subscribe((items) => {
-			categoryItems = items.filter((item) => item.category === category);
-		})();
-		return categoryItems;
-	}
-
-	exportAsJSON(): string {
-		let currentItems: CartItem[] = [];
-		this.items.subscribe((items) => {
-			currentItems = items;
-		})();
-		return JSON.stringify(currentItems, null, 2);
-	}
-
-	exportAsCSV(): string {
-		let currentItems: CartItem[] = [];
-		this.items.subscribe((items) => {
-			currentItems = items;
-		})();
-
-		const headers = ['SKU', 'Producto', 'Cantidad', 'Categoría', 'Precio', 'Género'];
-		const rows = currentItems.map((item) => [
-			item.sku,
-			item.name,
-			item.quantity.toString(),
-			item.category,
-			item.price.toString(),
-			item.gender
-		]);
-
-		return [headers, ...rows].map((row) => row.join(',')).join('\n');
-	}
-
-	// =================== BULK OPERATIONS ===================
-	bulkAddItems(
-		products: { product: Product; quantity: number; size?: string; color?: string }[]
-	): void {
-		this.items.update((items) => {
-			products.forEach(({ product, quantity, size = null, color = null }) => {
-				const itemId = this.generateItemId(product, size, color);
-				const existingIndex = items.findIndex((item) => item.id === itemId);
-
-				if (existingIndex >= 0) {
+				if (existingIndex !== -1) {
 					items[existingIndex].quantity += quantity;
-					this.updateItemTimestamp(items[existingIndex]);
 				} else {
-					const newItem = this.createCartItem(product, quantity, size, color);
+					const now = new Date().toISOString();
+					const newItem: CartItem = {
+						id: `${product.id}-${Date.now()}`,
+						productId: product.id,
+						name: product.name,
+						price: product.price,
+						image: product.images[0] || '',
+						category: product.category,
+						quantity,
+						size,
+						color,
+						gender: product.gender,
+						sku: product.sku,
+						minOrderQuantity: product.minOrderQuantity,
+						addedAt: now,
+						updatedAt: now
+					};
 					items.push(newItem);
 				}
-			});
-			return items;
-		});
-	}
 
-	bulkUpdateQuantities(updates: { itemId: string; quantity: number }[]): void {
-		this.items.update((items) => {
-			updates.forEach(({ itemId, quantity }) => {
-				const item = items.find((item) => item.id === itemId);
-				if (item) {
+				// Auto-save optimizado
+				saveToStorage(items);
+
+				return items;
+			});
+		},
+
+		// Actualizar cantidad
+		updateQuantity: (itemId: string, quantity: number) => {
+			update(items => {
+				const index = items.findIndex(item => item.id === itemId);
+				if (index !== -1) {
 					if (quantity <= 0) {
-						const index = items.indexOf(item);
 						items.splice(index, 1);
 					} else {
-						item.quantity = Math.max(quantity, item.minOrderQuantity);
-						this.updateItemTimestamp(item);
+						items[index].quantity = quantity;
 					}
 				}
+
+				// Auto-save optimizado
+				saveToStorage(items);
+
+				return items;
 			});
-			return items;
-		});
-	}
+		},
+
+		// Remover item
+		removeItem: (itemId: string) => {
+			update(items => {
+				const filtered = items.filter(item => item.id !== itemId);
+				
+				// Auto-save optimizado
+				saveToStorage(filtered);
+				
+				return filtered;
+			});
+		},
+
+		// Limpiar carrito
+		clearCart: () => {
+			set([]);
+			if (browser) {
+				try {
+					localStorage.removeItem('cart');
+				} catch (error) {
+					console.warn('Error clearing localStorage:', error);
+				}
+			}
+		}
+	};
 }
 
-// =================== SINGLETON EXPORT ===================
-export const cartStore = new CartStore();
+// =================== STORE INSTANCE ===================
+export const cartStore = createCartStore();
 
-// =================== CONVENIENCE EXPORTS ===================
-export const cartItems = cartStore.store;
-export const cartItemCount = cartStore.totalItems;
-export const cartTotal = cartStore.totalPrice;
-export const menItems = cartStore.menItems;
-export const womenItems = cartStore.womenItems;
-export const menItemCount = cartStore.menItemCount;
-export const womenItemCount = cartStore.womenItemCount;
-export const isCartEmpty = cartStore.isEmpty;
+// =================== DERIVED STORES ===================
+export const cartItems = cartStore;
 
-// =================== NUEVA LÓGICA DE PAGO ===================
-export const totalUnits = cartStore.totalUnits;
-export const canProceedToPayment = cartStore.canProceedToPayment;
-export const missingUnitsForPayment = cartStore.missingUnitsForPayment;
+export const cartTotal = derived(cartItems, ($items) => 
+	$items.reduce((total, item) => total + (item.price * item.quantity), 0)
+);
+
+export const cartItemCount = derived(cartItems, ($items) => 
+	$items.reduce((total, item) => total + item.quantity, 0)
+);
+
+export const totalUnits = derived(cartItems, ($items) => 
+	$items.reduce((total, item) => total + item.quantity, 0)
+);
+
+export const canProceedToPayment = derived(totalUnits, ($totalUnits) => 
+	$totalUnits >= 4
+);
+
+export const missingUnitsForPayment = derived(totalUnits, ($totalUnits) => 
+	Math.max(0, 4 - $totalUnits)
+);

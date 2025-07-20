@@ -18,9 +18,9 @@
 	let isCartOpen = $state(false);
 	let activeTab = $state<'men' | 'women'>('men');
 
-	// =================== DERIVED DATA (LAZY LOADING) ===================
-	const menProducts = $derived(sampleProducts.filter((p) => p.gender === 'men'));
-	const womenProducts = $derived(sampleProducts.filter((p) => p.gender === 'women'));
+	// =================== DERIVED DATA ===================
+	const menProducts = sampleProducts.filter((p) => p.gender === 'men');
+	const womenProducts = sampleProducts.filter((p) => p.gender === 'women');
 
 	// =================== LIFECYCLE ===================
 	onMount(() => {
@@ -28,9 +28,7 @@
 		const handleOpenCart = () => {
 			isCartOpen = true;
 		};
-
 		window.addEventListener('openCart', handleOpenCart);
-
 		return () => {
 			window.removeEventListener('openCart', handleOpenCart);
 		};
@@ -43,15 +41,21 @@
 		size: string | null,
 		color: string | null
 	) {
+		console.log('Adding to cart:', { product: product.name, quantity, size, color });
 		cartStore.addItem(product, quantity, size, color);
+		console.log('Cart after adding:', $cartItems);
 	}
 
 	function handleUpdateQuantity(itemId: string, quantity: number) {
+		console.log('Updating quantity:', { itemId, quantity });
 		cartStore.updateQuantity(itemId, quantity);
+		console.log('Cart after update:', $cartItems);
 	}
 
 	function handleRemoveItem(itemId: string) {
+		console.log('Removing item:', itemId);
 		cartStore.removeItem(itemId);
+		console.log('Cart after removal:', $cartItems);
 	}
 
 	function handleClearCart() {
@@ -70,10 +74,10 @@
 </script>
 
 <svelte:head>
-	<title>Coco's - E-commerce Mayorista</title>
+	<title>Coco's</title>
 </svelte:head>
 
-<div class="bg-gray-50">
+<div class="">
 	<!-- Main Catalog -->
 	<CatalogPage
 		{activeTab}
