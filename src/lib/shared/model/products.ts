@@ -5,7 +5,7 @@ export interface Product {
   wholesalePrice?: number
   images: string[]
   category: string
-  gender: 'men' | 'women'
+  gender: 'men' | 'women' | 'boys' | 'girls'
   sizes: string[]
   colors: string[]
   sku: string
@@ -23,7 +23,7 @@ export interface CartItem {
   originalPrice?: number
   image: string
   category: string
-  gender: 'men' | 'women'
+  gender: 'men' | 'women' | 'boys' | 'girls'
   size: string | null
   color: string | null
   quantity: number
@@ -43,6 +43,8 @@ export interface CartSummary {
   byGender: {
     men: { items: number; quantity: number; total: number }
     women: { items: number; quantity: number; total: number }
+    boys: { items: number; quantity: number; total: number }
+    girls: { items: number; quantity: number; total: number }
   }
   byCategory: Record<string, { items: number; quantity: number; total: number }>
 }

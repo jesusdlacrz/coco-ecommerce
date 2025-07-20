@@ -16,11 +16,13 @@
 
 	// =================== STATE ===================
 	let isCartOpen = $state(false);
-	let activeTab = $state<'men' | 'women'>('men');
+	let activeTab = $state<'men' | 'women' | 'boys' | 'girls'>('men');
 
 	// =================== DERIVED DATA ===================
 	const menProducts = sampleProducts.filter((p) => p.gender === 'men');
 	const womenProducts = sampleProducts.filter((p) => p.gender === 'women');
+	const boysProducts = sampleProducts.filter((p) => p.gender === 'boys');
+	const girlsProducts = sampleProducts.filter((p) => p.gender === 'girls');
 
 	// =================== LIFECYCLE ===================
 	onMount(() => {
@@ -67,7 +69,7 @@
 		isCartOpen = false;
 	}
 
-	function handleTabChange(tab: 'men' | 'women') {
+	function handleTabChange(tab: 'men' | 'women' | 'boys' | 'girls') {
 		console.log(`Switching to ${tab} tab`);
 		activeTab = tab;
 	}
@@ -83,6 +85,8 @@
 		{activeTab}
 		{menProducts}
 		{womenProducts}
+		{boysProducts}
+		{girlsProducts}
 		totalUnits={$totalUnits}
 		cartTotal={$cartTotal}
 		canProceedToPayment={$canProceedToPayment}

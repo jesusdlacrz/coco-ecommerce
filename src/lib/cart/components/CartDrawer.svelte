@@ -23,10 +23,14 @@
 	const totalItems = $derived([...cartItems].reduce((sum, item) => sum + item.quantity, 0));
 	const menItems = $derived([...cartItems].filter((item) => item.gender === 'men'));
 	const womenItems = $derived([...cartItems].filter((item) => item.gender === 'women'));
+	const boysItems = $derived([...cartItems].filter((item) => item.gender === 'boys'));
+	const girlsItems = $derived([...cartItems].filter((item) => item.gender === 'girls'));
 
 	// Valores derivados adicionales para mejorar la reactividad
 	const menItemsCount = $derived(menItems.reduce((sum, item) => sum + item.quantity, 0));
 	const womenItemsCount = $derived(womenItems.reduce((sum, item) => sum + item.quantity, 0));
+	const boysItemsCount = $derived(boysItems.reduce((sum, item) => sum + item.quantity, 0));
+	const girlsItemsCount = $derived(girlsItems.reduce((sum, item) => sum + item.quantity, 0));
 
 	const canCheckout = $derived(totalItems >= 4);
 	const missingUnits = $derived(Math.max(0, 4 - totalItems));
@@ -99,18 +103,18 @@
 											</p>
 
 											<div class="mt-2 flex items-center justify-between">
-												<div class="flex items-center space-x-1">
+												<div class="flex items-center space-x-2">
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-														disabled={item.quantity <= item.minOrderQuantity}
-														class="h-6 w-6 rounded border p-0 hover:bg-gray-50 disabled:opacity-50"
+														disabled={item.quantity <= 1}
+														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
 													>
 														<Minus size={12} />
 													</button>
-													<span class="px-2 text-sm">{item.quantity}</span>
+													<span class="px-3 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-														class="h-6 w-6 rounded border p-0 hover:bg-gray-50"
+														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 flex items-center justify-center"
 													>
 														<Plus size={12} />
 													</button>
@@ -171,18 +175,162 @@
 											</p>
 
 											<div class="mt-2 flex items-center justify-between">
-												<div class="flex items-center space-x-1">
+												<div class="flex items-center space-x-2">
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-														disabled={item.quantity <= item.minOrderQuantity}
-														class="h-6 w-6 rounded border p-0 hover:bg-gray-50 disabled:opacity-50"
+														disabled={item.quantity <= 1}
+														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
 													>
 														<Minus size={12} />
 													</button>
-													<span class="px-2 text-sm">{item.quantity}</span>
+													<span class="px-3 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
 													<button
 														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-														class="h-6 w-6 rounded border p-0 hover:bg-gray-50"
+														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 flex items-center justify-center"
+													>
+														<Plus size={12} />
+													</button>
+												</div>
+
+												<button
+													onclick={() => onRemoveItem(item.id)}
+													class="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+												>
+													<Trash size={12} />
+												</button>
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
+					<!-- Sección Niños -->
+					{#if boysItems.length > 0}
+						<div>
+							<h3 class="mb-3 flex items-center font-medium text-green-900">
+								<div class="mr-2 h-3 w-3 rounded-full bg-green-600"></div>
+								Niños ({boysItemsCount})
+							</h3>
+							<div class="space-y-3">
+								{#each boysItems as item (item.id + '-' + item.quantity)}
+									<div class="flex space-x-3 rounded-lg border p-3">
+										<div class="h-16 w-16 flex-shrink-0">
+											<img
+												src={item.image || '/placeholder.svg'}
+												alt={item.name}
+												class="h-full w-full rounded object-cover"
+											/>
+										</div>
+
+										<div class="min-w-0 flex-1">
+											<h4 class="truncate text-sm font-medium">{item.name}</h4>
+											<div class="mt-1 flex flex-wrap gap-1">
+												{#if item.size}
+													<span
+														class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-800"
+													>
+														{item.size}
+													</span>
+												{/if}
+												{#if item.color}
+													<span
+														class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-800"
+													>
+														{item.color}
+													</span>
+												{/if}
+											</div>
+											<p class="mt-1 text-sm font-medium text-gray-900">
+												{formatPrice(item.price)}
+											</p>
+
+											<div class="mt-2 flex items-center justify-between">
+												<div class="flex items-center space-x-2">
+													<button
+														onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+														disabled={item.quantity <= 1}
+														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
+													>
+														<Minus size={12} />
+													</button>
+													<span class="px-3 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
+													<button
+														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 flex items-center justify-center"
+													>
+														<Plus size={12} />
+													</button>
+												</div>
+
+												<button
+													onclick={() => onRemoveItem(item.id)}
+													class="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+												>
+													<Trash size={12} />
+												</button>
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
+					<!-- Sección Niñas -->
+					{#if girlsItems.length > 0}
+						<div>
+							<h3 class="mb-3 flex items-center font-medium text-purple-900">
+								<div class="mr-2 h-3 w-3 rounded-full bg-purple-600"></div>
+								Niñas ({girlsItemsCount})
+							</h3>
+							<div class="space-y-3">
+								{#each girlsItems as item (item.id + '-' + item.quantity)}
+									<div class="flex space-x-3 rounded-lg border p-3">
+										<div class="h-16 w-16 flex-shrink-0">
+											<img
+												src={item.image || '/placeholder.svg'}
+												alt={item.name}
+												class="h-full w-full rounded object-cover"
+											/>
+										</div>
+
+										<div class="min-w-0 flex-1">
+											<h4 class="truncate text-sm font-medium">{item.name}</h4>
+											<div class="mt-1 flex flex-wrap gap-1">
+												{#if item.size}
+													<span
+														class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-800"
+													>
+														{item.size}
+													</span>
+												{/if}
+												{#if item.color}
+													<span
+														class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-800"
+													>
+														{item.color}
+													</span>
+												{/if}
+											</div>
+											<p class="mt-1 text-sm font-medium text-gray-900">
+												{formatPrice(item.price)}
+											</p>
+
+											<div class="mt-2 flex items-center justify-between">
+												<div class="flex items-center space-x-2">
+													<button
+														onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+														disabled={item.quantity <= 1}
+														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center"
+													>
+														<Minus size={12} />
+													</button>
+													<span class="px-3 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
+													<button
+														onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+														class="h-8 w-8 rounded border p-0 hover:bg-gray-50 flex items-center justify-center"
 													>
 														<Plus size={12} />
 													</button>

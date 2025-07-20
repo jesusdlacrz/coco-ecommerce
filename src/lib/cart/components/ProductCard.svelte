@@ -32,6 +32,16 @@
 			primary: 'bg-pink-600 hover:bg-pink-700',
 			secondary: 'border-pink-200 bg-pink-50',
 			text: 'text-pink-900'
+		},
+		boys: {
+			primary: 'bg-green-600 hover:bg-green-700',
+			secondary: 'border-green-200 bg-green-50',
+			text: 'text-green-900'
+		},
+		girls: {
+			primary: 'bg-purple-600 hover:bg-purple-700',
+			secondary: 'border-purple-200 bg-purple-50',
+			text: 'text-purple-900'
 		}
 	};
 

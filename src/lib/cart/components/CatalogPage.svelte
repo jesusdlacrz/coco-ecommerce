@@ -5,15 +5,17 @@
 	import type { Product } from '$lib/shared/model/products';
 
 	interface Props {
-		activeTab: 'men' | 'women';
+		activeTab: 'men' | 'women' | 'boys' | 'girls';
 		menProducts: Product[];
 		womenProducts: Product[];
+		boysProducts: Product[];
+		girlsProducts: Product[];
 		totalUnits: number;
 		cartTotal: number;
 		canProceedToPayment: boolean;
 		missingUnitsForPayment: number;
 		formatPrice: (price: number) => string;
-		onTabChange: (tab: 'men' | 'women') => void;
+		onTabChange: (tab: 'men' | 'women' | 'boys' | 'girls') => void;
 		onAddToCart: (
 			product: Product,
 			quantity: number,
@@ -26,6 +28,8 @@
 		activeTab,
 		menProducts,
 		womenProducts,
+		boysProducts,
+		girlsProducts,
 		totalUnits,
 		cartTotal,
 		canProceedToPayment,
@@ -35,7 +39,12 @@
 		onAddToCart
 	}: Props = $props();
 
-	const currentProducts = $derived(activeTab === 'men' ? menProducts : womenProducts);
+	const currentProducts = $derived(
+		activeTab === 'men' ? menProducts :
+		activeTab === 'women' ? womenProducts :
+		activeTab === 'boys' ? boysProducts :
+		girlsProducts
+	);
 </script>
 
 <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -53,6 +62,8 @@
 		{activeTab}
 		menProductsCount={menProducts.length}
 		womenProductsCount={womenProducts.length}
+		boysProductsCount={boysProducts.length}
+		girlsProductsCount={girlsProducts.length}
 		{onTabChange}
 	/>
 
