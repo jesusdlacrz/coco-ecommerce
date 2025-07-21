@@ -2,7 +2,9 @@
 	import ProductPreview from '$lib/products/components/ProductCardPreview.svelte';
 	import CategoryTabs from '$lib/catalog/components/CategoryTabs.svelte';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { sampleProducts } from '$lib/data/products';
+	import { onMount } from 'svelte';
 
 	// =================== STATE ===================
 	let activeTab = $state<'men' | 'women' | 'boys' | 'girls'>('men');
@@ -20,13 +22,28 @@
 		girlsProducts
 	);
 
+	// =================== LIFECYCLE ===================
+	onMount(() => {
+		// Leer la categoría desde la URL al cargar la página
+		const categoryParam = $page.url.searchParams.get('category');
+		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
+			activeTab = categoryParam as 'men' | 'women' | 'boys' | 'girls';
+		}
+	});
+
 	// =================== UI HANDLERS ===================
 	function handleTabChange(tab: 'men' | 'women' | 'boys' | 'girls') {
 		activeTab = tab;
+		
+		// Actualizar la URL con el query parameter
+		const url = new URL(window.location.href);
+		url.searchParams.set('category', tab);
+		goto(url.toString(), { replaceState: true });
 	}
 
 	function handleProductClick(productId: string) {
-		goto(`/productos/${productId}`);
+		// Mantener la categoría actual y marcar que viene de la página de productos
+		goto(`/productos/${productId}?category=${activeTab}&from=productos`);
 	}
 </script>
 

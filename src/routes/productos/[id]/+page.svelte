@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { cartStore } from '$lib/cart/stores/cartStore';
+	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 	import ProductHeader from '$lib/detailproducts/components/ProductHeader.svelte';
 	import ImageGallery from '$lib/detailproducts/components/ImageGallery.svelte';
@@ -7,9 +8,48 @@
 	import ProductOptions from '$lib/detailproducts/components/ProductOptions.svelte';
 	import ProductActions from '$lib/detailproducts/components/ProductActions.svelte';
 	import ProductDetails from '$lib/detailproducts/components/ProductDetails.svelte';
+	import Breadcrumbs from '$lib/shared/components/Breadcrumbs.svelte';
 
 	let { data }: { data: PageData } = $props();
 	const { product } = data;
+
+	// Obtener la categoría y origen desde los query parameters
+	const categoryParam = $derived($page.url.searchParams.get('category'));
+	const fromParam = $derived($page.url.searchParams.get('from'));
+	const isFromProductsPage = $derived(fromParam === 'productos');
+
+	// Generar breadcrumbs basado en el contexto
+	const breadcrumbs = $derived(() => {
+		const categoryLabels: Record<string, string> = {
+			men: 'Hombres',
+			women: 'Mujeres', 
+			boys: 'Niños',
+			girls: 'Niñas'
+		};
+
+		const crumbs = [
+			{ label: 'Inicio', href: categoryParam ? `/?category=${categoryParam}` : '/' }
+		];
+
+		if (isFromProductsPage) {
+			crumbs.push({ 
+				label: 'Productos', 
+				href: categoryParam ? `/productos?category=${categoryParam}` : '/productos' 
+			});
+		}
+
+		if (categoryParam && categoryParam in categoryLabels) {
+			crumbs.push({ 
+				label: categoryLabels[categoryParam], 
+				href: isFromProductsPage 
+					? `/productos?category=${categoryParam}` 
+					: `/?category=${categoryParam}` 
+			});
+		}
+
+		crumbs.push({ label: product.name, href: '' });
+		return crumbs;
+	});
 
 	// Estados del producto
 	let selectedSize = $state<string>('');
@@ -69,10 +109,15 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50">
-	<ProductHeader />
+	<ProductHeader 
+		category={categoryParam || undefined}
+		fromProductsPage={isFromProductsPage}
+	/>
 
 	<!-- Contenido principal -->
 	<div class="max-w-7xl mx-auto px-4 py-8">
+		<Breadcrumbs breadcrumbs={breadcrumbs()} />
+		
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 			<!-- Galería de imágenes -->
 			<ImageGallery 

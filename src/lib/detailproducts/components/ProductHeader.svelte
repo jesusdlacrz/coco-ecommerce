@@ -1,9 +1,27 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
+	type Props = {
+		category?: string;
+		fromProductsPage?: boolean;
+	};
+
+	let { category, fromProductsPage = false }: Props = $props();
+
 	function goBack() {
-		goto('/');
+		if (fromProductsPage && category) {
+			// Volver a la página de productos con la categoría
+			goto(`/productos?category=${category}`);
+		} else if (category) {
+			// Volver al home con la categoría
+			goto(`/?category=${category}`);
+		} else {
+			// Volver al home sin categoría específica
+			goto('/');
+		}
 	}
+
+	const backButtonText = fromProductsPage ? 'Volver a productos' : 'Volver al catálogo';
 </script>
 
 <!-- Header con botón de regreso -->
@@ -16,7 +34,7 @@
 			<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
 			</svg>
-			Volver al catálogo
+			{backButtonText}
 		</button>
 	</div>
 </div>
