@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ProductPreview from './ProductPreview.svelte';
+	import ProductPreview from '../../products/components/ProductCardPreview.svelte';
 	import type { Product } from '$lib/shared/model/products';
 
 	interface Props {
@@ -16,7 +16,7 @@
 
 <div class="space-y-6">
 	<!-- Grid de productos preview -->
-	<div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+	<div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-3">
 		{#each previewProducts as product (product.id)}
 			<ProductPreview {product} {onProductClick} />
 		{/each}

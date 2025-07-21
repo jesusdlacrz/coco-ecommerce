@@ -1,21 +1,10 @@
 <script lang="ts">
-	import ProductPreview from '$lib/cart/components/ProductPreview.svelte';
-	import CategoryTabs from '$lib/cart/components/CategoryTabs.svelte';
-	import CartDrawer from '$lib/cart/components/CartDrawer.svelte';
+	import ProductPreview from '$lib/products/components/ProductCardPreview.svelte';
+	import CategoryTabs from '$lib/catalog/components/CategoryTabs.svelte';
 	import { goto } from '$app/navigation';
-	import {
-		cartStore,
-		cartItems,
-		cartTotal,
-		totalUnits,
-		canProceedToPayment,
-		missingUnitsForPayment
-	} from '$lib/cart/stores/cartStore';
 	import { sampleProducts } from '$lib/data/products';
-	import { onMount } from 'svelte';
 
 	// =================== STATE ===================
-	let isCartOpen = $state(false);
 	let activeTab = $state<'men' | 'women' | 'boys' | 'girls'>('men');
 
 	// =================== DERIVED DATA ===================
@@ -31,36 +20,7 @@
 		girlsProducts
 	);
 
-	// =================== LIFECYCLE ===================
-	onMount(() => {
-		// Listen for cart open events from header
-		const handleOpenCart = () => {
-			isCartOpen = true;
-		};
-		window.addEventListener('openCart', handleOpenCart);
-		return () => {
-			window.removeEventListener('openCart', handleOpenCart);
-		};
-	});
-
-	// =================== CART HANDLERS ===================
-	function handleUpdateQuantity(itemId: string, quantity: number) {
-		cartStore.updateQuantity(itemId, quantity);
-	}
-
-	function handleRemoveItem(itemId: string) {
-		cartStore.removeItem(itemId);
-	}
-
-	function handleClearCart() {
-		cartStore.clearCart();
-	}
-
 	// =================== UI HANDLERS ===================
-	function handleCartClose() {
-		isCartOpen = false;
-	}
-
 	function handleTabChange(tab: 'men' | 'women' | 'boys' | 'girls') {
 		activeTab = tab;
 	}
@@ -95,10 +55,9 @@
 		onTabChange={handleTabChange}
 	/>
 
-	<!-- Catalog Preview - Sin límite de productos para /productos -->
 	<div class="space-y-6">
 		<!-- Grid de productos - Todos los productos sin límite -->
-		<div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+		<div class="grid grid-cols-2 gap-4 md:grid-cols-3">
 			{#each currentProducts as product (product.id)}
 				<ProductPreview {product} onProductClick={handleProductClick} />
 			{/each}
@@ -111,13 +70,3 @@
 		{/if}
 	</div>
 </div>
-
-<!-- Cart Drawer -->
-<CartDrawer
-	isOpen={isCartOpen}
-	cartItems={$cartItems}
-	onClose={handleCartClose}
-	onUpdateQuantity={handleUpdateQuantity}
-	onRemoveItem={handleRemoveItem}
-	onClearCart={handleClearCart}
-/>
