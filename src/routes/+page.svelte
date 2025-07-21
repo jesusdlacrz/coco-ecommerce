@@ -72,7 +72,7 @@
 		girlsProductsCount={girlsProducts.length}
 		onTabChange={handleTabChange}
 	/>
-
+	
 	<!-- Catalog Preview -->
 	<CatalogPreview 
 		products={currentProducts}

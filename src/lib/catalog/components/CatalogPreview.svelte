@@ -16,7 +16,7 @@
 
 <div class="space-y-6">
 	<!-- Grid de productos preview -->
-	<div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-3">
+	<div class="grid grid-cols-2 gap-4 md:gap-10 md:grid-cols-3 lg:grid-cols-3">
 		{#each previewProducts as product (product.id)}
 			<ProductPreview {product} {onProductClick} />
 		{/each}

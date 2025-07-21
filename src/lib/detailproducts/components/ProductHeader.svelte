@@ -10,13 +10,10 @@
 
 	function goBack() {
 		if (fromProductsPage && category) {
-			// Volver a la página de productos con la categoría
 			goto(`/productos?category=${category}`);
 		} else if (category) {
-			// Volver al home con la categoría
 			goto(`/?category=${category}`);
 		} else {
-			// Volver al home sin categoría específica
 			goto('/');
 		}
 	}

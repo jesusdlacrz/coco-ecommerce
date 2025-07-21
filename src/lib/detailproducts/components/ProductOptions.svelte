@@ -36,7 +36,6 @@
 </script>
 
 <div class="space-y-6">
-	<!-- Selección de talla -->
 	{#if sizes.length > 0}
 		<div>
 			<span class="block text-sm font-medium text-gray-700 mb-2">Talla:</span>
@@ -55,7 +54,6 @@
 		</div>
 	{/if}
 
-	<!-- Selección de color -->
 	{#if colors.length > 0}
 		<div>
 			<span class="block text-sm font-medium text-gray-700 mb-2">Color:</span>
@@ -74,7 +72,6 @@
 		</div>
 	{/if}
 
-	<!-- Cantidad -->
 	<div>
 		<span class="block text-sm font-medium text-gray-700 mb-2">Cantidad:</span>
 		<div class="flex items-center space-x-3">
