@@ -182,7 +182,7 @@ export const sampleProducts: Product[] = [
     minOrderQuantity: 10,
     description: 'Leggings cómodos y coloridos para niñas, perfectos para jugar',
     inStock: true,
-    stockQuantity: 180
+    stockQuantity: 10
   },
   {
     id: 'girls-blouse-001',

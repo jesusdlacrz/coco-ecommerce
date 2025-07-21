@@ -41,7 +41,7 @@
 		<div>
 			<span class="block text-sm font-medium text-gray-700 mb-2">Talla:</span>
 			<div class="grid grid-cols-6 gap-2">
-				{#each sizes as size}
+				{#each sizes as size (size)}
 					<button
 						onclick={() => onSizeSelect(size)}
 						class="py-2 px-3 text-sm border rounded-md transition-all {selectedSize === size
@@ -60,7 +60,7 @@
 		<div>
 			<span class="block text-sm font-medium text-gray-700 mb-2">Color:</span>
 			<div class="grid grid-cols-3 gap-2">
-				{#each colors as color}
+				{#each colors as color (color)}
 					<button
 						onclick={() => onColorSelect(color)}
 						class="py-2 px-3 text-sm border rounded-md transition-all {selectedColor === color

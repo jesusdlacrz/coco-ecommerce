@@ -15,7 +15,7 @@
 
 <nav class="mb-6">
 	<ol class="flex items-center space-x-2 text-sm text-gray-500">
-		{#each breadcrumbs as breadcrumb, index}
+		{#each breadcrumbs as breadcrumb, index (`breadcrumb-${index}-${breadcrumb.label}`)}
 			{#if index > 0}
 				<li>
 					<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

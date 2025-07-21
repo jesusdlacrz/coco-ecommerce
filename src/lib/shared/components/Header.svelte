@@ -39,7 +39,7 @@
 				</TransitionLink>
 			</div>
 			<div class="flex items-center space-x-12">
-				{#each navigationButtons as button}
+				{#each navigationButtons as button (button.label)}
 					<TransitionLink
 						href={button.href}
 						class="cursor-pointer text-sm transition-colors hover:text-gray-600"

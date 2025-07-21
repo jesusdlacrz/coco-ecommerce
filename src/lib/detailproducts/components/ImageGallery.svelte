@@ -23,7 +23,7 @@
 	<!-- Miniaturas (si hay múltiples imágenes) -->
 	{#if images.length > 1}
 		<div class="grid grid-cols-4 gap-2">
-			{#each images as image, index}
+			{#each images as image, index (`img-${index}`)}
 				<button
 					onclick={() => onImageSelect(index)}
 					class="aspect-square bg-white rounded border-2 overflow-hidden transition-all {selectedImageIndex === index ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'}"
