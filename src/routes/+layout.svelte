@@ -25,7 +25,7 @@
 	onAccountClick={handleAccountClick}
 />
 
-<main class="min-h-screen">
+<main class="">
 	{@render children?.()}
 </main>
 
