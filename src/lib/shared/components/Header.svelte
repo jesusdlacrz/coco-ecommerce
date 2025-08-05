@@ -1,29 +1,37 @@
 <script lang="ts">
 	import ShoppingCart from '$lib/shared/icons/ShoppingCart.svelte';
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
+	import Logo from '$lib/shared/icons/Logo.svelte';
+	import { activeCategory, categoryColors, type Category } from '$lib/shared/stores/categoryStore';
 
 	interface Props {
 		cartItemCount: number;
 		onCartClick: () => void;
 		onAccountClick?: () => void;
+		currentCategory?: Category;
+		useDynamicColors?: boolean;
 	}
 
-	let { cartItemCount, onCartClick, onAccountClick }: Props = $props();
+	let { cartItemCount, onCartClick, onAccountClick, currentCategory = 'men', useDynamicColors = false }: Props = $props();
 
-	const navigationButtons = [
+	// Use current category or fall back to store, but only if dynamic colors are enabled
+	const category = $derived(useDynamicColors ? currentCategory : 'men');
+	const colors = $derived(useDynamicColors ? categoryColors[category] : {
+		primary: 'bg-black',
+		primaryHover: 'hover:bg-gray-800',
+		text: 'text-gray-600'
+	});
+
+	const navigationButtons = $derived([
 		{
 			label: 'Home',
 			href: '/'
 		},
 		{
-			label: 'Productos',
-			href: '/productos'
+			label: 'Shop',
+			href: useDynamicColors && currentCategory ? `/productos?category=${currentCategory}` : '/productos'
 		},
-		{
-			label: 'Catalogo',
-			href: '/productos'
-		}
-	];
+	]);
 </script>
 
 <header>
@@ -32,17 +40,18 @@
 			<div class="flex items-center space-x-4">
 				<TransitionLink
 					href="/"
-					class="cursor-pointer text-2xl transition-colors hover:text-gray-600"
-					style="font-family: 'Volkhov', serif;"
+					class="cursor-pointer transition-all hover:opacity-80"
 				>
-					Coco's
+					<Logo />
 				</TransitionLink>
 			</div>
 			<div class="flex items-center space-x-12">
 				{#each navigationButtons as button (button.label)}
 					<TransitionLink
 						href={button.href}
-						class="cursor-pointer text-sm transition-colors hover:text-gray-600"
+						class="cursor-pointer text-sm transition-colors {useDynamicColors && button.label === 'Shop' 
+							? `${colors.text} hover:opacity-80` 
+							: 'text-gray-600 hover:text-gray-800'}"
 					>
 						{button.label}
 					</TransitionLink>
@@ -51,7 +60,7 @@
 				<div class="relative">
 					<button
 						onclick={onCartClick}
-						class="flex cursor-pointer items-center space-x-2 rounded-lg bg-black p-2.5 transition-colors hover:bg-gray-800"
+						class="flex cursor-pointer items-center space-x-2 rounded-lg p-2.5 transition-colors {colors.primary} {colors.primaryHover}"
 					>
 						<ShoppingCart size={20} class="text-white"/>
 					</button>

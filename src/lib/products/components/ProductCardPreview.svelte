@@ -39,7 +39,7 @@
 				</span>
 				
 				{#if isAlmostSoldOut}
-					<span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded">
+					<span class="text-xs font-medium text-red-600  px-2 py-1">
 						Almost Sold Out
 					</span>
 				{/if}

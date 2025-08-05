@@ -1,13 +1,14 @@
 <script lang="ts">
-	import CatalogPreview from '$lib/catalog/components/CatalogPreview.svelte';
-	import CategoryTabs from '$lib/catalog/components/CategoryTabs.svelte';
+	import CatalogPreview from '$lib/catalogHome/components/CatalogPreview.svelte';
+	import CategoryTabs from '$lib/catalogHome/components/CategoryTabs.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { sampleProducts } from '$lib/data/products';
+	import { sampleProducts } from '$lib/dataProducts/products';
+	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
 
 	// =================== STATE ===================
-	let activeTab = $state<'men' | 'women' | 'boys' | 'girls'>('men');
+	let activeTab = $state<Category>('men');
 
 	// =================== DERIVED DATA ===================
 	const menProducts = sampleProducts.filter((p) => p.gender === 'men');
@@ -27,14 +28,17 @@
 		// Leer la categoría desde la URL al cargar la página
 		const categoryParam = $page.url.searchParams.get('category');
 		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
-			activeTab = categoryParam as 'men' | 'women' | 'boys' | 'girls';
+			activeTab = categoryParam as Category;
 		}
 	});
 
 	// =================== UI HANDLERS ===================
-	function handleTabChange(tab: 'men' | 'women' | 'boys' | 'girls') {
+	function handleTabChange(tab: Category) {
 		console.log(`Switching to ${tab} tab`);
 		activeTab = tab;
+		
+		// Update global category store
+		activeCategory.set(tab);
 		
 		// Actualizar la URL con el query parameter
 		const url = new URL(window.location.href);

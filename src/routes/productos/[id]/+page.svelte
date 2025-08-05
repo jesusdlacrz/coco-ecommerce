@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { cartStore } from '$lib/cart/stores/cartStore';
 	import { page } from '$app/stores';
+	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
+	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import ProductHeader from '$lib/detailproducts/components/ProductHeader.svelte';
 	import ImageGallery from '$lib/detailproducts/components/ImageGallery.svelte';
@@ -17,6 +19,19 @@
 	const categoryParam = $derived($page.url.searchParams.get('category'));
 	const fromParam = $derived($page.url.searchParams.get('from'));
 	const isFromProductsPage = $derived(fromParam === 'productos');
+
+	// Update global category store when component mounts or category changes
+	onMount(() => {
+		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
+			activeCategory.set(categoryParam as Category);
+		}
+	});
+
+	$effect(() => {
+		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
+			activeCategory.set(categoryParam as Category);
+		}
+	});
 
 	// Generar breadcrumbs basado en el contexto
 	const breadcrumbs = $derived(() => {

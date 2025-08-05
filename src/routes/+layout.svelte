@@ -3,8 +3,10 @@
 	import { onMount } from 'svelte';
 	import Header from '$lib/shared/components/Header.svelte';
 	import { cartItemCount, cartStore, cartItems } from '$lib/cart/stores/cartStore';
+	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import Footer from '$lib/shared/components/Footer.svelte';
 	import CartDrawer from '$lib/cart/components/CartDrawer.svelte';
+	import { page } from '$app/stores';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -13,6 +15,20 @@
 
 	// =================== CART STATE ===================
 	let isCartOpen = $state(false);
+	let currentCategory = $state<Category>('men');
+
+	// Check if we're on the productos page or product detail page
+	const isProductsPage = $derived($page.url.pathname.startsWith('/productos'));
+
+	// Update category from URL params more responsively
+	$effect(() => {
+		const categoryParam = $page.url.searchParams.get('category');
+		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
+			const category = categoryParam as Category;
+			currentCategory = category;
+			activeCategory.set(category);
+		}
+	});
 
 	// =================== LIFECYCLE ===================
 	onMount(() => {
@@ -21,8 +37,15 @@
 			isCartOpen = true;
 		};
 		window.addEventListener('openCart', handleOpenCart);
+		
+		// Subscribe to category changes
+		const unsubscribe = activeCategory.subscribe((category) => {
+			currentCategory = category;
+		});
+
 		return () => {
 			window.removeEventListener('openCart', handleOpenCart);
+			unsubscribe();
 		};
 	});
 
@@ -58,6 +81,8 @@
 	cartItemCount={$cartItemCount}
 	onCartClick={handleCartClick}
 	onAccountClick={handleAccountClick}
+	currentCategory={currentCategory}
+	useDynamicColors={isProductsPage}
 />
 
 <main class="min-h-screen">
