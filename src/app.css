@@ -1,1 +1,15 @@
 @import 'tailwindcss';
+
+* {
+	font-family: 'Volkhov', serif;
+	font-weight: 400;
+	font-style: normal;
+}
+
+@theme {
+	--font-family: 'Volkhov', serif;
+	--font-weight: 400;
+	--font-style: normal;
+	--color-graybrand: #dedede;
+	--color-graybrand-light: #484848;
+}
