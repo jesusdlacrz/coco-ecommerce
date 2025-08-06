@@ -3,10 +3,11 @@
 	import ProductFilters from '$lib/products/components/ProductFilters.svelte';
 	import SimpleCategoryTabs from '$lib/products/components/CatalogCategoryTabs.svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	
 	import { sampleProducts } from '$lib/dataProducts/products';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 
 	// =================== STATE ===================
 	let activeTab = $state<Category>('men');
@@ -38,7 +39,7 @@
 	// =================== LIFECYCLE ===================
 	onMount(() => {
 		// Leer la categoría desde la URL al cargar la página
-		const categoryParam = $page.url.searchParams.get('category');
+		const categoryParam = page.url.searchParams.get('category');
 		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
 			activeTab = categoryParam as Category;
 		}
@@ -72,7 +73,7 @@
 	<title>Productos - Coco's</title>
 </svelte:head>
 
-<div class="min-h-screen {currentBackground} transition-all duration-500">
+<div class="min-h-screen {currentBackground} transition-colors duration-700">
 	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 		<!-- Page Header -->
 		<div class="mb-8 text-center text-[#484848]">

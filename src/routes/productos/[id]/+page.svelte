@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { cartStore } from '$lib/cart/stores/cartStore';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
@@ -16,8 +16,8 @@
 	const { product } = data;
 
 	// Obtener la categoría y origen desde los query parameters
-	const categoryParam = $derived($page.url.searchParams.get('category'));
-	const fromParam = $derived($page.url.searchParams.get('from'));
+	const categoryParam = $derived(page.url.searchParams.get('category'));
+	const fromParam = $derived(page.url.searchParams.get('from'));
 	const isFromProductsPage = $derived(fromParam === 'productos');
 
 	// Update global category store when component mounts or category changes
