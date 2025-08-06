@@ -11,6 +11,7 @@
 	import ProductActions from '$lib/detailproducts/components/ProductActions.svelte';
 	import ProductDetails from '$lib/detailproducts/components/ProductDetails.svelte';
 	import Breadcrumbs from '$lib/shared/components/Breadcrumbs.svelte';
+	import toast from 'svelte-5-french-toast';
 
 	let { data }: { data: PageData } = $props();
 	const { product } = data;
@@ -92,11 +93,11 @@
 	// Funciones de validación y carrito
 	function validateSelections(): boolean {
 		if (product.sizes.length > 0 && !selectedSize) {
-			alert('Por favor selecciona una talla');
+			toast.error('Por favor selecciona una talla');
 			return false;
 		}
 		if (product.colors.length > 0 && !selectedColor) {
-			alert('Por favor selecciona un color');
+			toast.error('Por favor selecciona un color');
 			return false;
 		}
 		return true;
@@ -106,7 +107,7 @@
 		if (!validateSelections()) return;
 		
 		cartStore.addItem(product, quantity, selectedSize || null, selectedColor || null);
-		alert('Producto agregado al carrito');
+		toast.success('Producto agregado al carrito');
 	}
 
 	function handleGoToPay() {
@@ -114,7 +115,7 @@
 		
 		cartStore.addItem(product, quantity, selectedSize || null, selectedColor || null);
 		// Aquí iría la lógica para ir directo al pago
-		alert('Redirigiendo al pago...');
+		toast.success('Producto agregado al carrito y redirigiendo a pago...');
 	}
 </script>
 
