@@ -28,10 +28,10 @@
 
 	// Background colors based on category
 	const categoryBackgrounds = {
-		men: 'bg-gradient-to-br from-blue-50 to-blue-100',
-		women: 'bg-gradient-to-br from-pink-50 to-pink-100', 
-		boys: 'bg-gradient-to-br from-green-50 to-green-100',
-		girls: 'bg-gradient-to-br from-purple-50 to-purple-100'
+		men: 'bg-[#f0fcfc]',
+		women: 'bg-[#f8f4fc]', 
+		boys: 'bg-[#f0f4fc]',
+		girls: 'bg-[#ffecf4]'
 	};
 
 	const currentBackground = $derived(categoryBackgrounds[activeTab]);
@@ -75,15 +75,6 @@
 
 <div class="min-h-screen {currentBackground} transition-colors duration-700">
 	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-		<!-- Page Header -->
-		<div class="mb-8 text-center text-[#484848]">
-			<h2 class="mb-4 text-3xl" style="font-family: 'Volkhov', serif; font-weight: 400; font-style: normal;">
-				Todos los Productos
-			</h2>
-			<p class="text-sm text-[#8A8A8A]">
-				Explora toda nuestra colección. Haz clic en cualquier producto para ver detalles completos.
-			</p>
-		</div>
 
 		<!-- Category Tabs - Simplified for products page -->
 		<SimpleCategoryTabs

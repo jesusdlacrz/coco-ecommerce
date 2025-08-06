@@ -82,35 +82,35 @@
 	// Category-specific styles
 	const categoryStyles = {
 		men: {
-			accent: 'bg-blue-600 border-blue-600 text-white',
-			accentHover: 'hover:bg-blue-700 hover:border-blue-700',
-			checkboxAccent: 'text-blue-600 focus:ring-blue-500',
-			rangeAccent: 'accent-blue-600'
+			accent: 'bg-[#2C71CC] border-[#2C71CC] text-white',
+			accentHover: 'hover:bg-[#2C71CC] hover:border-[#2C71CC]',
+			checkboxAccent: 'text-[#16167F] focus:ring-[#16167F]',
+			rangeAccent: 'accent-[#16167F]'
 		},
 		women: {
-			accent: 'bg-pink-600 border-pink-600 text-white',
-			accentHover: 'hover:bg-pink-700 hover:border-pink-700',
-			checkboxAccent: 'text-pink-600 focus:ring-pink-500',
-			rangeAccent: 'accent-pink-600'
+			accent: 'bg-[#B19ADE] border-[#B19ADE] text-white',
+			accentHover: 'hover:bg-[#B19ADE] hover:border-[#B19ADE]',
+			checkboxAccent: 'text-[#7C00F4] focus:ring-[#7C00F4]',
+			rangeAccent: 'accent-[#7C00F4]'
 		},
 		boys: {
-			accent: 'bg-green-600 border-green-600 text-white',
-			accentHover: 'hover:bg-green-700 hover:border-green-700',
-			checkboxAccent: 'text-green-600 focus:ring-green-500',
-			rangeAccent: 'accent-green-600'
+			accent: 'bg-[#2C71CC] border-[#2C71CC] text-white',
+			accentHover: 'hover:bg-[#2C71CC] hover:border-[#2C71CC]',
+			checkboxAccent: 'text-[#6297DB] focus:ring-[#6297DB]',
+			rangeAccent: 'accent-[#2C71CC]'
 		},
 		girls: {
-			accent: 'bg-purple-600 border-purple-600 text-white',
-			accentHover: 'hover:bg-purple-700 hover:border-purple-700',
-			checkboxAccent: 'text-purple-600 focus:ring-purple-500',
-			rangeAccent: 'accent-purple-600'
+			accent: 'bg-[#FF91C1] border-[#FF91C1] text-white',
+			accentHover: 'hover:bg-[#FF91C1] hover:border-[#FF91C1]',
+			checkboxAccent: 'text-[#FF91C1] focus:ring-[#FF91C1]',
+			rangeAccent: 'accent-[#FF91C1]'
 		}
 	};
 
 	const currentStyle = $derived(categoryStyles[activeCategory]);
 </script>
 
-<div class="bg-white p-6 rounded-lg shadow-sm border">
+<div class="p-6 rounded-lg">
 	<div class="flex items-center justify-between mb-6">
 		<h3 class="text-lg font-semibold text-gray-900">Filtros</h3>
 		<button
@@ -131,7 +131,7 @@
 						onclick={() => toggleSize(size)}
 						class="px-3 py-2 text-sm border rounded-md transition-all {selectedSizes.includes(size) 
 							? `${currentStyle.accent} ${currentStyle.accentHover}` 
-							: 'border-gray-300 text-gray-700 hover:border-gray-400'}"
+							: 'border-gray-300 text-[#8A8A8A] hover:border-gray-400'}"
 					>
 						{size}
 					</button>

@@ -24,7 +24,7 @@
 	
 </script>
 
-<TransitionLink href={`productos/${product.id}`} class="bg-white rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer group" >
+<TransitionLink href={`productos/${product.id}`} class="overflow-hidden transition-all duration-300 cursor-pointer group" >
 	<!-- Product Image with Category Border -->
 	<div class="relative aspect-square p-3">
 		<div class="w-full h-full rounded-lg overflow-hidden border-4 {colors.border} transition-all duration-300 group-hover:scale-105">
@@ -75,7 +75,7 @@
 						</span>
 					{/each}
 					{#if product.colors.length > 4}
-						<span class="inline-block px-2 py-1 text-xs {colors.light} {colors.text} rounded-full">
+						<span class="inline-block px-2 py-1 text-xs {colors.text} rounded-full">
 							+{product.colors.length - 4}
 						</span>
 					{/if}
