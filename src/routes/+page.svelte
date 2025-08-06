@@ -1,24 +1,14 @@
 <script lang="ts">
-	import CatalogPreview from '$lib/cart/components/CatalogPreview.svelte';
-	import CategoryTabs from '$lib/cart/components/CategoryTabs.svelte';
-	import CartDrawer from '$lib/cart/components/CartDrawer.svelte';
+	import CatalogPreview from '$lib/catalogHome/components/CatalogPreview.svelte';
+	import CategoryTabs from '$lib/catalogHome/components/CategoryTabs.svelte';
 	import { goto } from '$app/navigation';
-	import {
-		cartStore,
-		cartItems,
-		cartTotal,
-		totalUnits,
-		canProceedToPayment,
-		missingUnitsForPayment
-	} from '$lib/cart/stores/cartStore';
-	import { formatPrice } from '$lib/shared/utils/cartUtils';
-	import { sampleProducts } from '$lib/data/products';
-	import type { Product } from '$lib/shared/model/products';
+	import { page } from '$app/stores';
+	import { sampleProducts } from '$lib/dataProducts/products';
+	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
 
 	// =================== STATE ===================
-	let isCartOpen = $state(false);
-	let activeTab = $state<'men' | 'women' | 'boys' | 'girls'>('men');
+	let activeTab = $state<Category>('men');
 
 	// =================== DERIVED DATA ===================
 	const menProducts = sampleProducts.filter((p) => p.gender === 'men');
@@ -35,45 +25,30 @@
 
 	// =================== LIFECYCLE ===================
 	onMount(() => {
-		// Listen for cart open events from header
-		const handleOpenCart = () => {
-			isCartOpen = true;
-		};
-		window.addEventListener('openCart', handleOpenCart);
-		return () => {
-			window.removeEventListener('openCart', handleOpenCart);
-		};
+		// Leer la categoría desde la URL al cargar la página
+		const categoryParam = $page.url.searchParams.get('category');
+		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
+			activeTab = categoryParam as Category;
+		}
 	});
 
-	// =================== CART HANDLERS ===================
-	function handleUpdateQuantity(itemId: string, quantity: number) {
-		console.log('Updating quantity:', { itemId, quantity });
-		cartStore.updateQuantity(itemId, quantity);
-		console.log('Cart after update:', $cartItems);
-	}
-
-	function handleRemoveItem(itemId: string) {
-		console.log('Removing item:', itemId);
-		cartStore.removeItem(itemId);
-		console.log('Cart after removal:', $cartItems);
-	}
-
-	function handleClearCart() {
-		cartStore.clearCart();
-	}
-
 	// =================== UI HANDLERS ===================
-	function handleCartClose() {
-		isCartOpen = false;
-	}
-
-	function handleTabChange(tab: 'men' | 'women' | 'boys' | 'girls') {
+	function handleTabChange(tab: Category) {
 		console.log(`Switching to ${tab} tab`);
 		activeTab = tab;
+		
+		// Update global category store
+		activeCategory.set(tab);
+		
+		// Actualizar la URL con el query parameter
+		const url = new URL(window.location.href);
+		url.searchParams.set('category', tab);
+		goto(url.toString(), { replaceState: true });
 	}
 
 	function handleProductClick(productId: string) {
-		goto(`/productos/${productId}`);
+		// Mantener la categoría actual al navegar al detalle del producto
+		goto(`/productos/${productId}?category=${activeTab}`);
 	}
 </script>
 
@@ -101,7 +76,7 @@
 		girlsProductsCount={girlsProducts.length}
 		onTabChange={handleTabChange}
 	/>
-
+	
 	<!-- Catalog Preview -->
 	<CatalogPreview 
 		products={currentProducts}
@@ -109,13 +84,3 @@
 		onProductClick={handleProductClick}
 	/>
 </div>
-
-<!-- Cart Drawer -->
-<CartDrawer
-	isOpen={isCartOpen}
-	cartItems={$cartItems}
-	onClose={handleCartClose}
-	onUpdateQuantity={handleUpdateQuantity}
-	onRemoveItem={handleRemoveItem}
-	onClearCart={handleClearCart}
-/>

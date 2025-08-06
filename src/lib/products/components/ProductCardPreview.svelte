@@ -9,7 +9,6 @@
 
 	let { product, onProductClick }: Props = $props();
 
-	// Determinar si mostrar "Almost Sold Out" basado en stock
 	const isAlmostSoldOut = $derived(product.stockQuantity <= 20);
 </script>
 
@@ -30,17 +29,17 @@
 
 		<!-- Información del producto -->
 		<div class="space-y-2 text-left">
-			<h3 class="line-clamp-2 text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+			<h3 class="line-clamp-2 text-md font-medium">
 				{product.name}
 			</h3>
 			
 			<div class="flex items-center justify-between">
-				<span class="text-lg font-bold text-gray-900">
+				<span class="text-xl font-medium">
 					{formatPrice(product.wholesalePrice || product.price)}
 				</span>
 				
 				{#if isAlmostSoldOut}
-					<span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded">
+					<span class="text-xs font-medium text-red-600  px-2 py-1">
 						Almost Sold Out
 					</span>
 				{/if}

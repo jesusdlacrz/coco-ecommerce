@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { sampleProducts } from '$lib/data/products';
+import { sampleProducts } from '$lib/dataProducts/products';
 import { error } from '@sveltejs/kit';
 
 export const load: PageLoad = ({ params }) => {

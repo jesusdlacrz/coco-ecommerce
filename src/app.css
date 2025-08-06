@@ -13,3 +13,7 @@
 	--color-graybrand: #dedede;
 	--color-graybrand-light: #484848;
 }
+
+button {
+	cursor: pointer;
+}
