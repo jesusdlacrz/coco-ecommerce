@@ -62,11 +62,7 @@
 		goto(url.toString(), { replaceState: true });
 	}
 
-	function handleProductClick(productId: string) {
-		// Mantener la categoría actual y marcar que viene de la página de productos
-		goto(`/productos/${productId}?category=${activeTab}&from=productos`);
-	}
-
+	
 	function handleFiltersChange(filtered: typeof sampleProducts) {
 		filteredProducts = filtered;
 	}
@@ -120,7 +116,7 @@
 							<ProductCard 
 								{product} 
 								currentCategory={activeTab}
-								onProductClick={handleProductClick} 
+								
 							/>
 						{/each}
 					</div>

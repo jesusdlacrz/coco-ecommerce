@@ -27,7 +27,7 @@
 			{@const colors = categoryColors[category.id]}
 			<button
 				onclick={() => handleCategoryClick(category.id)}
-				class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 {isActive 
+				class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer {isActive 
 					? `${colors.primary} text-white shadow-sm` 
 					: 'text-gray-600 hover:text-gray-900 hover:bg-white'}"
 			>

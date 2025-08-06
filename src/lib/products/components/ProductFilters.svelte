@@ -165,8 +165,9 @@
 		<h4 class="text-sm font-medium text-gray-900 mb-3">Rango de Precio</h4>
 		<div class="space-y-3">
 			<div>
-				<label class="block text-xs text-gray-600 mb-1">Mínimo</label>
+				<label for="price-min" class="block text-xs text-gray-600 mb-1">Mínimo</label>
 				<input
+					id="price-min"
 					type="range"
 					min={minPrice}
 					max={maxPrice}
@@ -176,8 +177,9 @@
 				<div class="text-xs text-gray-600 mt-1">{formatPrice(priceRange.min)}</div>
 			</div>
 			<div>
-				<label class="block text-xs text-gray-600 mb-1">Máximo</label>
+				<label for="price-max" class="block text-xs text-gray-600 mb-1">Máximo</label>
 				<input
+					id="price-max"
 					type="range"
 					min={minPrice}
 					max={maxPrice}

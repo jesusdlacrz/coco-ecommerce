@@ -1,14 +1,15 @@
 <script lang="ts">
 	import type { Product } from '$lib/shared/model/products';
 	import { categoryColors, type Category } from '$lib/shared/stores/categoryStore';
+	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 
 	interface Props {
 		product: Product;
 		currentCategory: Category;
-		onProductClick: (productId: string) => void;
+		
 	}
 
-	let { product, currentCategory, onProductClick }: Props = $props();
+	let { product, currentCategory }: Props = $props();
 
 	const colors = $derived(categoryColors[currentCategory]);
 
@@ -20,12 +21,10 @@
 		}).format(price);
 	}
 
-	function handleClick() {
-		onProductClick(product.id);
-	}
+	
 </script>
 
-<div class="bg-white rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer group" onclick={handleClick}>
+<TransitionLink href={`productos/${product.id}`} class="bg-white rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer group" >
 	<!-- Product Image with Category Border -->
 	<div class="relative aspect-square p-3">
 		<div class="w-full h-full rounded-lg overflow-hidden border-4 {colors.border} transition-all duration-300 group-hover:scale-105">
@@ -97,13 +96,13 @@
 			{/if}
 		</div>
 	</div>
-</div>
+</TransitionLink>
 
 <style>
 	.line-clamp-2 {
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
+		--webkit-line-clamp: 2;
+		--webkit-box-orient: vertical;
 		overflow: hidden;
 	}
 </style>
