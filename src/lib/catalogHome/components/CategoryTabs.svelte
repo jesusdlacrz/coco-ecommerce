@@ -25,14 +25,14 @@
 			id: 'men' as Gender,
 			label: 'Hombres',
 			count: menProductsCount,
-			activeColor: 'bg-[#2C71CC]',
+			activeColor: 'bg-[#16167F]',
 			hoverColor: 'hover:bg-[#2c71cc41]'
 		},
 		{
 			id: 'women' as Gender,
 			label: 'Mujeres',
 			count: womenProductsCount,
-			activeColor: 'bg-[#B19ADE]',
+			activeColor: 'bg-[#7C00F4]',
 			hoverColor: 'hover:bg-[#b19ade36]'
 		},
 		{
