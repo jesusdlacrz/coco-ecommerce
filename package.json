@@ -38,6 +38,7 @@
 		"vite-plugin-devtools-json": "^0.2.1"
 	},
 	"dependencies": {
-		"@midudev/tailwind-animations": "^0.2.0"
+		"@midudev/tailwind-animations": "^0.2.0",
+		"svelte-5-french-toast": "^2.0.5"
 	}
 }

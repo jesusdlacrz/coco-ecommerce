@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import Header from '$lib/shared/components/Header.svelte';
 	import { cartItemCount, cartStore, cartItems } from '$lib/cart/stores/cartStore';
+	import { Toaster } from 'svelte-5-french-toast';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import Footer from '$lib/shared/components/Footer.svelte';
 	import CartDrawer from '$lib/cart/components/CartDrawer.svelte';
@@ -84,7 +85,7 @@
 	currentCategory={currentCategory}
 	useDynamicColors={isProductsPage}
 />
-
+<Toaster/>
 <main class="min-h-screen">
 	{@render children?.()}
 </main>
