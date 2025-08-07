@@ -2,7 +2,7 @@
 	import CatalogPreview from '$lib/catalogHome/components/CatalogPreview.svelte';
 	import CategoryTabs from '$lib/catalogHome/components/CategoryTabs.svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { sampleProducts } from '$lib/dataProducts/products';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
@@ -29,7 +29,7 @@
 	// =================== LIFECYCLE ===================
 	onMount(() => {
 		// Leer la categoría desde la URL al cargar la página
-		const categoryParam = $page.url.searchParams.get('category');
+		const categoryParam = page.url.searchParams.get('category');
 		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
 			activeTab = categoryParam as Category;
 		}
@@ -39,14 +39,16 @@
 	function handleTabChange(tab: Category) {
 		console.log(`Switching to ${tab} tab`);
 		activeTab = tab;
-
-		// Update global category store
 		activeCategory.set(tab);
 
-		// Actualizar la URL con el query parameter
-		const url = new URL(window.location.href);
-		url.searchParams.set('category', tab);
-		goto(url.toString(), { replaceState: true });
+		// Obtener la URL relativa actual con parámetros modificados
+		const searchParams = new URLSearchParams(page.url.search);
+		searchParams.set('category', tab);
+
+		goto(`?${searchParams.toString()}`, {
+			replaceState: true,
+			noScroll: true
+		});
 	}
 </script>
 
