@@ -38,28 +38,26 @@
 	const breadcrumbs = $derived(() => {
 		const categoryLabels: Record<string, string> = {
 			men: 'Hombres',
-			women: 'Mujeres', 
+			women: 'Mujeres',
 			boys: 'Niños',
 			girls: 'Niñas'
 		};
 
-		const crumbs = [
-			{ label: 'Inicio', href: categoryParam ? `/?category=${categoryParam}` : '/' }
-		];
+		const crumbs = [{ label: 'Inicio', href: categoryParam ? `/?category=${categoryParam}` : '/' }];
 
 		if (isFromProductsPage) {
-			crumbs.push({ 
-				label: 'Productos', 
-				href: categoryParam ? `/productos?category=${categoryParam}` : '/productos' 
+			crumbs.push({
+				label: 'Productos',
+				href: categoryParam ? `/productos?category=${categoryParam}` : '/productos'
 			});
 		}
 
 		if (categoryParam && categoryParam in categoryLabels) {
-			crumbs.push({ 
-				label: categoryLabels[categoryParam], 
-				href: isFromProductsPage 
-					? `/productos?category=${categoryParam}` 
-					: `/?category=${categoryParam}` 
+			crumbs.push({
+				label: categoryLabels[categoryParam],
+				href: isFromProductsPage
+					? `/productos?category=${categoryParam}`
+					: `/?category=${categoryParam}`
 			});
 		}
 
@@ -105,14 +103,14 @@
 
 	function handleAddToCart() {
 		if (!validateSelections()) return;
-		
+
 		cartStore.addItem(product, quantity, selectedSize || null, selectedColor || null);
 		toast.success('Producto agregado al carrito');
 	}
 
 	function handleGoToPay() {
 		if (!validateSelections()) return;
-		
+
 		cartStore.addItem(product, quantity, selectedSize || null, selectedColor || null);
 		// Aquí iría la lógica para ir directo al pago
 		toast.success('Producto agregado al carrito y redirigiendo a pago...');
@@ -125,45 +123,40 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50">
-	<ProductHeader 
-		category={categoryParam || undefined}
-		fromProductsPage={isFromProductsPage}
-	/>
+	<ProductHeader category={categoryParam || undefined} fromProductsPage={isFromProductsPage} />
 
 	<!-- Contenido principal -->
-	<div class="max-w-7xl mx-auto px-4 py-8">
+	<div class="mx-auto max-w-7xl px-4 py-8">
 		<Breadcrumbs breadcrumbs={breadcrumbs()} />
-		
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+		<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
 			<!-- Galería de imágenes -->
-			<ImageGallery 
+			<ImageGallery
+				id={product.id}
 				images={product.images}
 				productName={product.name}
-				selectedImageIndex={selectedImageIndex}
+				{selectedImageIndex}
 				onImageSelect={handleImageSelect}
 			/>
 
 			<!-- Información y opciones del producto -->
 			<div class="space-y-6">
-				<ProductInfo product={product} />
+				<ProductInfo {product} />
 
-				<ProductOptions 
+				<ProductOptions
 					sizes={product.sizes}
 					colors={product.colors}
-					selectedSize={selectedSize}
-					selectedColor={selectedColor}
-					quantity={quantity}
+					{selectedSize}
+					{selectedColor}
+					{quantity}
 					onSizeSelect={handleSizeSelect}
 					onColorSelect={handleColorSelect}
 					onQuantityChange={handleQuantityChange}
 				/>
 
-				<ProductActions 
-					onAddToCart={handleAddToCart}
-					onBuyNow={handleGoToPay}
-				/>
+				<ProductActions onAddToCart={handleAddToCart} onBuyNow={handleGoToPay} />
 
-				<ProductDetails product={product} />
+				<ProductDetails {product} />
 			</div>
 		</div>
 	</div>
