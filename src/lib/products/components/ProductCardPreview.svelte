@@ -1,20 +1,19 @@
 <script lang="ts">
 	import type { Product } from '$lib/shared/model/products';
 	import { formatPrice } from '$lib/shared/utils/cartUtils';
-
+	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	interface Props {
 		product: Product;
-		onProductClick: (productId: string) => void;
 	}
 
-	let { product, onProductClick }: Props = $props();
+	let { product }: Props = $props();
 
 	const isAlmostSoldOut = $derived(product.stockQuantity <= 20);
 </script>
 
-<button
-	onclick={() => onProductClick(product.id)}
-	class="group w-full rounded-lg bg-white shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+<TransitionLink
+	href={`/productos/${product.id}`}
+	class="group w-full cursor-pointer rounded-lg bg-white shadow-md transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
 >
 	<div class="p-4">
 		<!-- Imagen del producto -->
@@ -29,21 +28,19 @@
 
 		<!-- Información del producto -->
 		<div class="space-y-2 text-left">
-			<h3 class="line-clamp-2 text-md font-medium">
+			<h3 class="text-md line-clamp-2 font-medium">
 				{product.name}
 			</h3>
-			
+
 			<div class="flex items-center justify-between">
 				<span class="text-xl font-medium">
 					{formatPrice(product.wholesalePrice || product.price)}
 				</span>
-				
+
 				{#if isAlmostSoldOut}
-					<span class="text-xs font-medium text-red-600  px-2 py-1">
-						Almost Sold Out
-					</span>
+					<span class="px-2 py-1 text-xs font-medium text-red-600"> Almost Sold Out </span>
 				{/if}
 			</div>
 		</div>
 	</div>
-</button>
+</TransitionLink>

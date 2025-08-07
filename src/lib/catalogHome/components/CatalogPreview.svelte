@@ -1,35 +1,32 @@
 <script lang="ts">
-	import ProductPreview from '../../products/components/ProductCardPreview.svelte';
+	import ProductPreview from '$lib/products/components/ProductCardPreview.svelte';
+	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import type { Product } from '$lib/shared/model/products';
 
 	interface Props {
 		products: Product[];
 		activeTab: 'men' | 'women' | 'boys' | 'girls';
-		onProductClick: (productId: string) => void;
 	}
 
-	let { products, activeTab, onProductClick }: Props = $props();
+	let { products, activeTab }: Props = $props();
 
 	// Limitar a máximo 6 productos
 	const previewProducts = $derived(products.slice(0, 6));
 </script>
 
 <div class="space-y-6">
-	<!-- Grid de productos preview -->
-	<div class="grid grid-cols-2 gap-4 md:gap-10 md:grid-cols-3 lg:grid-cols-3">
+	<div class="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-10 lg:grid-cols-3">
 		{#each previewProducts as product (product.id)}
-			<ProductPreview {product} {onProductClick} />
+			<ProductPreview {product} />
 		{/each}
 	</div>
 
-	<!-- Botón para ver todos - Siempre mostrar -->
-	<div class="text-center pt-6">
-		<a 
+	<div class="pt-6 text-center">
+		<TransitionLink
 			href="/productos?category={activeTab}"
-			style="font-family: 'Poppins', serif;"
-			class="inline-flex  items-center px-14 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-black hover:bg-gray-800 transition-colors shadow-md hover:shadow-lg"
+			class="inline-flex items-center rounded-lg border border-transparent bg-black px-14 py-3 text-sm font-medium text-white shadow-md transition-colors hover:bg-gray-800 hover:shadow-lg"
 		>
 			Ver Más
-		</a>
+		</TransitionLink>
 	</div>
 </div>
