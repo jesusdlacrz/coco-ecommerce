@@ -52,26 +52,28 @@
 	}
 </script>
 
-<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-	<!-- Page Header -->
-	<div class="mb-8 text-center text-[#484848]">
-		<h2 class="mb-4 text-3xl" style="">Catálogo Preview</h2>
-		<p class="text-sm text-[#8A8A8A]">
-			Vista previa de nuestros productos. Haz clic en cualquier producto para ver detalles
-			completos.
-		</p>
+
+	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+		<!-- Page Header -->
+		<div class="mb-8 text-center text-[#484848]">
+			<h2 class="mb-4 text-3xl" style="">Catálogo Preview</h2>
+			<p class="text-sm text-[#8A8A8A]">
+				Vista previa de nuestros productos. Haz clic en cualquier producto para ver detalles
+				completos.
+			</p>
+		</div>
+
+		<!-- Category Tabs -->
+		<CategoryTabs
+			{activeTab}
+			menProductsCount={menProducts.length}
+			womenProductsCount={womenProducts.length}
+			boysProductsCount={boysProducts.length}
+			girlsProductsCount={girlsProducts.length}
+			onTabChange={handleTabChange}
+		/>
+
+		<!-- Catalog Preview -->
+		<CatalogPreview products={currentProducts} {activeTab} />
 	</div>
 
-	<!-- Category Tabs -->
-	<CategoryTabs
-		{activeTab}
-		menProductsCount={menProducts.length}
-		womenProductsCount={womenProducts.length}
-		boysProductsCount={boysProducts.length}
-		girlsProductsCount={girlsProducts.length}
-		onTabChange={handleTabChange}
-	/>
-
-	<!-- Catalog Preview -->
-	<CatalogPreview products={currentProducts} {activeTab} />
-</div>

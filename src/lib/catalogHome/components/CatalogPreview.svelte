@@ -14,7 +14,7 @@
 	const previewProducts = $derived(products.slice(0, 6));
 </script>
 
-<div class="space-y-6">
+<section class="space-y-6">
 	<div class="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-10 lg:grid-cols-3">
 		{#each previewProducts as product (product.id)}
 			<ProductPreview {product} />
@@ -29,4 +29,4 @@
 			Ver Más
 		</TransitionLink>
 	</div>
-</div>
+</section>

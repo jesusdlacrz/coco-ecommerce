@@ -6,5 +6,11 @@
 <svelte:head>
 	<title>Coco's</title>
 </svelte:head>
-<ModelGallery />
-<CatalogSection />
+<section
+	class="from-main relative min-h-screen overflow-hidden bg-gradient-to-t from-0% to-transparent to-30%"
+>
+	<ModelGallery />
+</section>
+<section class="from-main bg-gradient-to-b from-0% to-transparent to-30%">
+	<CatalogSection />
+</section>

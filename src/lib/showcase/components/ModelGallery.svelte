@@ -1,14 +1,8 @@
 <script lang="ts">
-	let brands = [
-		{ name: 'CHANEL', logo: 'CHANEL' },
-		{ name: 'LOUIS VUITTON', logo: 'LOUIS VUITTON' },
-		{ name: 'PRADA', logo: 'PRADA' },
-		{ name: 'Calvin Klein', logo: 'Calvin Klein' },
-		{ name: 'DENIM', logo: 'DENIM' }
-	];
+	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 </script>
 
-<section class="relative min-h-screen overflow-hidden bg-gradient-to-br">
+
 	<!-- Contenedor principal -->
 	<div class="container mx-auto flex h-screen flex-col px-4 py-8">
 		<!-- Grid principal con las imágenes y contenido central -->
@@ -51,12 +45,12 @@
 						NUEVA COLECCIÓN
 					</p>
 					<!-- Botón de compra -->
-					<button
-						onclick={handleShopNow}
+					<TransitionLink
+						href="/productos"
 						class="text-md transform rounded-2xl bg-black px-8 py-4 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-gray-800 hover:shadow-xl"
 					>
 						Comprar ahora
-					</button>
+					</TransitionLink>
 				</div>
 			</div>
 
@@ -73,27 +67,5 @@
 		</div>
 
 		<!-- Sección de marcas -->
-		<div class="mt-12 border-t border-gray-300 pt-8">
-			<div class="flex flex-wrap items-center justify-center gap-8 lg:gap-12">
-				{#each brands as brand}
-					<div
-						class="cursor-pointer text-lg font-bold tracking-wider text-gray-700 transition-colors hover:text-gray-900 lg:text-xl"
-					>
-						{brand.logo}
-					</div>
-				{/each}
-			</div>
-		</div>
 	</div>
 
-	<!-- Elementos decorativos de fondo -->
-	<div
-		class="absolute top-20 left-10 h-20 w-20 rounded-full bg-orange-200 opacity-20 blur-xl"
-	></div>
-	<div
-		class="absolute right-16 bottom-32 h-32 w-32 rounded-full bg-yellow-200 opacity-20 blur-xl"
-	></div>
-	<div
-		class="absolute top-1/2 left-1/4 h-16 w-16 rounded-full bg-orange-300 opacity-10 blur-lg"
-	></div>
-</section>
