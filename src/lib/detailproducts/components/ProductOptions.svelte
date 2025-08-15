@@ -1,10 +1,11 @@
 <script lang="ts">
 	import Plus from '$lib/shared/icons/Plus.svelte';
 	import Minus from '$lib/shared/icons/Minus.svelte';
+	import type { Color } from '$lib/shared/model/products';
 
 	type Props = {
 		sizes: string[];
-		colors: string[];
+		colors: Color[];
 		selectedSize: string;
 		selectedColor: string;
 		quantity: number;
@@ -56,16 +57,22 @@
 
 	{#if colors.length > 0}
 		<div>
-			<span class="block text-sm font-medium text-gray-700 mb-2">Color:</span>
-			<div class="grid grid-cols-3 gap-2">
-				{#each colors as color (color)}
+			<span class="block text-sm font-medium text-gray-700 mb-3">Color:</span>
+			<div class="grid grid-cols-4 gap-3">
+				{#each colors as color (color.name)}
 					<button
-						onclick={() => onColorSelect(color)}
-						class="py-2 px-3 text-sm border rounded-md transition-all {selectedColor === color
-							? 'border-blue-500 bg-blue-50 text-blue-700'
-							: 'border-gray-300 hover:border-gray-400'}"
+						onclick={() => onColorSelect(color.name)}
+						class="relative group p-3 border rounded-lg transition-all {selectedColor === color.name
+							? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+							: 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'}"
 					>
-						{color}
+						<div class="flex flex-col items-center space-y-2">
+							<div 
+								class="w-8 h-8 rounded-full border-2 transition-all {color.name === 'Blanco' ? 'border-gray-400' : 'border-gray-300'} {selectedColor === color.name ? 'ring-2 ring-blue-500 ring-offset-2' : ''}"
+								style="background-color: {color.hex}"
+							></div>
+							<span class="text-xs font-medium text-gray-700">{color.name}</span>
+						</div>
 					</button>
 				{/each}
 			</div>

@@ -20,6 +20,16 @@
 
 	// Check if we're on the productos page or product detail page
 	const isProductsPage = $derived($page.url.pathname.startsWith('/productos'));
+	
+	// Get background color for productos page
+	const categoryBackgrounds = {
+		men: 'bg-[#f0fcfc]',
+		women: 'bg-[#f8f4fc]', 
+		boys: 'bg-[#f0f4fc]',
+		girls: 'bg-[#ffecf4]'
+	};
+	
+	const currentBackground = $derived(isProductsPage ? categoryBackgrounds[currentCategory] : '');
 
 	// Update category from URL params more responsively
 	$effect(() => {
@@ -82,15 +92,15 @@
 	cartItemCount={$cartItemCount}
 	onCartClick={handleCartClick}
 	onAccountClick={handleAccountClick}
-	currentCategory={currentCategory}
 	useDynamicColors={isProductsPage}
+	backgroundColor={currentBackground}
 />
 <Toaster/>
-<main class="min-h-screen">
+<main class="min-h-screen {currentBackground} transition-colors duration-700">
 	{@render children?.()}
 </main>
 
-<Footer />
+<Footer backgroundColor={currentBackground} />
 
 <CartDrawer
 	isOpen={isCartOpen}

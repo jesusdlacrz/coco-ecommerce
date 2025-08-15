@@ -1,3 +1,8 @@
+export interface Color {
+  name: string
+  hex: string
+}
+
 export interface Product {
   id: string
   name: string
@@ -7,7 +12,7 @@ export interface Product {
   category: string
   gender: 'men' | 'women' | 'boys' | 'girls'
   sizes: string[]
-  colors: string[]
+  colors: Color[]
   sku: string
   minOrderQuantity: number
   description: string

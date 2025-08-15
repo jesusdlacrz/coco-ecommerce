@@ -16,7 +16,20 @@
 
 	// =================== DERIVED DATA ===================
 	const allSizes = $derived([...new Set(products.flatMap(p => p.sizes))].sort());
-	const allColors = $derived([...new Set(products.flatMap(p => p.colors))].sort());
+	
+	// Crear un mapa de colores únicos con sus hex values
+	const uniqueColors = $derived(() => {
+		const colorMap = new Map();
+		products.forEach(product => {
+			product.colors.forEach(color => {
+				if (!colorMap.has(color.name)) {
+					colorMap.set(color.name, color.hex);
+				}
+			});
+		});
+		return Array.from(colorMap.entries()).sort(([a], [b]) => a.localeCompare(b));
+	});
+	
 	const minPrice = $derived(Math.min(...products.map(p => p.price)));
 	const maxPrice = $derived(Math.max(...products.map(p => p.price)));
 
@@ -37,7 +50,7 @@
 			
 			// Color filter
 			const colorMatch = selectedColors.length === 0 || 
-				product.colors.some(color => selectedColors.includes(color));
+				product.colors.some(color => selectedColors.includes(color.name));
 			
 			// Price filter
 			const priceMatch = product.price >= priceRange.min && product.price <= priceRange.max;
@@ -125,11 +138,11 @@
 	{#if allSizes.length > 0}
 		<div class="mb-6">
 			<h4 class="text-sm font-medium text-gray-900 mb-3">Tallas</h4>
-			<div class="grid grid-cols-3 gap-2">
+			<div class="grid grid-cols-4 gap-2">
 				{#each allSizes as size (size)}
 					<button
 						onclick={() => toggleSize(size)}
-						class="px-3 py-2 text-sm border rounded-md transition-all {selectedSizes.includes(size) 
+						class="px-2 py-2 text-sm border rounded-md transition-all {selectedSizes.includes(size) 
 							? `${currentStyle.accent} ${currentStyle.accentHover}` 
 							: 'border-gray-300 text-[#8A8A8A] hover:border-gray-400'}"
 					>
@@ -141,20 +154,24 @@
 	{/if}
 
 	<!-- Colors Filter -->
-	{#if allColors.length > 0}
+	{#if uniqueColors().length > 0}
 		<div class="mb-6">
 			<h4 class="text-sm font-medium text-gray-900 mb-3">Colores</h4>
-			<div class="space-y-2">
-				{#each allColors as color (color)}
-					<label class="flex items-center">
-						<input
-							type="checkbox"
-							checked={selectedColors.includes(color)}
-							onchange={() => toggleColor(color)}
-							class="rounded border-gray-300 {currentStyle.checkboxAccent}"
-						/>
-						<span class="ml-2 text-sm text-gray-700">{color}</span>
-					</label>
+			<div class="grid grid-cols-6 gap-1">
+				{#each uniqueColors() as [colorName, colorHex] (colorName)}
+					<button
+						onclick={() => toggleColor(colorName)}
+						class="flex items-center justify-center p-1 rounded-lg transition-all hover:bg-gray-50 {selectedColors.includes(colorName) ? 'bg-gray-100' : ''}"
+						title={colorName}
+						aria-label={`Filtrar por color ${colorName}${selectedColors.includes(colorName) ? ' (seleccionado)' : ''}`}
+					>
+						<div 
+							class="w-6 h-6 rounded-full border-2 transition-all {selectedColors.includes(colorName) 
+								? 'border-gray-800 ring-2 ring-offset-2 ring-blue-500 shadow-md' 
+								: colorName === 'Blanco' ? 'border-gray-300' : 'border-gray-200'}"
+							style="background-color: {colorHex}"
+						></div>
+					</button>
 				{/each}
 			</div>
 		</div>

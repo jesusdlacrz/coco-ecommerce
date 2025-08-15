@@ -21,15 +21,16 @@
 </script>
 
 <div class="mb-8">
-	<div class="flex justify-center space-x-1 bg-gray-100 p-1 rounded-lg max-w-md mx-auto">
+	<div class="flex justify-center space-x-1  p-1 rounded-lg max-w-md mx-auto">
 		{#each categories as category (category.id)}
 			{@const isActive = activeTab === category.id}
 			{@const colors = categoryColors[category.id]}
 			<button
 				onclick={() => handleCategoryClick(category.id)}
-				class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer {isActive 
-					? `${colors.primary} text-white shadow-sm` 
-					: 'text-gray-600 hover:text-gray-900 hover:bg-white'}"
+				class="flex-1 py-1 text-sm font-medium transition-all duration-200 cursor-pointer {isActive 
+					? `border-b-2 ${colors.border} ${colors.text}` 
+					: 'border-b-2 border-transparent text-[#262635]'}"
+					style="font-family: 'Poppins', sans-serif;"
 			>
 				{category.label}
 			</button>

@@ -11,7 +11,11 @@ export const sampleProducts: Product[] = [
     category: 'Camisas',
     gender: 'men',
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['Azul Marino', 'Blanco', 'Gris'],
+    colors: [
+      { name: 'Azul Marino', hex: '#1E3A8A' },
+      { name: 'Blanco', hex: '#FFFFFF' },
+      { name: 'Gris', hex: '#6B7280' }
+    ],
     sku: 'MEN-SH-001',
     minOrderQuantity: 5,
     description: 'Camisa formal de algodón 100% para uso empresarial',
@@ -27,7 +31,11 @@ export const sampleProducts: Product[] = [
     category: 'Pantalones',
     gender: 'men',
     sizes: ['30', '32', '34', '36', '38', '40'],
-    colors: ['Negro', 'Gris Oscuro', 'Azul Marino'],
+    colors: [
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Gris Oscuro', hex: '#374151' },
+      { name: 'Azul Marino', hex: '#1E3A8A' }
+    ],
     sku: 'MEN-PT-001',
     minOrderQuantity: 3,
     description: 'Pantalón de vestir corte clásico, tela premium',
@@ -43,7 +51,12 @@ export const sampleProducts: Product[] = [
     category: 'Polos',
     gender: 'men',
     sizes: ['S', 'M', 'L', 'XL'],
-    colors: ['Azul', 'Negro', 'Blanco', 'Rojo'],
+    colors: [
+      { name: 'Azul', hex: '#2563EB' },
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Blanco', hex: '#FFFFFF' },
+      { name: 'Rojo', hex: '#DC2626' }
+    ],
     sku: 'MEN-PL-001',
     minOrderQuantity: 10,
     description: 'Polo deportivo de algodón piqué, ideal para uso casual',
@@ -59,7 +72,11 @@ export const sampleProducts: Product[] = [
     category: 'Chaquetas',
     gender: 'men',
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['Negro', 'Marrón', 'Gris'],
+    colors: [
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Marrón', hex: '#A16207' },
+      { name: 'Gris', hex: '#6B7280' }
+    ],
     sku: 'MEN-JK-001',
     minOrderQuantity: 2,
     description: 'Chaqueta de cuero genuino, estilo clásico y elegante',
@@ -75,7 +92,12 @@ export const sampleProducts: Product[] = [
     category: 'Camisetas',
     gender: 'men',
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['Blanco', 'Negro', 'Gris', 'Azul Marino'],
+    colors: [
+      { name: 'Blanco', hex: '#FFFFFF' },
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Gris', hex: '#6B7280' },
+      { name: 'Azul Marino', hex: '#1E3A8A' }
+    ],
     sku: 'MEN-TS-001',
     minOrderQuantity: 8,
     description: 'Camiseta básica de algodón, perfecta para uso diario',
@@ -91,7 +113,11 @@ export const sampleProducts: Product[] = [
     category: 'Zapatos',
     gender: 'men',
     sizes: ['39', '40', '41', '42', '43', '44'],
-    colors: ['Negro', 'Marrón', 'Cognac'],
+    colors: [
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Marrón', hex: '#A16207' },
+      { name: 'Cognac', hex: '#92400E' }
+    ],
     sku: 'MEN-SH-001',
     minOrderQuantity: 2,
     description: 'Zapatos Oxford de cuero, perfectos para ocasiones formales',
@@ -109,7 +135,12 @@ export const sampleProducts: Product[] = [
     category: 'Blusas',
     gender: 'women',
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['Rosa', 'Blanco', 'Coral', 'Lavanda'],
+    colors: [
+      { name: 'Rosa', hex: '#EC4899' },
+      { name: 'Blanco', hex: '#FFFFFF' },
+      { name: 'Coral', hex: '#F97316' },
+      { name: 'Lavanda', hex: '#C084FC' }
+    ],
     sku: 'WOM-BL-001',
     minOrderQuantity: 5,
     description: 'Blusa elegante de seda sintética, perfecta para oficina',
@@ -125,7 +156,11 @@ export const sampleProducts: Product[] = [
     category: 'Vestidos',
     gender: 'women',
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['Floral Rosa', 'Floral Azul', 'Floral Verde'],
+    colors: [
+      { name: 'Floral Rosa', hex: '#F9A8D4' },
+      { name: 'Floral Azul', hex: '#BFDBFE' },
+      { name: 'Floral Verde', hex: '#BBF7D0' }
+    ],
     sku: 'WOM-DR-001',
     minOrderQuantity: 3,
     description: 'Vestido casual con estampado floral, tela fresca y cómoda',
@@ -141,7 +176,11 @@ export const sampleProducts: Product[] = [
     category: 'Pantalones',
     gender: 'women',
     sizes: ['24', '26', '28', '30', '32', '34'],
-    colors: ['Azul Claro', 'Azul Oscuro', 'Negro'],
+    colors: [
+      { name: 'Azul Claro', hex: '#93C5FD' },
+      { name: 'Azul Oscuro', hex: '#1E40AF' },
+      { name: 'Negro', hex: '#000000' }
+    ],
     sku: 'WOM-JN-001',
     minOrderQuantity: 4,
     description: 'Pantalón de mezclilla premium, corte moderno y cómodo',
@@ -157,7 +196,12 @@ export const sampleProducts: Product[] = [
     category: 'Faldas',
     gender: 'women',
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['Negro', 'Gris', 'Azul Marino', 'Vino'],
+    colors: [
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Gris', hex: '#6B7280' },
+      { name: 'Azul Marino', hex: '#1E3A8A' },
+      { name: 'Vino', hex: '#7F1D1D' }
+    ],
     sku: 'WOM-SK-001',
     minOrderQuantity: 4,
     description: 'Falda plisada elegante, perfecta para la oficina',
@@ -173,7 +217,12 @@ export const sampleProducts: Product[] = [
     category: 'Cardigans',
     gender: 'women',
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['Beige', 'Gris', 'Rosa Palo', 'Azul Cielo'],
+    colors: [
+      { name: 'Beige', hex: '#D4B08A' },
+      { name: 'Gris', hex: '#6B7280' },
+      { name: 'Rosa Palo', hex: '#FBE2E3' },
+      { name: 'Azul Cielo', hex: '#BAE6FD' }
+    ],
     sku: 'WOM-CD-001',
     minOrderQuantity: 3,
     description: 'Cardigan suave de lana merino, ideal para cualquier ocasión',
@@ -189,7 +238,12 @@ export const sampleProducts: Product[] = [
     category: 'Zapatos',
     gender: 'women',
     sizes: ['35', '36', '37', '38', '39', '40'],
-    colors: ['Negro', 'Nude', 'Rojo', 'Azul Marino'],
+    colors: [
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Nude', hex: '#F3E8D4' },
+      { name: 'Rojo', hex: '#DC2626' },
+      { name: 'Azul Marino', hex: '#1E3A8A' }
+    ],
     sku: 'WOM-HE-001',
     minOrderQuantity: 2,
     description: 'Tacones clásicos de cuero, elegantes y cómodos',
@@ -207,7 +261,12 @@ export const sampleProducts: Product[] = [
     category: 'Camisetas',
     gender: 'boys',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Azul', 'Rojo', 'Verde', 'Negro'],
+    colors: [
+      { name: 'Azul', hex: '#2563EB' },
+      { name: 'Rojo', hex: '#DC2626' },
+      { name: 'Verde', hex: '#16A34A' },
+      { name: 'Negro', hex: '#000000' }
+    ],
     sku: 'BOY-TS-001',
     minOrderQuantity: 12,
     description: 'Camiseta deportiva para niños, tela transpirable y cómoda',
@@ -223,7 +282,12 @@ export const sampleProducts: Product[] = [
     category: 'Shorts',
     gender: 'boys',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Azul Marino', 'Gris', 'Negro', 'Verde Militar'],
+    colors: [
+      { name: 'Azul Marino', hex: '#1E3A8A' },
+      { name: 'Gris', hex: '#6B7280' },
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Verde Militar', hex: '#4B5563' }
+    ],
     sku: 'BOY-SH-001',
     minOrderQuantity: 8,
     description: 'Shorts casuales para niños, perfectos para el día a día',
@@ -239,7 +303,12 @@ export const sampleProducts: Product[] = [
     category: 'Sudaderas',
     gender: 'boys',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Gris', 'Azul', 'Negro', 'Rojo'],
+    colors: [
+      { name: 'Gris', hex: '#6B7280' },
+      { name: 'Azul', hex: '#2563EB' },
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Rojo', hex: '#DC2626' }
+    ],
     sku: 'BOY-HD-001',
     minOrderQuantity: 6,
     description: 'Sudadera con capucha para niños, algodón suave y cálido',
@@ -255,7 +324,11 @@ export const sampleProducts: Product[] = [
     category: 'Pantalones',
     gender: 'boys',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Azul Claro', 'Azul Oscuro', 'Negro'],
+    colors: [
+      { name: 'Azul Claro', hex: '#93C5FD' },
+      { name: 'Azul Oscuro', hex: '#1E40AF' },
+      { name: 'Negro', hex: '#000000' }
+    ],
     sku: 'BOY-JN-001',
     minOrderQuantity: 6,
     description: 'Jeans clásicos para niños, resistentes y cómodos',
@@ -271,7 +344,12 @@ export const sampleProducts: Product[] = [
     category: 'Polos',
     gender: 'boys',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Blanco', 'Azul Marino', 'Gris', 'Verde'],
+    colors: [
+      { name: 'Blanco', hex: '#FFFFFF' },
+      { name: 'Azul Marino', hex: '#1E3A8A' },
+      { name: 'Gris', hex: '#6B7280' },
+      { name: 'Verde', hex: '#16A34A' }
+    ],
     sku: 'BOY-PL-001',
     minOrderQuantity: 10,
     description: 'Polo escolar para niños, ideal para uniformes',
@@ -287,7 +365,12 @@ export const sampleProducts: Product[] = [
     category: 'Zapatos',
     gender: 'boys',
     sizes: ['25', '26', '27', '28', '29', '30', '31', '32'],
-    colors: ['Azul', 'Negro', 'Blanco', 'Rojo'],
+    colors: [
+      { name: 'Azul', hex: '#2563EB' },
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Blanco', hex: '#FFFFFF' },
+      { name: 'Rojo', hex: '#DC2626' }
+    ],
     sku: 'BOY-SN-001',
     minOrderQuantity: 4,
     description: 'Tenis deportivos para niños, cómodos y resistentes',
@@ -305,7 +388,12 @@ export const sampleProducts: Product[] = [
     category: 'Vestidos',
     gender: 'girls',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Rosa', 'Lila', 'Celeste', 'Blanco'],
+    colors: [
+      { name: 'Rosa', hex: '#EC4899' },
+      { name: 'Lila', hex: '#DDA0DD' },
+      { name: 'Celeste', hex: '#0EA5E9' },
+      { name: 'Blanco', hex: '#FFFFFF' }
+    ],
     sku: 'GIR-DR-001',
     minOrderQuantity: 6,
     description: 'Vestido estilo princesa para niñas, perfecto para ocasiones especiales',
@@ -321,7 +409,12 @@ export const sampleProducts: Product[] = [
     category: 'Leggings',
     gender: 'girls',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Rosa', 'Morado', 'Turquesa', 'Coral'],
+    colors: [
+      { name: 'Rosa', hex: '#EC4899' },
+      { name: 'Morado', hex: '#9333EA' },
+      { name: 'Turquesa', hex: '#14B8A6' },
+      { name: 'Coral', hex: '#F97316' }
+    ],
     sku: 'GIR-LG-001',
     minOrderQuantity: 10,
     description: 'Leggings cómodos y coloridos para niñas, perfectos para jugar',
@@ -337,7 +430,11 @@ export const sampleProducts: Product[] = [
     category: 'Blusas',
     gender: 'girls',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Floral Rosa', 'Floral Lila', 'Floral Amarillo'],
+    colors: [
+      { name: 'Floral Rosa', hex: '#F9A8D4' },
+      { name: 'Floral Lila', hex: '#E9D5FF' },
+      { name: 'Floral Amarillo', hex: '#FEF3C7' }
+    ],
     sku: 'GIR-BL-001',
     minOrderQuantity: 8,
     description: 'Blusa con estampado floral para niñas, estilo dulce y elegante',
@@ -353,7 +450,12 @@ export const sampleProducts: Product[] = [
     category: 'Faldas',
     gender: 'girls',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Azul Marino', 'Gris', 'Verde', 'Vino'],
+    colors: [
+      { name: 'Azul Marino', hex: '#1E3A8A' },
+      { name: 'Gris', hex: '#6B7280' },
+      { name: 'Verde', hex: '#16A34A' },
+      { name: 'Vino', hex: '#7F1D1D' }
+    ],
     sku: 'GIR-SK-001',
     minOrderQuantity: 8,
     description: 'Falda plisada escolar, cómoda y elegante',
@@ -369,7 +471,12 @@ export const sampleProducts: Product[] = [
     category: 'Cardigans',
     gender: 'girls',
     sizes: ['4', '6', '8', '10', '12', '14'],
-    colors: ['Azul Marino', 'Gris', 'Blanco', 'Verde'],
+    colors: [
+      { name: 'Azul Marino', hex: '#1E3A8A' },
+      { name: 'Gris', hex: '#6B7280' },
+      { name: 'Blanco', hex: '#FFFFFF' },
+      { name: 'Verde', hex: '#16A34A' }
+    ],
     sku: 'GIR-CD-001',
     minOrderQuantity: 6,
     description: 'Cardigan escolar para niñas, suave y abrigado',
@@ -385,7 +492,11 @@ export const sampleProducts: Product[] = [
     category: 'Zapatos',
     gender: 'girls',
     sizes: ['25', '26', '27', '28', '29', '30', '31', '32'],
-    colors: ['Negro', 'Azul Marino', 'Marrón'],
+    colors: [
+      { name: 'Negro', hex: '#000000' },
+      { name: 'Azul Marino', hex: '#1E3A8A' },
+      { name: 'Marrón', hex: '#A16207' }
+    ],
     sku: 'GIR-SH-001',
     minOrderQuantity: 4,
     description: 'Zapatos escolares para niñas, cómodos y duraderos',

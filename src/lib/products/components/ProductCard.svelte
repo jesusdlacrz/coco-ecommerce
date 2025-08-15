@@ -67,16 +67,17 @@
 		<!-- Colors -->
 		{#if product.colors && product.colors.length > 0}
 			<div class="space-y-2">
-				<p class="text-xs text-gray-600 font-medium">Colores disponibles:</p>
 				<div class="flex flex-wrap gap-1">
-					{#each product.colors.slice(0, 4) as color (color)}
-						<span class="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
-							{color}
-						</span>
+					{#each product.colors.slice(0, 6) as color (color.name)}
+						<div 
+							class="w-4 h-4 rounded-full border border-gray-300 {color.name === 'Blanco' ? 'border-gray-400' : ''}"
+							style="background-color: {color.hex}"
+							title={color.name}
+						></div>
 					{/each}
-					{#if product.colors.length > 4}
-						<span class="inline-block px-2 py-1 text-xs {colors.text} rounded-full">
-							+{product.colors.length - 4}
+					{#if product.colors.length > 6}
+						<span class="inline-flex items-center justify-center w-4 h-4 text-[10px] {colors.text} font-medium">
+							+{product.colors.length - 6}
 						</span>
 					{/if}
 				</div>
@@ -89,11 +90,6 @@
 				{product.category}
 			</span>
 			
-			{#if product.minOrderQuantity}
-				<span class="text-xs text-gray-500">
-					Min. {product.minOrderQuantity} pzs
-				</span>
-			{/if}
 		</div>
 	</div>
 </TransitionLink>
