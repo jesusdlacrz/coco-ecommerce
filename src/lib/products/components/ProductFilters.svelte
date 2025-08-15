@@ -156,28 +156,36 @@
 			accentHover: 'hover:bg-[#2C71CC] hover:border-[#2C71CC]',
 			checkboxAccent: 'text-[#16167F] focus:ring-[#16167F]',
 			rangeAccent: 'accent-[#16167F]',
-			ringColor: 'ring-[#16167F]'
+			ringColor: 'ring-[#16167F]',
+			borderColor: 'border-[#16167F]',
+			hoverBorderColor: 'hover:border-[#0F0F5F]'
 		},
 		women: {
 			accent: 'bg-[#B19ADE] border-[#B19ADE] text-white',
 			accentHover: 'hover:bg-[#B19ADE] hover:border-[#B19ADE]',
 			checkboxAccent: 'text-[#7C00F4] focus:ring-[#7C00F4]',
 			rangeAccent: 'accent-[#7C00F4]',
-			ringColor: 'ring-[#7C00F4]'
+			ringColor: 'ring-[#7C00F4]',
+			borderColor: 'border-[#7C00F4]',
+			hoverBorderColor: 'hover:border-[#5A00B8]'
 		},
 		boys: {
 			accent: 'bg-[#2C71CC] border-[#2C71CC] text-white',
 			accentHover: 'hover:bg-[#2C71CC] hover:border-[#2C71CC]',
 			checkboxAccent: 'text-[#6297DB] focus:ring-[#6297DB]',
 			rangeAccent: 'accent-[#2C71CC]',
-			ringColor: 'ring-[#6297DB]'
+			ringColor: 'ring-[#6297DB]',
+			borderColor: 'border-[#6297DB]',
+			hoverBorderColor: 'hover:border-[#4A7BC1]'
 		},
 		girls: {
 			accent: 'bg-[#FF91C1] border-[#FF91C1] text-white',
 			accentHover: 'hover:bg-[#FF91C1] hover:border-[#FF91C1]',
 			checkboxAccent: 'text-[#FF91C1] focus:ring-[#FF91C1]',
 			rangeAccent: 'accent-[#FF91C1]',
-			ringColor: 'ring-[#FF91C1]'
+			ringColor: 'ring-[#FF91C1]',
+			borderColor: 'border-[#FF91C1]',
+			hoverBorderColor: 'hover:border-[#E5729A]'
 		}
 	};
 
@@ -205,7 +213,7 @@
 						onclick={() => toggleCategory(category)}
 						class="px-3 py-2 text-sm border rounded-md transition-all text-left {selectedCategories.includes(category) 
 							? `${currentStyle.accent} ${currentStyle.accentHover}` 
-							: 'border-gray-300 text-[#8A8A8A] hover:border-gray-400'}"
+							: `${currentStyle.borderColor} text-[#8A8A8A] ${currentStyle.hoverBorderColor}`}"
 					>
 						{category}
 					</button>
@@ -224,7 +232,7 @@
 						onclick={() => toggleSize(size)}
 						class="px-2 py-2 text-sm border rounded-md transition-all {selectedSizes.includes(size) 
 							? `${currentStyle.accent} ${currentStyle.accentHover}` 
-							: 'border-gray-300 text-[#8A8A8A] hover:border-gray-400'}"
+							: `${currentStyle.borderColor} text-[#8A8A8A] ${currentStyle.hoverBorderColor}`}"
 					>
 						{size}
 					</button>
