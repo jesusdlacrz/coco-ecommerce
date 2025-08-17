@@ -187,7 +187,7 @@
 	<button
 		bind:this={triggerBtn}
 		onclick={openMobile}
-		class="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-lg font-medium shadow transition active:scale-[.98]"
+		class="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-lg font-medium shadow transition active:scale-[.98] bg-white"
 	>
 		<span class={currentStyle.textAccent}>Filtros</span>
 		{#if activeFiltersCount > 0}
@@ -238,19 +238,23 @@
 					</div>
 					<div class="flex-1 space-y-4 overflow-y-auto px-4 py-4">
 						<div class="rounded-md border p-3">
+							<h4 class="mb-3 text-sm font-medium text-gray-900">Categorías</h4>
 							<CategoryFilter {currentStyle} categories={allCategories} selected={selectedCategories} counts={categoryCounts} {toggleCategory} />
 						</div>
 						{#if selectedCategories.length > 0 && availableSizes.length > 0}
 							<div class="rounded-md border p-3">
+								<h4 class="mb-3 text-sm font-medium text-gray-900">Tallas</h4>
 								<SizeFilter {currentStyle} sizes={availableSizes} {selectedSizes} {toggleSize} />
 							</div>
 						{/if}
 						{#if availableColors.length > 0}
 							<div class="rounded-md border p-3">
+								<h4 class="mb-3 text-sm font-medium text-gray-900">Color</h4>
 								<ColorFilter {currentStyle} colors={availableColors} {selectedColors} {toggleColor} containerClass="grid grid-cols-6 gap-1" />
 							</div>
 						{/if}
 						<div class="rounded-md border p-3">
+							<h4 class="mb-3 text-sm font-medium text-gray-900">Precio</h4>
 							<PriceFilter currentStyle={currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} />
 						</div>
 					</div>

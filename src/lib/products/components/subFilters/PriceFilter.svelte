@@ -7,11 +7,11 @@
   export let currentStyle: any;
 </script>
 
-<div class="space-y-2 text-sm" style="font-family:'Poppins',sans-serif">
+<div class="flex flex-col gap-2 text-sm" style="font-family:'Poppins',sans-serif">
   {#each presets as preset (preset.id)}
     <button
       style="font-family:'Poppins',sans-serif"
-      class="rounded py-1 text-left {activePreset === preset.id ? `${currentStyle.textAccent} font-semibold` : `${currentStyle.textSecondary}` }"
+  class="w-full rounded py-1 text-left {activePreset === preset.id ? `${currentStyle.textAccent} font-semibold` : `${currentStyle.textSecondary}` }"
       onclick={() => selectPreset(preset.id)}
       aria-pressed={activePreset === preset.id}
     >
