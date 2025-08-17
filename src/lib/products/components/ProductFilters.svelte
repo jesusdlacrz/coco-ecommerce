@@ -11,8 +11,9 @@
 	} from '$lib/products/filters/filterUtils';
 	import { formatPriceCOP } from '$lib/products/filters/price';
 	import { getCategoryStyle } from '$lib/products/filters/categoryStyles';
-	import { PRICE_PRESETS, findPresetLabel } from '$lib/products/filters/presets';
-	import { applyNonPriceFilters, countPricePresets, productsExceptCategory, buildCategoryCounts } from '$lib/products/filters/logic';
+	// Dynamic price presets
+	import { generateDynamicPricePresets, priceInPreset, applyDynamicPreset } from '$lib/products/filters/dynamicPrice';
+	import { applyNonPriceFilters, productsExceptCategory, buildCategoryCounts } from '$lib/products/filters/logic';
 	import Portal from '$lib/shared/components/Portal.svelte';
 	import CategoryFilter from './subFilters/CategoryFilter.svelte';
 	import SizeFilter from './subFilters/SizeFilter.svelte';
@@ -37,6 +38,16 @@
 	let sectionsOpen = $state({ categories: true, sizes: true, colors: true, price: true });
 
 	let pricePreset = $state<string | null>(null);
+	// dynamic presets derived from current dataset (gender + optional category + other non-price filters basis)
+	// base set for building presets should ignore price filtering but respect gender, category selection, sizes, colors.
+	const baseForDynamicPresets = $derived(products.filter(p => {
+		// gender already filtered by parent providing products (assumption)
+		const categoryOk = selectedCategories.length === 0 || selectedCategories.includes(p.category);
+		const sizeOk = selectedSizes.length === 0 || p.sizes.some(s=> selectedSizes.includes(s));
+		const colorOk = selectedColors.length === 0 || p.colors.some(c=> selectedColors.includes(c.name));
+		return categoryOk && sizeOk && colorOk;
+	}));
+	const dynamicPricePresets = $derived(generateDynamicPricePresets(baseForDynamicPresets.map(p=>p.price), formatPriceCOP));
 
 	// Derived data (expressions directly for Svelte 5 $derived values)
 	const allCategories = $derived(getAllCategories(products));
@@ -120,20 +131,28 @@
 			return;
 		}
 		pricePreset = id;
-		const preset = PRICE_PRESETS.find(p => p.id === id);
+		const preset = dynamicPricePresets.find(p => p.id === id);
 		if (preset) {
-			// pass bounds so the preset pure functions can compute
-			const r = preset.apply({ minPrice, maxPrice });
+			const r = applyDynamicPreset(preset);
 			priceRange = { min: r.min, max: r.max };
 		}
 	}
 
 	// Counts using pure helpers
 	const filteredExceptPrice = $derived(applyNonPriceFilters(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
-	const pricePresetCounts = $derived(countPricePresets(filteredExceptPrice));
+	// counts for dynamic presets
+	const pricePresetCounts = $derived(Object.fromEntries(dynamicPricePresets.map(pr => [pr.id, filteredExceptPrice.filter(p=> priceInPreset(p.price, pr)).length])) as Record<string, number>);
 	const filteredExceptCategory = $derived(productsExceptCategory(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
 	const categoryCounts = $derived(buildCategoryCounts(allCategories, filteredExceptCategory));
-	const pricePresetLabel = (id: string | null) => findPresetLabel(id);
+	const pricePresetLabel = (id: string | null) => dynamicPricePresets.find(p=>p.id===id)?.label ?? null;
+
+	// ensure active preset still valid when dynamic presets regenerate
+	$effect(() => {
+		if (pricePreset && !dynamicPricePresets.some(p=>p.id===pricePreset)) {
+			pricePreset = null;
+			priceRange = { min: minPrice, max: maxPrice };
+		}
+	});
 
 	function toggleSection(key: keyof typeof sectionsOpen) {
 		sectionsOpen = { ...sectionsOpen, [key]: !sectionsOpen[key] };
@@ -232,7 +251,7 @@
 							</div>
 						{/if}
 						<div class="rounded-md border p-3">
-							<PriceFilter currentStyle={currentStyle} presets={PRICE_PRESETS} counts={{ under200: pricePresetCounts.under200, '200to300': pricePresetCounts.between200and300, over300: pricePresetCounts.over300 }} activePreset={pricePreset} selectPreset={selectPricePreset} />
+							<PriceFilter currentStyle={currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} />
 						</div>
 					</div>
 					<div class="flex gap-2 border-t px-4 py-3">
@@ -281,7 +300,7 @@
 	<!-- Price -->
 	<div class="mb-6">
 		<h4 class="mb-3 text-sm font-medium text-gray-900">Precio</h4>
-		<PriceFilter currentStyle={currentStyle} presets={PRICE_PRESETS} counts={{ under200: pricePresetCounts.under200, '200to300': pricePresetCounts.between200and300, over300: pricePresetCounts.over300 }} activePreset={pricePreset} selectPreset={selectPricePreset} />
+		<PriceFilter currentStyle={currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} />
 	</div>
 	<!-- Active Filters Summary -->
 	<ActiveFiltersChips {currentStyle} chips={[...selectedCategories.map(c=>({label:c,remove:()=>toggleCategory(c)})),...selectedSizes.map(s=>({label:s,remove:()=>toggleSize(s)})),...selectedColors.map(c=>({label:c,remove:()=>toggleColor(c)})),...(pricePreset? [{label: pricePresetLabel(pricePreset)!, remove:()=>selectPricePreset(pricePreset!)}]:[])]} />

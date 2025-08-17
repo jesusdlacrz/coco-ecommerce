@@ -1,6 +1,6 @@
 <script lang="ts">
-  interface PricePreset { id: string; label: string }
-  export let presets: readonly PricePreset[] = [];
+  interface DynamicPreset { id: string; label: string; min: number; max: number }
+  export let presets: readonly DynamicPreset[] = [];
   export let counts: Record<string, number> = {};
   export let activePreset: string | null = null;
   export let selectPreset: (id: string) => void;

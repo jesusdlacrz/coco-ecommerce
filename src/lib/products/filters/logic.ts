@@ -18,13 +18,6 @@ export function applyNonPriceFilters(products: Product[], state: FilterState) {
   });
 }
 
-export function countPricePresets(base: Product[]) {
-  return {
-    under200: base.filter(p => p.price <= 200000).length,
-    between200and300: base.filter(p => p.price >= 200000 && p.price <= 300000).length,
-    over300: base.filter(p => p.price >= 300000).length
-  } as const;
-}
 
 export function productsExceptCategory(products: Product[], state: FilterState) {
   return products.filter(p => {
