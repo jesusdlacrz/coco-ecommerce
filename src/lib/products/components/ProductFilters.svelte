@@ -12,6 +12,11 @@
 	import { formatPriceCOP } from '$lib/products/filters/price';
 	import { getCategoryStyle } from '$lib/products/filters/categoryStyles';
 	import Portal from '$lib/shared/components/Portal.svelte';
+	import CategoryFilter from './filters/CategoryFilter.svelte';
+	import SizeFilter from './filters/SizeFilter.svelte';
+	import ColorFilter from './filters/ColorFilter.svelte';
+	import PriceFilter from './filters/PriceFilter.svelte';
+	import ActiveFiltersChips from './filters/ActiveFiltersChips.svelte';
 
 	interface Props {
 		products: Product[];
@@ -254,160 +259,21 @@
 						</div>
 					</div>
 					<div class="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-						<!-- Categories -->
-						<div class="rounded-md border">
-							<button
-								type="button"
-								onclick={() => toggleSection('categories')}
-								class="flex w-full items-center justify-between px-3 py-2 text-sm font-medium"
-							>
-								<span>Categorías</span>
-								<span
-									class="transition-transform duration-200 {sectionsOpen.categories
-										? 'rotate-90'
-										: ''}">▶</span
-								>
-							</button>
-							{#if sectionsOpen.categories}
-								<div class="flex flex-col gap-1 px-3 pb-3">
-									{#each allCategories as category (category)}
-										<button
-											onclick={() => toggleCategory(category)}
-											style="font-family:'Poppins',sans-serif"
-											class="rounded px-1 py-1 text-left text-sm transition {selectedCategories[0] ===
-											category
-												? `${currentStyle.textAccent} font-semibold`
-												: 'text-gray-600 hover:text-gray-800'}">{category} <span class="text-gray-400">({categoryCounts[category] ?? 0})</span></button
-										>
-									{/each}
-								</div>
-							{/if}
+						<div class="rounded-md border p-3">
+							<CategoryFilter {currentStyle} categories={allCategories} selected={selectedCategories} counts={categoryCounts} {toggleCategory} />
 						</div>
-						<!-- Sizes -->
 						{#if selectedCategories.length > 0 && availableSizes.length > 0}
-							<div class="rounded-md border">
-								<button
-									type="button"
-									onclick={() => toggleSection('sizes')}
-									class="flex w-full items-center justify-between px-3 py-2 text-sm font-medium"
-								>
-									<span>Tallas</span>
-									<span
-										class="transition-transform duration-200 {sectionsOpen.sizes
-											? 'rotate-90'
-											: ''}">▶</span
-									>
-								</button>
-								{#if sectionsOpen.sizes}
-									<div class="grid grid-cols-4 gap-2 px-3 pb-3">
-										{#each availableSizes as size (size)}
-											<button
-												onclick={() => toggleSize(size)}
-												class="rounded-md border px-2 py-2 text-xs transition {selectedSizes.includes(
-													size
-												)
-													? `${currentStyle.accent} ${currentStyle.accentHover}`
-													: `${currentStyle.borderColor} text-[#8A8A8A] ${currentStyle.hoverBorderColor}`}"
-												>{size}</button
-											>
-										{/each}
-									</div>
-								{/if}
+							<div class="rounded-md border p-3">
+								<SizeFilter {currentStyle} sizes={availableSizes} {selectedSizes} {toggleSize} />
 							</div>
 						{/if}
-						<!-- Colors -->
 						{#if availableColors.length > 0}
-							<div class="rounded-md border">
-								<button
-									type="button"
-									onclick={() => toggleSection('colors')}
-									class="flex w-full items-center justify-between px-3 py-2 text-sm font-medium"
-								>
-									<span>Colores</span>
-									<span
-										class="transition-transform duration-200 {sectionsOpen.colors
-											? 'rotate-90'
-											: ''}">▶</span
-									>
-								</button>
-								{#if sectionsOpen.colors}
-									<div class="grid grid-cols-6 gap-1 px-2 pb-3">
-										{#each availableColors as [colorName, colorHex] (colorName)}
-											<button
-												onclick={() => toggleColor(colorName)}
-												class="flex items-center justify-center rounded-lg p-1 transition hover:bg-gray-50 {selectedColors.includes(
-													colorName
-												)
-													? 'bg-gray-100'
-													: ''}"
-												title={colorName}
-												aria-label={`Filtrar por color ${colorName}${selectedColors.includes(colorName) ? ' (seleccionado)' : ''}`}
-											>
-												<div
-													class="h-6 w-6 rounded-full border-2 transition {selectedColors.includes(
-														colorName
-													)
-														? `border-transparent ring-2 ring-offset-2 ${currentStyle.ringColor}`
-														: colorName === 'Blanco'
-															? 'border-gray-300'
-															: 'border-gray-200'}"
-													style="background-color: {colorHex}"
-												></div>
-											</button>
-										{/each}
-									</div>
-								{/if}
+							<div class="rounded-md border p-3">
+								<ColorFilter {currentStyle} colors={availableColors} {selectedColors} {toggleColor} containerClass="grid grid-cols-6 gap-1" />
 							</div>
 						{/if}
-						<!-- Price -->
-						<div class="rounded-md border">
-							<button
-								type="button"
-								onclick={() => toggleSection('price')}
-								class="flex w-full items-center justify-between px-3 py-2 text-sm font-medium"
-							>
-								<span>Precio</span>
-								<span
-									class="transition-transform duration-200 {sectionsOpen.price ? 'rotate-90' : ''}"
-									>▶</span
-								>
-							</button>
-							{#if sectionsOpen.price}
-								<div class="space-y-2 px-3 pb-4 text-sm">
-									<div class="flex flex-col gap-1" style="font-family:'Poppins',sans-serif">
-										<button
-											class="rounded px-1 py-1 text-left {pricePreset === 'under200'
-												? `${currentStyle.textAccent} font-semibold`
-												: 'text-gray-600 hover:text-gray-800'}"
-											onclick={() => selectPricePreset('under200')}
-											>Hasta $ 200.000 <span class="text-gray-400"
-												>({pricePresetCounts.under200})</span
-											></button
-										>
-										<button
-											class="rounded px-1 py-1 text-left {pricePreset === '200to300'
-												? `${currentStyle.textAccent} font-semibold`
-												: 'text-gray-600 hover:text-gray-800'}"
-											onclick={() => selectPricePreset('200to300')}
-											>$200.000 a $300.000 <span class="text-gray-400"
-												>({pricePresetCounts.between200and300})</span
-											></button
-										>
-										<button
-											class="rounded px-1 py-1 text-left {pricePreset === 'over300'
-												? `${currentStyle.textAccent} font-semibold`
-												: 'text-gray-600 hover:text-gray-800'}"
-											onclick={() => selectPricePreset('over300')}
-											>Más de $300.000 <span class="text-gray-400"
-												>({pricePresetCounts.over300})</span
-											></button
-										>
-									</div>
-									<div class="text-[11px] text-gray-500">
-										Actual: {formatPrice(priceRange.min)} - {formatPrice(priceRange.max)}
-									</div>
-								</div>
-							{/if}
+						<div class="rounded-md border p-3">
+							<PriceFilter currentStyle={currentStyle} presets={PRICE_PRESETS} counts={{ under200: pricePresetCounts.under200, '200to300': pricePresetCounts.between200and300, over300: pricePresetCounts.over300 }} activePreset={pricePreset} selectPreset={selectPricePreset} />
 						</div>
 					</div>
 					<div class="flex gap-2 border-t px-4 py-3">
@@ -437,112 +303,27 @@
 	<!-- Categories -->
 	<div class="mb-6">
 		<h4 class="text-md mb-3 font-medium text-gray-900">Categorías</h4>
-		<div class="flex flex-col gap-1">
-			{#each allCategories as category (category)}
-				<button
-					onclick={() => toggleCategory(category)}
-					style="font-family:'Poppins',sans-serif"
-					class="rounded py-1 text-left text-sm transition {selectedCategories[0] === category
-						? `${currentStyle.textAccent} font-semibold`
-						: `${currentStyle.textSecondary}`}">{category} <span style="font-family:'Poppins',sans-serif">({categoryCounts[category] ?? 0})</span></button
-				>
-			{/each}
-		</div>
+		<CategoryFilter {currentStyle} categories={allCategories} selected={selectedCategories} counts={categoryCounts} {toggleCategory} />
 	</div>
 	<!-- Sizes -->
 	{#if selectedCategories.length > 0 && availableSizes.length > 0}
 		<div class="mb-6">
 			<h4 class="mb-3 text-sm font-medium text-gray-900">Tallas</h4>
-			<div class="grid grid-cols-4 gap-2">
-				{#each availableSizes as size (size)}
-					<button
-						onclick={() => toggleSize(size)}
-						style="font-family:'Poppins',sans-serif"
-						class="rounded-md border px-2 py-2 text-sm transition-all {selectedSizes.includes(size)
-							? `${currentStyle.accent}`
-							: `${currentStyle.borderColor} text-[#8A8A8A] ${currentStyle.accentHover} ${currentStyle.hoverBorderColor}`}"
-						>{size}</button
-					>
-				{/each}
-			</div>
+			<SizeFilter {currentStyle} sizes={availableSizes} {selectedSizes} {toggleSize} />
 		</div>
 	{/if}
 	<!-- Colors -->
 	{#if availableColors.length > 0}
 		<div class="mb-6">
 			<h4 class="mb-3 text-sm font-medium text-gray-900">Colores</h4>
-			<div class="grid grid-cols-8 gap-1">
-				{#each availableColors as [colorName, colorHex] (colorName)}
-					<button
-						onclick={() => toggleColor(colorName)}
-						class="flex items-center justify-center rounded-lg transition-all hover:bg-gray-50 {selectedColors.includes(
-							colorName
-						)
-							? 'bg-gray-100'
-							: ''}"
-						title={colorName}
-						aria-label={`Filtrar por color ${colorName}${selectedColors.includes(colorName) ? ' (seleccionado)' : ''}`}
-					>
-						<div
-							class="h-6 w-6 rounded-full border-2 transition-all {selectedColors.includes(
-								colorName
-							)
-								? `border-transparent ring-2 ring-offset-2 ${currentStyle.ringColor}`
-								: colorName === 'Blanco'
-									? 'border-gray-300'
-									: 'border-gray-200'}"
-							style="background-color: {colorHex}"
-						></div>
-					</button>
-				{/each}
-			</div>
+			<ColorFilter {currentStyle} colors={availableColors} {selectedColors} {toggleColor} containerClass="grid grid-cols-8 gap-1" />
 		</div>
 	{/if}
 	<!-- Price -->
 	<div class="mb-6">
 		<h4 class="mb-3 text-sm font-medium text-gray-900">Precio</h4>
-		<div class="space-y-2 text-sm">
-			{#each PRICE_PRESETS as preset (preset.id)}
-				{@const countMap = {
-					under200: pricePresetCounts.under200,
-					'200to300': pricePresetCounts.between200and300,
-					over300: pricePresetCounts.over300
-				}}
-				<button
-					style="font-family:'Poppins',sans-serif"
-					class="rounded py-1 text-left {pricePreset === preset.id
-						? `${currentStyle.textAccent} font-semibold`
-						: `${currentStyle.textSecondary}`}"
-					onclick={() => selectPricePreset(preset.id)}
-					aria-pressed={pricePreset === preset.id}
-				>
-					<span style="font-family:'Poppins',sans-serif">
-						{preset.label}
-						<span class="ml-1 opacity-70" style="font-family:'Poppins',sans-serif">({countMap[preset.id]})</span>
-					</span>
-				</button>
-			{/each}
-		</div>
+		<PriceFilter currentStyle={currentStyle} presets={PRICE_PRESETS} counts={{ under200: pricePresetCounts.under200, '200to300': pricePresetCounts.between200and300, over300: pricePresetCounts.over300 }} activePreset={pricePreset} selectPreset={selectPricePreset} />
 	</div>
 	<!-- Active Filters Summary -->
-	{#if selectedCategories.length > 0 || selectedSizes.length > 0 || selectedColors.length > 0 || pricePreset}
-		<div class="border-t border-[#16167F] pt-4">
-			<h4 class="mb-2 text-sm font-medium text-gray-900">Filtros activos</h4>
-			<div class="flex flex-wrap gap-2">
-				{#each [...selectedCategories.map( (c) => ({ type: 'category', label: c, remove: () => toggleCategory(c) }) ), ...selectedSizes.map( (s) => ({ type: 'size', label: s, remove: () => toggleSize(s) }) ), ...selectedColors.map( (c) => ({ type: 'color', label: c, remove: () => toggleColor(c) }) ), ...(pricePreset ? [{ type: 'price', label: pricePresetLabel(pricePreset), remove: () => selectPricePreset(pricePreset!) }] : [])] as filter (filter.type + filter.label)}
-					<span
-						style="font-family:'Poppins',sans-serif"
-						class="inline-flex items-center rounded-full px-2 py-1 text-xs {currentStyle.accent}"
-					>
-						{filter.label}
-						<button
-							onclick={filter.remove}
-							class="ml-1 hover:text-gray-300"
-							aria-label="Quitar filtro">×</button
-						>
-					</span>
-				{/each}
-			</div>
-		</div>
-	{/if}
+	<ActiveFiltersChips {currentStyle} chips={[...selectedCategories.map(c=>({label:c,remove:()=>toggleCategory(c)})),...selectedSizes.map(s=>({label:s,remove:()=>toggleSize(s)})),...selectedColors.map(c=>({label:c,remove:()=>toggleColor(c)})),...(pricePreset? [{label: pricePresetLabel(pricePreset)!, remove:()=>selectPricePreset(pricePreset!)}]:[])]} />
 </div>
