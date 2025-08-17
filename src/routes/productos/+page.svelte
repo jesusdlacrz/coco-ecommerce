@@ -29,7 +29,7 @@
 	// Background colors based on category
 	const categoryBackgrounds = {
 		men: 'bg-[#f0fcfc]',
-		women: 'bg-[#f8f4fc]', 
+		women: 'bg-[#fefeff]', 
 		boys: 'bg-[#f0f4fc]',
 		girls: 'bg-[#ffecf4]'
 	};

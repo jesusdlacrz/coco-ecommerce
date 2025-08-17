@@ -14,7 +14,7 @@
 
 	let { cartItemCount, onCartClick, onAccountClick, useDynamicColors = false, backgroundColor = '' }: Props = $props();
 
-	const currentCategory = $derived(useDynamicColors ? $activeCategory : 'men');
+	const currentCategory = $derived(useDynamicColors ? $activeCategory : 'women');
 	
 	const colors = $derived(useDynamicColors ? categoryColors[currentCategory] : {
 		primary: 'bg-black',
@@ -30,7 +30,7 @@
 		},
 		{
 			label: 'Shop',
-			href: useDynamicColors ? `/productos?category=${$activeCategory}` : '/productos?category=men'
+			href: useDynamicColors ? `/productos?category=${$activeCategory}` : '/productos?category=women'
 		},
 	]);
 </script>

@@ -8,7 +8,7 @@
 	import { onMount } from 'svelte';
 
 	// =================== STATE ===================
-	let activeTab = $state<Category>('men');
+	let activeTab = $state<Category>('women');
 
 	// =================== DERIVED DATA ===================
 	const menProducts = sampleProducts.filter((p) => p.gender === 'men');

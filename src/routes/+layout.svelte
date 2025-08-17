@@ -16,17 +16,17 @@
 
 	// =================== CART STATE ===================
 	let isCartOpen = $state(false);
-	let currentCategory = $state<Category>('men');
+	let currentCategory = $state<Category>('women');
 
 	// Check if we're on the productos page or product detail page
 	const isProductsPage = $derived($page.url.pathname.startsWith('/productos'));
 	
 	// Get background color for productos page
 	const categoryBackgrounds = {
-		men: 'bg-[#f0fcfc]',
 		women: 'bg-[#f8f4fc]', 
+		men: 'bg-[#f0fcfc]',
+		girls: 'bg-[#ffecf4]',
 		boys: 'bg-[#f0f4fc]',
-		girls: 'bg-[#ffecf4]'
 	};
 	
 	const currentBackground = $derived(isProductsPage ? categoryBackgrounds[currentCategory] : '');
@@ -34,7 +34,7 @@
 	// Update category from URL params more responsively
 	$effect(() => {
 		const categoryParam = $page.url.searchParams.get('category');
-		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
+		if (categoryParam && [ 'women', 'men', 'girls', 'boys'].includes(categoryParam)) {
 			const category = categoryParam as Category;
 			currentCategory = category;
 			activeCategory.set(category);

@@ -9,10 +9,12 @@
 	let { activeTab, onTabChange }: Props = $props();
 
 	const categories = [
-		{ id: 'men', label: 'Hombres' },
+
 		{ id: 'women', label: 'Mujeres' },
+		{ id: 'men', label: 'Hombres' },
+		{ id: 'girls', label: 'Niñas' },
 		{ id: 'boys', label: 'Niños' },
-		{ id: 'girls', label: 'Niñas' }
+
 	] as const;
 
 	function handleCategoryClick(categoryId: Category) {
