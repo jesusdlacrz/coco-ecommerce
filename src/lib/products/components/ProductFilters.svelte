@@ -11,12 +11,14 @@
 	} from '$lib/products/filters/filterUtils';
 	import { formatPriceCOP } from '$lib/products/filters/price';
 	import { getCategoryStyle } from '$lib/products/filters/categoryStyles';
+	import { PRICE_PRESETS, findPresetLabel } from '$lib/products/filters/presets';
+	import { applyNonPriceFilters, countPricePresets, productsExceptCategory, buildCategoryCounts } from '$lib/products/filters/logic';
 	import Portal from '$lib/shared/components/Portal.svelte';
-	import CategoryFilter from './filters/CategoryFilter.svelte';
-	import SizeFilter from './filters/SizeFilter.svelte';
-	import ColorFilter from './filters/ColorFilter.svelte';
-	import PriceFilter from './filters/PriceFilter.svelte';
-	import ActiveFiltersChips from './filters/ActiveFiltersChips.svelte';
+	import CategoryFilter from './subFilters/CategoryFilter.svelte';
+	import SizeFilter from './subFilters/SizeFilter.svelte';
+	import ColorFilter from './subFilters/ColorFilter.svelte';
+	import PriceFilter from './subFilters/PriceFilter.svelte';
+	import ActiveFiltersChips from './subFilters/ActiveFiltersChips.svelte';
 
 	interface Props {
 		products: Product[];
@@ -34,12 +36,6 @@
 	let showMobileFilters = $state(false);
 	let sectionsOpen = $state({ categories: true, sizes: true, colors: true, price: true });
 
-	// Price presets
-	const PRICE_PRESETS = [
-		{ id: 'under200', label: 'Hasta $ 200.000', apply: () => ({ min: minPrice, max: 200000 }) },
-		{ id: '200to300', label: '$200.000 a $300.000', apply: () => ({ min: 200000, max: 300000 }) },
-		{ id: 'over300', label: 'Más de $300.000', apply: () => ({ min: 300000, max: maxPrice }) }
-	] as const;
 	let pricePreset = $state<string | null>(null);
 
 	// Derived data (expressions directly for Svelte 5 $derived values)
@@ -119,62 +115,25 @@
 
 	function selectPricePreset(id: string) {
 		if (pricePreset === id) {
-			// deselect
 			pricePreset = null;
 			priceRange = { min: minPrice, max: maxPrice };
 			return;
 		}
 		pricePreset = id;
-		const preset = PRICE_PRESETS.find((p) => p.id === id);
+		const preset = PRICE_PRESETS.find(p => p.id === id);
 		if (preset) {
-			const r = preset.apply();
+			// pass bounds so the preset pure functions can compute
+			const r = preset.apply({ minPrice, maxPrice });
 			priceRange = { min: r.min, max: r.max };
 		}
 	}
 
-	// Counts for presets (respect other filters except price)
-	const filteredExceptPrice = $derived(
-		products.filter((p) => {
-			const categoryMatch =
-				selectedCategories.length === 0 || selectedCategories.includes(p.category);
-			const sizeMatch =
-				selectedCategories.length === 0 ||
-				selectedSizes.length === 0 ||
-				p.sizes.some((s) => selectedSizes.includes(s));
-			const colorMatch =
-				selectedColors.length === 0 || p.colors.some((c) => selectedColors.includes(c.name));
-			return categoryMatch && sizeMatch && colorMatch;
-		})
-	);
-	const pricePresetCounts = $derived({
-		under200: filteredExceptPrice.filter((p) => p.price <= 200000).length,
-		between200and300: filteredExceptPrice.filter((p) => p.price >= 200000 && p.price <= 300000)
-			.length,
-		over300: filteredExceptPrice.filter((p) => p.price >= 300000).length
-	});
-
-	// Category counts (aplican otros filtros excepto la propia selección de categoría)
-	const filteredExceptCategory = $derived(
-		products.filter((p) => {
-			const sizeMatch =
-				selectedSizes.length === 0 || p.sizes.some((s) => selectedSizes.includes(s));
-			const colorMatch =
-				selectedColors.length === 0 || p.colors.some((c) => selectedColors.includes(c.name));
-			const priceMatch = p.price >= priceRange.min && p.price <= priceRange.max;
-			return sizeMatch && colorMatch && priceMatch;
-		})
-	);
-	const categoryCounts = $derived(
-		Object.fromEntries(
-			allCategories.map((cat) => [cat, filteredExceptCategory.filter((p) => p.category === cat).length])
-		) as Record<string, number>
-	);
-
-	function pricePresetLabel(id: string | null): string | null {
-		if (!id) return null;
-		const p = PRICE_PRESETS.find((pr) => pr.id === id);
-		return p ? p.label : null;
-	}
+	// Counts using pure helpers
+	const filteredExceptPrice = $derived(applyNonPriceFilters(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
+	const pricePresetCounts = $derived(countPricePresets(filteredExceptPrice));
+	const filteredExceptCategory = $derived(productsExceptCategory(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
+	const categoryCounts = $derived(buildCategoryCounts(allCategories, filteredExceptCategory));
+	const pricePresetLabel = (id: string | null) => findPresetLabel(id);
 
 	function toggleSection(key: keyof typeof sectionsOpen) {
 		sectionsOpen = { ...sectionsOpen, [key]: !sectionsOpen[key] };
