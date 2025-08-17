@@ -54,11 +54,11 @@
 
 		<!-- Price -->
 		<div class="flex items-center space-x-2">
-			<span class="text-lg font-semibold text-gray-900">
+			<span class="text-lg font-semibold text-gray-900" style="font-family: 'Jost', sans-serif">
 				{formatPrice(product.price)}
 			</span>
 			{#if product.wholesalePrice}
-				<span class="text-sm text-gray-500 line-through">
+				<span class="text-sm text-gray-500 line-through" style="font-family: 'Jost', sans-serif">
 					{formatPrice(product.wholesalePrice)}
 				</span>
 			{/if}
@@ -86,7 +86,7 @@
 
 		<!-- Category badge -->
 		<div class="flex items-center justify-between">
-			<span class="inline-block px-2 py-1 text-xs {colors.primary} text-white rounded-full">
+			<span class="inline-block px-2 py-1 text-xs {colors.primary} text-white rounded-full" style="font-family: 'Poppins', sans-serif">
 				{product.category}
 			</span>
 			

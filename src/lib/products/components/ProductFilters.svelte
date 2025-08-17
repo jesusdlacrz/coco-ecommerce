@@ -35,19 +35,11 @@
 	let selectedColors = $state<string[]>([]);
 	let priceRange = $state<PriceRange>({ min: 0, max: 0 });
 	let showMobileFilters = $state(false);
-	let sectionsOpen = $state({ categories: true, sizes: true, colors: true, price: true });
 
 	let pricePreset = $state<string | null>(null);
-	// dynamic presets derived from current dataset (gender + optional category + other non-price filters basis)
-	// base set for building presets should ignore price filtering but respect gender, category selection, sizes, colors.
-	const baseForDynamicPresets = $derived(products.filter(p => {
-		// gender already filtered by parent providing products (assumption)
-		const categoryOk = selectedCategories.length === 0 || selectedCategories.includes(p.category);
-		const sizeOk = selectedSizes.length === 0 || p.sizes.some(s=> selectedSizes.includes(s));
-		const colorOk = selectedColors.length === 0 || p.colors.some(c=> selectedColors.includes(c.name));
-		return categoryOk && sizeOk && colorOk;
-	}));
-	const dynamicPricePresets = $derived(generateDynamicPricePresets(baseForDynamicPresets.map(p=>p.price), formatPriceCOP));
+	// Dataset sin filtro de precio (sirve para: generar presets dinámicos y contar productos por preset)
+	const filteredForCounts = $derived(applyNonPriceFilters(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
+	const dynamicPricePresets = $derived(generateDynamicPricePresets(filteredForCounts.map(p=>p.price), formatPriceCOP));
 
 	// Derived data (expressions directly for Svelte 5 $derived values)
 	const allCategories = $derived(getAllCategories(products));
@@ -59,7 +51,6 @@
 	const activeFiltersCount = $derived(
 		selectedCategories.length + selectedSizes.length + selectedColors.length + (pricePreset ? 1 : 0)
 	);
-	const formatPrice = formatPriceCOP;
 
 	// Initialize / sync price range when bounds change
 	$effect(() => {
@@ -139,12 +130,20 @@
 	}
 
 	// Counts using pure helpers
-	const filteredExceptPrice = $derived(applyNonPriceFilters(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
-	// counts for dynamic presets
-	const pricePresetCounts = $derived(Object.fromEntries(dynamicPricePresets.map(pr => [pr.id, filteredExceptPrice.filter(p=> priceInPreset(p.price, pr)).length])) as Record<string, number>);
+	// counts para presets dinámicos reutilizando filteredForCounts
+	const pricePresetCounts = $derived(Object.fromEntries(dynamicPricePresets.map(pr => [pr.id, filteredForCounts.filter(p=> priceInPreset(p.price, pr)).length])) as Record<string, number>);
 	const filteredExceptCategory = $derived(productsExceptCategory(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
 	const categoryCounts = $derived(buildCategoryCounts(allCategories, filteredExceptCategory));
 	const pricePresetLabel = (id: string | null) => dynamicPricePresets.find(p=>p.id===id)?.label ?? null;
+
+	function buildChips() {
+		return [
+			...selectedCategories.map(c=>({label:c,remove:()=>toggleCategory(c)})),
+			...selectedSizes.map(s=>({label:s,remove:()=>toggleSize(s)})),
+			...selectedColors.map(c=>({label:c,remove:()=>toggleColor(c)})),
+			...(pricePreset? [{label: pricePresetLabel(pricePreset)!, remove:()=>selectPricePreset(pricePreset!)}]:[])
+		];
+	}
 
 	// ensure active preset still valid when dynamic presets regenerate
 	$effect(() => {
@@ -154,9 +153,6 @@
 		}
 	});
 
-	function toggleSection(key: keyof typeof sectionsOpen) {
-		sectionsOpen = { ...sectionsOpen, [key]: !sectionsOpen[key] };
-	}
 
 	// Reset filters when the external activeCategory changes
 	let lastCategory = $state(activeCategory);
@@ -307,5 +303,5 @@
 		<PriceFilter currentStyle={currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} />
 	</div>
 	<!-- Active Filters Summary -->
-	<ActiveFiltersChips {currentStyle} chips={[...selectedCategories.map(c=>({label:c,remove:()=>toggleCategory(c)})),...selectedSizes.map(s=>({label:s,remove:()=>toggleSize(s)})),...selectedColors.map(c=>({label:c,remove:()=>toggleColor(c)})),...(pricePreset? [{label: pricePresetLabel(pricePreset)!, remove:()=>selectPricePreset(pricePreset!)}]:[])]} />
+	<ActiveFiltersChips {currentStyle} chips={buildChips()} />
 </div>
