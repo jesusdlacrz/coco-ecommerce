@@ -14,8 +14,8 @@
 	let { item, onUpdateQuantity, onRemoveItem }: Props = $props();
 </script>
 
-<div class="flex space-x-3 rounded-lg border p-3">
-	<div class="h-16 w-16 flex-shrink-0">
+<div class="flex space-x-3 p-3 border-b border-[#00000063]">
+	<div class="w-30 h-auto flex-shrink-0">
 		<img
 			src={item.image || '/placeholder.svg'}
 			alt={item.name}
@@ -28,7 +28,7 @@
 		<div class="mt-1 flex flex-wrap gap-1">
 			{#if item.size}
 				<span
-					class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-800"
+					class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-800" style="font-family: 'Poppins', sans-serif;"
 				>
 					{item.size}
 				</span>
@@ -41,25 +41,25 @@
 				</span>
 			{/if}
 		</div>
-		<p class="mt-1 text-sm font-medium text-gray-900">
+		<p class="mt-1 text-sm font-medium text-black" style="font-family: 'Poppins', sans-serif;">
 			{formatPrice(item.price)}
 		</p>
 
 		<div class="mt-2 flex items-center justify-between">
-			<div class="flex items-center space-x-2">
+			<div class="flex items-center space-x-2 bg-[#F1F1F1] h-10">
 				<button
 					onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
 					disabled={item.quantity <= 1}
-					class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50 disabled:opacity-50"
+					class="flex h-8 w-8 items-center justify-center p-0  disabled:opacity-50"
 				>
-					<Minus size={12} />
+					<Minus size={12} class="text-black" />
 				</button>
-				<span class="min-w-[2rem] px-3 text-center text-sm font-medium"
+				<span class="min-w-[2rem] px-3 text-center text-sm font-medium text-[#8A8A8A]" style="font-family: 'Poppins', sans-serif;"
 					>{item.quantity}</span
 				>
 				<button
 					onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-					class="flex h-8 w-8 items-center justify-center rounded border p-0 hover:bg-gray-50"
+					class="flex h-8 w-8 items-center justify-center p-0 "
 				>
 					<Plus size={12} />
 				</button>
