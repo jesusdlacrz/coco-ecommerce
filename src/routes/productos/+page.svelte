@@ -6,11 +6,20 @@
 	
 	import { sampleProducts } from '$lib/dataProducts/products';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
-	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 
 	// =================== STATE ===================
-	let activeTab = $state<Category>('men');
+	// Detectar categoría inicial desde el query param antes del primer render para evitar parpadeo.
+	const urlCategory = page.url.searchParams.get('category');
+	const validCategories: Category[] = ['men', 'women', 'boys', 'girls'];
+	const initialCategory: Category = (urlCategory && validCategories.includes(urlCategory as Category))
+		? (urlCategory as Category)
+		: 'women'; // Solo default a 'women' si no viene categoría (caso botón Shop)
+
+	// Sincronizar inmediatamente el store global
+	activeCategory.set(initialCategory);
+
+	let activeTab = $state<Category>(initialCategory);
 	let filteredProducts = $state<typeof sampleProducts>([]);
 
 	// =================== DERIVED DATA ===================
@@ -37,14 +46,6 @@
 	const currentBackground = $derived(categoryBackgrounds[activeTab]);
 
 	// =================== LIFECYCLE ===================
-	onMount(() => {
-		// Leer la categoría desde la URL al cargar la página
-		const categoryParam = page.url.searchParams.get('category');
-		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
-			activeTab = categoryParam as Category;
-		}
-	});
-
 	// Initialize filtered products when current products change
 	$effect(() => {
 		filteredProducts = currentProducts;
