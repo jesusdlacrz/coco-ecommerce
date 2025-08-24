@@ -24,7 +24,7 @@
 	
 </script>
 
-<TransitionLink href={`productos/${product.id}`} class="overflow-hidden transition-all duration-300 cursor-pointer group" >
+<TransitionLink href={`/productos/${product.id}?category=${currentCategory}&from=productos`} class="overflow-hidden transition-all duration-300 cursor-pointer group" >
 	<!-- Product Image with Category Border -->
 	<div class="relative aspect-square p-3">
 		<div class="w-full h-full rounded-lg overflow-hidden border-4 {colors.border} transition-all duration-300 group-hover:scale-105">

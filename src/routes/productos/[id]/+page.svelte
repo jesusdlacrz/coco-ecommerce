@@ -44,22 +44,19 @@
 		};
 
 		const crumbs = [
-			{ label: 'Inicio', href: categoryParam ? `/?category=${categoryParam}` : '/' }
+			{ label: 'Inicio', href: '/' }
 		];
 
-		if (isFromProductsPage) {
-			crumbs.push({ 
-				label: 'Productos', 
-				href: categoryParam ? `/productos?category=${categoryParam}` : '/productos' 
-			});
-		}
+		// Siempre mostrar el crumb de Productos para ir al catálogo completo
+		crumbs.push({ 
+			label: 'Productos', 
+			href: '/productos' 
+		});
 
 		if (categoryParam && categoryParam in categoryLabels) {
 			crumbs.push({ 
 				label: categoryLabels[categoryParam], 
-				href: isFromProductsPage 
-					? `/productos?category=${categoryParam}` 
-					: `/?category=${categoryParam}` 
+				href: `/productos?category=${categoryParam}`
 			});
 		}
 
@@ -131,7 +128,7 @@
 	/>
 
 	<!-- Contenido principal -->
-	<div class="max-w-7xl mx-auto px-4 py-8">
+	<div class="max-w-7xl mx-auto px-4 py-8 bg-amber-500 rounded-lg my-10">
 		<Breadcrumbs breadcrumbs={breadcrumbs()} />
 		
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">

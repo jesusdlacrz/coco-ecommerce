@@ -3,6 +3,7 @@
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import Logo from '$lib/shared/icons/Logo.svelte';
 	import { activeCategory, categoryColors, type Category } from '$lib/shared/stores/categoryStore';
+    import { page } from '$app/state';
 
 	interface Props {
 		cartItemCount: number;
@@ -23,16 +24,25 @@
 		text: 'text-gray-600'
 	});
 
-	const navigationButtons = $derived([
-		{
-			label: 'Home',
-			href: '/'
-		},
-		{
-			label: 'Shop',
-			href: useDynamicColors ? `/productos?category=${$activeCategory}` : '/productos?category=women'
-		},
-	]);
+    // Mostrar el botón "Products" solo en páginas de detalle de producto
+    const isProductDetail = $derived(page.url.pathname.startsWith('/productos/') && page.url.pathname !== '/productos');
+
+    const navigationButtons = $derived([
+        {
+            label: 'Home',
+            href: '/'
+        },
+        {
+            label: 'Shop',
+            href: useDynamicColors ? `/productos?category=${$activeCategory}` : '/productos?category=women'
+        },
+        // Condicionalmente agregar "Products"
+        ...(
+            isProductDetail
+                ? [{ label: 'Products', href: `/productos?category=${$activeCategory}` }]
+                : []
+        )
+    ]);
 </script>
 
 <header class="{backgroundColor} transition-colors duration-700">
@@ -50,9 +60,13 @@
                 {#each navigationButtons as button (button.label)}
                     <TransitionLink
                         href={button.href}
-                        class="cursor-pointer text-sm font-medium transition-all duration-200 px-1 {useDynamicColors && button.label === 'Shop' 
-                            ? `border-b-2 ${colors.border} ${colors.text} hover:opacity-80 ` 
-                            : 'border-b-2 border-transparent text-gray-600 hover:text-gray-800'}"
+                        class="cursor-pointer text-sm font-medium transition-all duration-200 px-1 {
+                            isProductDetail && button.label === 'Products'
+                                ? 'border-b-2 border-black text-gray-900'
+                                : useDynamicColors && button.label === 'Shop'
+                                    ? `border-b-2 ${colors.border} ${colors.text} hover:opacity-80`
+                                    : 'border-b-2 border-transparent text-gray-600 hover:text-gray-800'
+                        }"
                         style="font-family: 'Poppins', sans-serif;"
                     >
                         {button.label}

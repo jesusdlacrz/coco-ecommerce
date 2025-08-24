@@ -18,8 +18,9 @@
 	let isCartOpen = $state(false);
 	let currentCategory = $state<Category>('women');
 
-	// Check if we're on the productos page or product detail page
-	const isProductsPage = $derived($page.url.pathname.startsWith('/productos'));
+	// Detect exact products index vs product detail
+	const path = $derived($page.url.pathname.replace(/\/+$/, ''));
+	const isProductsPage = $derived(path === '/productos');
 	
 	// Get background color for productos page
 	const categoryBackgrounds = {
