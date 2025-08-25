@@ -87,6 +87,29 @@
 		selectedImageIndex = index;
 	}
 
+	// Fondo dinámico según categoría (igual que en catálogo completo)
+	const categoryBackgrounds: Record<Category, string> = {
+		men: 'bg-[#2C71CC33]',
+		women: 'bg-[#B19ADE40]',
+		boys: 'bg-[#f0f4fc]',
+		girls: 'bg-[#ffecf4]'
+	};
+
+	const validCategories: Category[] = ['men', 'women', 'boys', 'girls'];
+	let effectiveCategory = $state<Category>('women');
+
+	$effect(() => {
+		const fromQuery = categoryParam as Category | null;
+		if (fromQuery && validCategories.includes(fromQuery)) {
+			effectiveCategory = fromQuery;
+			return;
+		}
+		const fromProduct = (product as any)?.gender as Category | undefined;
+		effectiveCategory = fromProduct && validCategories.includes(fromProduct) ? fromProduct : 'women';
+	});
+
+	const currentBackground = $derived(categoryBackgrounds[effectiveCategory]);
+
 	// Funciones de validación y carrito
 	function validateSelections(): boolean {
 		if (product.sizes.length > 0 && !selectedSize) {
@@ -121,14 +144,14 @@
 	<meta name="description" content={product.description} />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
 	<ProductHeader 
 		category={categoryParam || undefined}
 		fromProductsPage={isFromProductsPage}
 	/>
 
 	<!-- Contenido principal -->
-	<div class="max-w-7xl mx-auto px-4 py-8 bg-amber-500 rounded-lg my-10">
+	<div class="max-w-7xl mx-auto px-4 py-8 {currentBackground} rounded-lg mb-6">
 		<Breadcrumbs breadcrumbs={breadcrumbs()} />
 		
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
