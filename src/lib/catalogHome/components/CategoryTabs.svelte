@@ -52,7 +52,7 @@
 	] as const;
 
 	const baseButtonClass =
-		'flex flex-col items-center justify-center shadow-xl font-light space-y-1 text-sm rounded-lg px-4 py-3 transition-all duration-200 cursor-pointer';
+		'flex flex-col items-center justify-center shadow-xl inset-shadow-2xs font-light space-y-1 text-sm rounded-lg px-4 py-3 transition-all duration-200 cursor-pointer';
 	const inactiveClass = 'text-gray-700 hover:text-gray-900';
 	const activeClass = 'text-white shadow-md';
 </script>
