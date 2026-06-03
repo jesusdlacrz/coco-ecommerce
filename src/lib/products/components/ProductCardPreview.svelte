@@ -4,15 +4,16 @@
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	interface Props {
 		product: Product;
+		category?: string;
 	}
 
-	let { product }: Props = $props();
+	let { product, category = '' }: Props = $props();
 
 	const isAlmostSoldOut = $derived(product.stockQuantity <= 20);
 </script>
 
 <TransitionLink
-	href={`/productos/${product.id}`}
+	href={`/productos/${product.id}${category ? `?category=${category}&from=home` : ''}`}
 	class="group w-full cursor-pointer rounded-lg bg-white shadow-md transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
 >
 	<div class="p-4">

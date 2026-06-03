@@ -2,8 +2,7 @@
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 </script>
 
-
-	<!-- Contenedor principal -->
+<!-- Contenedor principal -->
 	<div class="container mx-auto flex h-screen flex-col px-4 py-8">
 		<!-- Grid principal con las imágenes y contenido central -->
 		<div class="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-3">
@@ -47,6 +46,7 @@
 					<!-- Botón de compra -->
 					<TransitionLink
 						href="/productos"
+						hero={false}
 						class="text-md transform rounded-2xl bg-black px-8 py-4 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-gray-800 hover:shadow-xl"
 					>
 						Comprar ahora

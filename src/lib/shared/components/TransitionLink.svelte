@@ -2,14 +2,20 @@
 	import { goto } from '$app/navigation';
 	import { transitions } from '$lib/shared/services/transitions.svelte';
 
-	let { href, class: className = '', children, ...props } = $props();
+	let { href, class: className = '', hero = true, children, ...props } = $props();
 
 	async function handleClick(event: { preventDefault: () => void }) {
 		event.preventDefault();
 
-		await transitions.navigateWithTransition(href, () => {
-			goto(href);
-		});
+		if (hero) {
+			await transitions.navigateWithTransition(href, () => {
+				goto(href);
+			});
+		} else {
+			await transitions.navigateWithoutSharedElements(href, () => {
+				goto(href);
+			});
+		}
 	}
 </script>
 
