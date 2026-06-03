@@ -16,15 +16,26 @@
 
 	// =================== CART STATE ===================
 	let isCartOpen = $state(false);
-	let currentCategory = $state<Category>('men');
+	let currentCategory = $state<Category>('women');
 
-	// Check if we're on the productos page or product detail page
-	const isProductsPage = $derived($page.url.pathname.startsWith('/productos'));
+	// Detect exact products index vs product detail
+	const path = $derived($page.url.pathname.replace(/\/+$/, ''));
+	const isProductsPage = $derived(path === '/productos');
+	
+	// Get background color for productos page
+	const categoryBackgrounds = {
+		women: 'bg-[#f8f4fc]', 
+		men: 'bg-[#f0fcfc]',
+		girls: 'bg-[#ffecf4]',
+		boys: 'bg-[#f0f4fc]',
+	};
+	
+	const currentBackground = $derived(isProductsPage ? categoryBackgrounds[currentCategory] : '');
 
 	// Update category from URL params more responsively
 	$effect(() => {
 		const categoryParam = $page.url.searchParams.get('category');
-		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
+		if (categoryParam && [ 'women', 'men', 'girls', 'boys'].includes(categoryParam)) {
 			const category = categoryParam as Category;
 			currentCategory = category;
 			activeCategory.set(category);
@@ -82,15 +93,15 @@
 	cartItemCount={$cartItemCount}
 	onCartClick={handleCartClick}
 	onAccountClick={handleAccountClick}
-	currentCategory={currentCategory}
 	useDynamicColors={isProductsPage}
+	backgroundColor={currentBackground}
 />
 <Toaster/>
-<main class="min-h-screen">
+<main class="min-h-screen {currentBackground} transition-colors duration-700">
 	{@render children?.()}
 </main>
 
-<Footer />
+<Footer backgroundColor={currentBackground} />
 
 <CartDrawer
 	isOpen={isCartOpen}

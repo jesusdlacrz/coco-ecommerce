@@ -6,11 +6,20 @@
 	
 	import { sampleProducts } from '$lib/dataProducts/products';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
-	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 
 	// =================== STATE ===================
-	let activeTab = $state<Category>('men');
+	// Detectar categoría inicial desde el query param antes del primer render para evitar parpadeo.
+	const urlCategory = page.url.searchParams.get('category');
+	const validCategories: Category[] = ['men', 'women', 'boys', 'girls'];
+	const initialCategory: Category = (urlCategory && validCategories.includes(urlCategory as Category))
+		? (urlCategory as Category)
+		: 'women'; // Solo default a 'women' si no viene categoría (caso botón Shop)
+
+	// Sincronizar inmediatamente el store global
+	activeCategory.set(initialCategory);
+
+	let activeTab = $state<Category>(initialCategory);
 	let filteredProducts = $state<typeof sampleProducts>([]);
 
 	// =================== DERIVED DATA ===================
@@ -28,23 +37,15 @@
 
 	// Background colors based on category
 	const categoryBackgrounds = {
-		men: 'bg-gradient-to-br from-blue-50 to-blue-100',
-		women: 'bg-gradient-to-br from-pink-50 to-pink-100', 
-		boys: 'bg-gradient-to-br from-green-50 to-green-100',
-		girls: 'bg-gradient-to-br from-purple-50 to-purple-100'
+		men: 'bg-[#f0fcfc]',
+		women: 'bg-[#fefeff]', 
+		boys: 'bg-[#f0f4fc]',
+		girls: 'bg-[#ffecf4]'
 	};
 
 	const currentBackground = $derived(categoryBackgrounds[activeTab]);
 
 	// =================== LIFECYCLE ===================
-	onMount(() => {
-		// Leer la categoría desde la URL al cargar la página
-		const categoryParam = page.url.searchParams.get('category');
-		if (categoryParam && ['men', 'women', 'boys', 'girls'].includes(categoryParam)) {
-			activeTab = categoryParam as Category;
-		}
-	});
-
 	// Initialize filtered products when current products change
 	$effect(() => {
 		filteredProducts = currentProducts;
@@ -73,17 +74,8 @@
 	<title>Productos - Coco's</title>
 </svelte:head>
 
-<div class="min-h-screen {currentBackground} transition-colors duration-700">
+<div class="min-h-screen">
 	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-		<!-- Page Header -->
-		<div class="mb-8 text-center text-[#484848]">
-			<h2 class="mb-4 text-3xl" style="font-family: 'Volkhov', serif; font-weight: 400; font-style: normal;">
-				Todos los Productos
-			</h2>
-			<p class="text-sm text-[#8A8A8A]">
-				Explora toda nuestra colección. Haz clic en cualquier producto para ver detalles completos.
-			</p>
-		</div>
 
 		<!-- Category Tabs - Simplified for products page -->
 		<SimpleCategoryTabs

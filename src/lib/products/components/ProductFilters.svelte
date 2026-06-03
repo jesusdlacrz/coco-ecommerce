@@ -1,5 +1,25 @@
 <script lang="ts">
 	import type { Product } from '$lib/shared/model/products';
+	import type { PriceRange } from '$lib/products/filters/filterUtils';
+	import {
+		getAllCategories,
+		getAvailableSizes,
+		getAvailableColors,
+		getMinPrice,
+		getMaxPrice,
+		applyAllFilters
+	} from '$lib/products/filters/filterUtils';
+	import { formatPriceCOP } from '$lib/products/filters/price';
+	import { getCategoryStyle } from '$lib/products/filters/categoryStyles';
+	// Dynamic price presets
+	import { generateDynamicPricePresets, priceInPreset, applyDynamicPreset } from '$lib/products/filters/dynamicPrice';
+	import { applyNonPriceFilters, productsExceptCategory, buildCategoryCounts } from '$lib/products/filters/logic';
+	import Portal from '$lib/shared/components/Portal.svelte';
+	import CategoryFilter from './subFilters/CategoryFilter.svelte';
+	import SizeFilter from './subFilters/SizeFilter.svelte';
+	import ColorFilter from './subFilters/ColorFilter.svelte';
+	import PriceFilter from './subFilters/PriceFilter.svelte';
+	import ActiveFiltersChips from './subFilters/ActiveFiltersChips.svelte';
 
 	interface Props {
 		products: Product[];
@@ -9,206 +29,279 @@
 
 	let { products, onFiltersChange, activeCategory }: Props = $props();
 
-	// =================== FILTER STATE ===================
-	let selectedSizes: string[] = $state([]);
-	let selectedColors: string[] = $state([]);
-	let priceRange = $state({ min: 0, max: 1000000 });
+	// State
+	let selectedCategories = $state<string[]>([]);
+	let selectedSizes = $state<string[]>([]);
+	let selectedColors = $state<string[]>([]);
+	let priceRange = $state<PriceRange>({ min: 0, max: 0 });
+	let showMobileFilters = $state(false);
 
-	// =================== DERIVED DATA ===================
-	const allSizes = $derived([...new Set(products.flatMap(p => p.sizes))].sort());
-	const allColors = $derived([...new Set(products.flatMap(p => p.colors))].sort());
-	const minPrice = $derived(Math.min(...products.map(p => p.price)));
-	const maxPrice = $derived(Math.max(...products.map(p => p.price)));
+	let pricePreset = $state<string | null>(null);
+	// Dataset sin filtro de precio (sirve para: generar presets dinámicos y contar productos por preset)
+	const filteredForCounts = $derived(applyNonPriceFilters(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
+	const dynamicPricePresets = $derived(generateDynamicPricePresets(filteredForCounts.map(p=>p.price), formatPriceCOP));
 
-	// =================== EFFECTS ===================
+	// Derived data (expressions directly for Svelte 5 $derived values)
+	const allCategories = $derived(getAllCategories(products));
+	const minPrice = $derived(getMinPrice(products));
+	const maxPrice = $derived(getMaxPrice(products));
+	const availableSizes = $derived(getAvailableSizes(products, selectedCategories));
+	const availableColors = $derived(getAvailableColors(products, selectedCategories, selectedSizes));
+	const currentStyle = $derived(getCategoryStyle(activeCategory));
+	const activeFiltersCount = $derived(
+		selectedCategories.length + selectedSizes.length + selectedColors.length + (pricePreset ? 1 : 0)
+	);
+
+	// Initialize / sync price range when bounds change
 	$effect(() => {
-		// Reset filters when category changes
-		selectedSizes = [];
-		selectedColors = [];
-		priceRange = { min: minPrice, max: maxPrice };
+		// If uninitialized (0,0) or dataset changed shrinking range
+		if (
+			(priceRange.min === 0 && priceRange.max === 0) ||
+			priceRange.min < minPrice ||
+			priceRange.max > maxPrice
+		) {
+			priceRange = { min: minPrice, max: maxPrice };
+		}
 	});
 
+	// Apply filters
 	$effect(() => {
-		// Apply filters
-		const filtered = products.filter(product => {
-			// Size filter
-			const sizeMatch = selectedSizes.length === 0 || 
-				product.sizes.some(size => selectedSizes.includes(size));
-			
-			// Color filter
-			const colorMatch = selectedColors.length === 0 || 
-				product.colors.some(color => selectedColors.includes(color));
-			
-			// Price filter
-			const priceMatch = product.price >= priceRange.min && product.price <= priceRange.max;
-			
-			return sizeMatch && colorMatch && priceMatch;
+		const filtered = applyAllFilters(products, {
+			selectedCategories,
+			selectedSizes,
+			selectedColors,
+			priceRange
 		});
-		
 		onFiltersChange(filtered);
 	});
 
-	// =================== HANDLERS ===================
-	function toggleSize(size: string) {
-		if (selectedSizes.includes(size)) {
-			selectedSizes = selectedSizes.filter(s => s !== size);
-		} else {
-			selectedSizes = [...selectedSizes, size];
+	// Scroll lock when mobile drawer open
+	$effect(() => {
+		if (showMobileFilters) {
+			const prev = document.documentElement.style.overflow;
+			document.documentElement.style.overflow = 'hidden';
+			return () => {
+				document.documentElement.style.overflow = prev;
+			};
 		}
+	});
+
+	function toggleCategory(category: string) {
+		// Single select logic
+		selectedCategories = selectedCategories[0] === category ? [] : [category];
+		// Clear dependent filters
+		selectedSizes = [];
+		selectedColors = [];
+	}
+
+	function toggleSize(size: string) {
+		selectedSizes = selectedSizes.includes(size)
+			? selectedSizes.filter((s) => s !== size)
+			: [...selectedSizes, size];
+		selectedColors = selectedColors.filter((c) => availableColors.some(([name]) => name === c));
 	}
 
 	function toggleColor(color: string) {
-		if (selectedColors.includes(color)) {
-			selectedColors = selectedColors.filter(c => c !== color);
-		} else {
-			selectedColors = [...selectedColors, color];
-		}
+		selectedColors = selectedColors.includes(color)
+			? selectedColors.filter((c) => c !== color)
+			: [...selectedColors, color];
 	}
 
 	function clearAllFilters() {
+		selectedCategories = [];
 		selectedSizes = [];
 		selectedColors = [];
+		pricePreset = null;
 		priceRange = { min: minPrice, max: maxPrice };
 	}
 
-	function formatPrice(price: number): string {
-		return new Intl.NumberFormat('es-CO', {
-			style: 'currency',
-			currency: 'COP',
-			minimumFractionDigits: 0
-		}).format(price);
+	function selectPricePreset(id: string) {
+		if (pricePreset === id) {
+			pricePreset = null;
+			priceRange = { min: minPrice, max: maxPrice };
+			return;
+		}
+		pricePreset = id;
+		const preset = dynamicPricePresets.find(p => p.id === id);
+		if (preset) {
+			const r = applyDynamicPreset(preset);
+			priceRange = { min: r.min, max: r.max };
+		}
 	}
 
-	// Category-specific styles
-	const categoryStyles = {
-		men: {
-			accent: 'bg-blue-600 border-blue-600 text-white',
-			accentHover: 'hover:bg-blue-700 hover:border-blue-700',
-			checkboxAccent: 'text-blue-600 focus:ring-blue-500',
-			rangeAccent: 'accent-blue-600'
-		},
-		women: {
-			accent: 'bg-pink-600 border-pink-600 text-white',
-			accentHover: 'hover:bg-pink-700 hover:border-pink-700',
-			checkboxAccent: 'text-pink-600 focus:ring-pink-500',
-			rangeAccent: 'accent-pink-600'
-		},
-		boys: {
-			accent: 'bg-green-600 border-green-600 text-white',
-			accentHover: 'hover:bg-green-700 hover:border-green-700',
-			checkboxAccent: 'text-green-600 focus:ring-green-500',
-			rangeAccent: 'accent-green-600'
-		},
-		girls: {
-			accent: 'bg-purple-600 border-purple-600 text-white',
-			accentHover: 'hover:bg-purple-700 hover:border-purple-700',
-			checkboxAccent: 'text-purple-600 focus:ring-purple-500',
-			rangeAccent: 'accent-purple-600'
-		}
-	};
+	// Counts using pure helpers
+	// counts para presets dinámicos reutilizando filteredForCounts
+	const pricePresetCounts = $derived(Object.fromEntries(dynamicPricePresets.map(pr => [pr.id, filteredForCounts.filter(p=> priceInPreset(p.price, pr)).length])) as Record<string, number>);
+	const filteredExceptCategory = $derived(productsExceptCategory(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
+	const categoryCounts = $derived(buildCategoryCounts(allCategories, filteredExceptCategory));
+	const pricePresetLabel = (id: string | null) => dynamicPricePresets.find(p=>p.id===id)?.label ?? null;
 
-	const currentStyle = $derived(categoryStyles[activeCategory]);
+	function buildChips() {
+		return [
+			...selectedCategories.map(c=>({label:c,remove:()=>toggleCategory(c)})),
+			...selectedSizes.map(s=>({label:s,remove:()=>toggleSize(s)})),
+			...selectedColors.map(c=>({label:c,remove:()=>toggleColor(c)})),
+			...(pricePreset? [{label: pricePresetLabel(pricePreset)!, remove:()=>selectPricePreset(pricePreset!)}]:[])
+		];
+	}
+
+	// ensure active preset still valid when dynamic presets regenerate
+	$effect(() => {
+		if (pricePreset && !dynamicPricePresets.some(p=>p.id===pricePreset)) {
+			pricePreset = null;
+			priceRange = { min: minPrice, max: maxPrice };
+		}
+	});
+
+
+	// Reset filters when the external activeCategory changes
+	let lastCategory = $state(activeCategory);
+	$effect(() => {
+		if (lastCategory !== activeCategory) {
+			lastCategory = activeCategory;
+			clearAllFilters();
+		}
+	});
+
+	let triggerBtn: HTMLButtonElement | null = null;
+	function openMobile() {
+		showMobileFilters = true;
+		// Focus first heading after mount
+		requestAnimationFrame(() => {
+			const el = document.getElementById('drawer-filtros');
+			el?.focus();
+		});
+	}
+	function closeMobile() {
+		showMobileFilters = false;
+		triggerBtn?.focus();
+	}
 </script>
 
-<div class="bg-white p-6 rounded-lg shadow-sm border">
-	<div class="flex items-center justify-between mb-6">
-		<h3 class="text-lg font-semibold text-gray-900">Filtros</h3>
-		<button
-			onclick={clearAllFilters}
-			class="text-sm {currentStyle.checkboxAccent} hover:underline"
-		>
-			Limpiar filtros
-		</button>
+<!-- Mobile Trigger + Drawer (Portal) -->
+<div class="mb-4 lg:hidden">
+	<button
+		bind:this={triggerBtn}
+		onclick={openMobile}
+		class="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-lg font-medium shadow transition active:scale-[.98] bg-white"
+	>
+		<span class={currentStyle.textAccent}>Filtros</span>
+		{#if activeFiltersCount > 0}
+			<span
+				class="inline-flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs {currentStyle.accent}"
+				>{activeFiltersCount}</span
+			>
+		{/if}
+	</button>
+	{#if showMobileFilters}
+		<Portal>
+			<div
+				class="fixed inset-0 z-[10000] flex"
+				aria-modal="true"
+				role="dialog"
+				tabindex="-1"
+				aria-label="Filtros"
+				onkeydown={(e) => {
+					if (e.key === 'Escape') closeMobile();
+				}}
+			>
+				<button
+					type="button"
+					aria-label="Cerrar filtros"
+					class="flex-1 bg-black/40 backdrop-blur-[2px]"
+					onclick={closeMobile}
+				></button>
+				<div
+					id="drawer-filtros"
+					tabindex="-1"
+					class="flex h-full w-80 max-w-full animate-[slideIn_.25s_cubic-bezier(.4,0,.2,1)] flex-col overflow-hidden bg-white shadow-2xl outline-none focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2"
+				>
+					<div class="flex items-center justify-between border-b px-4 py-3">
+						<h3 class="text-base font-semibold">Filtros</h3>
+						<div class="flex gap-2">
+							{#if activeFiltersCount > 0}
+								<button
+									onclick={clearAllFilters}
+									class="text-xs underline {currentStyle.textAccent}">Limpiar</button
+								>
+							{/if}
+							<button
+								onclick={closeMobile}
+								class="rounded p-2 hover:bg-gray-100"
+								aria-label="Cerrar">✕</button
+							>
+						</div>
+					</div>
+					<div class="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+						<div class="rounded-md border p-3">
+							<h4 class="mb-3 text-sm font-medium text-gray-900">Categorías</h4>
+							<CategoryFilter {currentStyle} categories={allCategories} selected={selectedCategories} counts={categoryCounts} {toggleCategory} />
+						</div>
+						{#if selectedCategories.length > 0 && availableSizes.length > 0}
+							<div class="rounded-md border p-3">
+								<h4 class="mb-3 text-sm font-medium text-gray-900">Tallas</h4>
+								<SizeFilter {currentStyle} sizes={availableSizes} {selectedSizes} {toggleSize} />
+							</div>
+						{/if}
+						{#if availableColors.length > 0}
+							<div class="rounded-md border p-3">
+								<h4 class="mb-3 text-sm font-medium text-gray-900">Color</h4>
+								<ColorFilter {currentStyle} colors={availableColors} {selectedColors} {toggleColor} containerClass="grid grid-cols-6 gap-1" />
+							</div>
+						{/if}
+						<div class="rounded-md border p-3">
+							<h4 class="mb-3 text-sm font-medium text-gray-900">Precio</h4>
+							<PriceFilter currentStyle={currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} />
+						</div>
+					</div>
+					<div class="flex gap-2 border-t px-4 py-3">
+						<button
+							onclick={clearAllFilters}
+							class="flex-1 rounded-md border px-3 py-2 text-sm {currentStyle.borderColor} bg-white"
+							>Limpiar</button
+						>
+						<button
+							onclick={closeMobile}
+							class="flex-1 rounded-md px-3 py-2 text-sm {currentStyle.accent} {currentStyle.accentHover}"
+							>Aplicar</button
+						>
+					</div>
+				</div>
+			</div>
+		</Portal>
+	{/if}
+</div>
+
+<!-- Desktop Filters -->
+<div class="hidden lg:block">
+	<!-- Desktop Heading -->
+	<div class="mb-6 flex items-center justify-between">
+		<h3 class="text-2xl font-semibold {currentStyle.textAccent}">Filtros</h3>
 	</div>
-
-	<!-- Sizes Filter -->
-	{#if allSizes.length > 0}
-		<div class="mb-6">
-			<h4 class="text-sm font-medium text-gray-900 mb-3">Tallas</h4>
-			<div class="grid grid-cols-3 gap-2">
-				{#each allSizes as size (size)}
-					<button
-						onclick={() => toggleSize(size)}
-						class="px-3 py-2 text-sm border rounded-md transition-all {selectedSizes.includes(size) 
-							? `${currentStyle.accent} ${currentStyle.accentHover}` 
-							: 'border-gray-300 text-gray-700 hover:border-gray-400'}"
-					>
-						{size}
-					</button>
-				{/each}
-			</div>
-		</div>
-	{/if}
-
-	<!-- Colors Filter -->
-	{#if allColors.length > 0}
-		<div class="mb-6">
-			<h4 class="text-sm font-medium text-gray-900 mb-3">Colores</h4>
-			<div class="space-y-2">
-				{#each allColors as color (color)}
-					<label class="flex items-center">
-						<input
-							type="checkbox"
-							checked={selectedColors.includes(color)}
-							onchange={() => toggleColor(color)}
-							class="rounded border-gray-300 {currentStyle.checkboxAccent}"
-						/>
-						<span class="ml-2 text-sm text-gray-700">{color}</span>
-					</label>
-				{/each}
-			</div>
-		</div>
-	{/if}
-
-	<!-- Price Filter -->
+	<!-- Categories -->
 	<div class="mb-6">
-		<h4 class="text-sm font-medium text-gray-900 mb-3">Rango de Precio</h4>
-		<div class="space-y-3">
-			<div>
-				<label for="price-min" class="block text-xs text-gray-600 mb-1">Mínimo</label>
-				<input
-					id="price-min"
-					type="range"
-					min={minPrice}
-					max={maxPrice}
-					bind:value={priceRange.min}
-					class="w-full h-2 {currentStyle.rangeAccent} rounded-lg appearance-none cursor-pointer"
-				/>
-				<div class="text-xs text-gray-600 mt-1">{formatPrice(priceRange.min)}</div>
-			</div>
-			<div>
-				<label for="price-max" class="block text-xs text-gray-600 mb-1">Máximo</label>
-				<input
-					id="price-max"
-					type="range"
-					min={minPrice}
-					max={maxPrice}
-					bind:value={priceRange.max}
-					class="w-full h-2 {currentStyle.rangeAccent} rounded-lg appearance-none cursor-pointer"
-				/>
-				<div class="text-xs text-gray-600 mt-1">{formatPrice(priceRange.max)}</div>
-			</div>
-		</div>
+		<h4 class="text-md mb-3 font-medium text-gray-900">Categorías</h4>
+		<CategoryFilter {currentStyle} categories={allCategories} selected={selectedCategories} counts={categoryCounts} {toggleCategory} />
 	</div>
-
-	<!-- Active Filters Summary -->
-	{#if selectedSizes.length > 0 || selectedColors.length > 0}
-		<div class="pt-4 border-t">
-			<h4 class="text-sm font-medium text-gray-900 mb-2">Filtros activos</h4>
-			<div class="flex flex-wrap gap-2">
-				{#each selectedSizes as size (size)}
-					<span class="inline-flex items-center px-2 py-1 rounded-full text-xs {currentStyle.accent}">
-						{size}
-						<button onclick={() => toggleSize(size)} class="ml-1 hover:text-gray-300">×</button>
-					</span>
-				{/each}
-				{#each selectedColors as color (color)}
-					<span class="inline-flex items-center px-2 py-1 rounded-full text-xs {currentStyle.accent}">
-						{color}
-						<button onclick={() => toggleColor(color)} class="ml-1 hover:text-gray-300">×</button>
-					</span>
-				{/each}
-			</div>
+	<!-- Sizes -->
+	{#if selectedCategories.length > 0 && availableSizes.length > 0}
+		<div class="mb-6">
+			<h4 class="mb-3 text-sm font-medium text-gray-900">Tallas</h4>
+			<SizeFilter {currentStyle} sizes={availableSizes} {selectedSizes} {toggleSize} />
 		</div>
 	{/if}
+	<!-- Colors -->
+	{#if availableColors.length > 0}
+		<div class="mb-6">
+			<h4 class="mb-3 text-sm font-medium text-gray-900">Colores</h4>
+			<ColorFilter {currentStyle} colors={availableColors} {selectedColors} {toggleColor} containerClass="grid grid-cols-8 gap-1" />
+		</div>
+	{/if}
+	<!-- Price -->
+	<div class="mb-6">
+		<h4 class="mb-3 text-sm font-medium text-gray-900">Precio</h4>
+		<PriceFilter currentStyle={currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} />
+	</div>
+	<!-- Active Filters Summary -->
+	<ActiveFiltersChips {currentStyle} chips={buildChips()} />
 </div>

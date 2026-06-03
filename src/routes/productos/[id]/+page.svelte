@@ -43,21 +43,20 @@
 			girls: 'Niñas'
 		};
 
-		const crumbs = [{ label: 'Inicio', href: categoryParam ? `/?category=${categoryParam}` : '/' }];
+		const crumbs = [
+			{ label: 'Inicio', href: '/' }
+		];
 
-		if (isFromProductsPage) {
-			crumbs.push({
-				label: 'Productos',
-				href: categoryParam ? `/productos?category=${categoryParam}` : '/productos'
-			});
-		}
+		// Siempre mostrar el crumb de Productos para ir al catálogo completo
+		crumbs.push({
+			label: 'Productos',
+			href: '/productos'
+		});
 
 		if (categoryParam && categoryParam in categoryLabels) {
 			crumbs.push({
 				label: categoryLabels[categoryParam],
-				href: isFromProductsPage
-					? `/productos?category=${categoryParam}`
-					: `/?category=${categoryParam}`
+				href: `/productos?category=${categoryParam}`
 			});
 		}
 
@@ -87,6 +86,29 @@
 	function handleImageSelect(index: number) {
 		selectedImageIndex = index;
 	}
+
+	// Fondo dinámico según categoría (igual que en catálogo completo)
+	const categoryBackgrounds: Record<Category, string> = {
+		men: 'bg-[#2C71CC33]',
+		women: 'bg-[#B19ADE40]',
+		boys: 'bg-[#f0f4fc]',
+		girls: 'bg-[#ffecf4]'
+	};
+
+	const validCategories: Category[] = ['men', 'women', 'boys', 'girls'];
+	let effectiveCategory = $state<Category>('women');
+
+	$effect(() => {
+		const fromQuery = categoryParam as Category | null;
+		if (fromQuery && validCategories.includes(fromQuery)) {
+			effectiveCategory = fromQuery;
+			return;
+		}
+		const fromProduct = (product as { gender?: Category })?.gender;
+		effectiveCategory = fromProduct && validCategories.includes(fromProduct) ? fromProduct : 'women';
+	});
+
+	const currentBackground = $derived(categoryBackgrounds[effectiveCategory]);
 
 	// Funciones de validación y carrito
 	function validateSelections(): boolean {
@@ -122,11 +144,14 @@
 	<meta name="description" content={product.description} />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50">
-	<ProductHeader category={categoryParam || undefined} fromProductsPage={isFromProductsPage} />
+<div class="min-h-screen">
+	<ProductHeader
+		category={categoryParam || undefined}
+		fromProductsPage={isFromProductsPage}
+	/>
 
 	<!-- Contenido principal -->
-	<div class="mx-auto max-w-7xl px-4 py-8">
+	<div class="max-w-7xl mx-auto px-4 py-8 {currentBackground} rounded-lg mb-6">
 		<Breadcrumbs breadcrumbs={breadcrumbs()} />
 
 		<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">

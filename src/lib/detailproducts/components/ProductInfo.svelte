@@ -10,11 +10,8 @@
 </script>
 
 <div>
-	<span class="inline-block px-3 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full mb-2">
-		{product.category}
-	</span>
 	<h1 class="text-3xl font-bold text-gray-900">{product.name}</h1>
-	<p class="text-gray-600 mt-2">{product.description}</p>
+	<p  style="font-family: 'Poppins', sans-serif;" class="text-gray-600 mt-2">{product.description}</p>
 </div>
 
 <!-- Precios -->
