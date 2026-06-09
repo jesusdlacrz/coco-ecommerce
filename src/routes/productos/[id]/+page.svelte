@@ -4,13 +4,13 @@
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import ProductHeader from '$lib/detailproducts/components/ProductHeader.svelte';
 	import ImageGallery from '$lib/detailproducts/components/ImageGallery.svelte';
 	import ProductInfo from '$lib/detailproducts/components/ProductInfo.svelte';
 	import ProductOptions from '$lib/detailproducts/components/ProductOptions.svelte';
 	import ProductActions from '$lib/detailproducts/components/ProductActions.svelte';
 	import ProductDetails from '$lib/detailproducts/components/ProductDetails.svelte';
 	import Breadcrumbs from '$lib/shared/components/Breadcrumbs.svelte';
+	import { getCategoryStyle } from '$lib/products/filters/categoryStyles';
 	import toast from 'svelte-5-french-toast';
 
 	let { data }: { data: PageData } = $props();
@@ -18,8 +18,6 @@
 
 	// Obtener la categoría y origen desde los query parameters
 	const categoryParam = $derived(page.url.searchParams.get('category'));
-	const fromParam = $derived(page.url.searchParams.get('from'));
-	const isFromProductsPage = $derived(fromParam === 'productos');
 
 	// Update global category store when component mounts or category changes
 	onMount(() => {
@@ -109,6 +107,7 @@
 	});
 
 	const currentBackground = $derived(categoryBackgrounds[effectiveCategory]);
+	const currentStyle = $derived(getCategoryStyle(effectiveCategory));
 
 	// Funciones de validación y carrito
 	function validateSelections(): boolean {
@@ -144,14 +143,9 @@
 	<meta name="description" content={product.description} />
 </svelte:head>
 
-<div class="min-h-screen">
-	<ProductHeader
-		category={categoryParam || undefined}
-		fromProductsPage={isFromProductsPage}
-	/>
-
+<div class="min-h-screen {currentBackground} transition-colors duration-700">
 	<!-- Contenido principal -->
-	<div class="max-w-7xl mx-auto px-4 py-8 {currentBackground} rounded-lg mb-6">
+	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 		<Breadcrumbs breadcrumbs={breadcrumbs()} />
 
 		<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -162,6 +156,7 @@
 				productName={product.name}
 				{selectedImageIndex}
 				onImageSelect={handleImageSelect}
+				accentColor={currentStyle.accentColor}
 			/>
 
 			<!-- Información y opciones del producto -->

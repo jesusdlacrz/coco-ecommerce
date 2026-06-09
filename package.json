@@ -38,6 +38,11 @@
 		"vite-plugin-devtools-json": "^0.2.1"
 	},
 	"dependencies": {
+		"@fontsource-variable/instrument-sans": "^5.2.8",
+		"@fontsource-variable/jost": "^5.2.8",
+		"@fontsource/jost": "^5.2.8",
+		"@fontsource/poppins": "^5.2.7",
+		"@fontsource/volkhov": "^5.2.8",
 		"@midudev/tailwind-animations": "^0.2.0",
 		"svelte-5-french-toast": "^2.0.5"
 	}

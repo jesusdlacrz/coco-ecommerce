@@ -34,12 +34,27 @@
 			onQuantityChange(quantity - 1);
 		}
 	}
+
+	function handleInputChange(e: Event) {
+		const raw = parseInt((e.target as HTMLInputElement).value, 10);
+		if (!isNaN(raw) && raw >= 1) {
+			onQuantityChange(raw);
+		}
+	}
+
+	function handleInputBlur(e: Event) {
+		const raw = parseInt((e.target as HTMLInputElement).value, 10);
+		// Reset to last valid value if user left an invalid/empty field
+		if (isNaN(raw) || raw < 1) {
+			(e.target as HTMLInputElement).value = String(quantity);
+		}
+	}
 </script>
 
 <div class="space-y-6">
 	{#if sizes.length > 0}
 		<div>
-			<span class="block text-sm font-medium text-black mb-2">Talla:</span>
+			<span class="block text-sm font-medium font-['Volkhov',serif] text-black mb-2">Talla:</span>
 			<div class="flex flex-wrap gap-3">
 				{#each sizes as size (size)}
 					<button
@@ -58,7 +73,7 @@
 
 	{#if colors.length > 0}
 		<div>
-			<span class="block text-sm font-medium text-black mb-3">Color:</span>
+			<span class="block text-sm font-medium font-['Volkhov',serif] text-black mb-3">Color:</span>
 			<div class="flex flex-wrap gap-2">
 				{#each colors as color (color.name)}
 					<button
@@ -76,7 +91,7 @@
 	{/if}
 
 	<div>
-		<span class="block text-sm font-medium text-black mb-2">Cantidad:</span>
+		<span class="block text-sm font-medium font-['Volkhov',serif] text-black mb-2">Cantidad:</span>
 		<div class="flex items-center space-x-2 bg-white h-10 max-w-[115px] shadow rounded">
 			<button
 				onclick={decrementQuantity}
@@ -85,7 +100,15 @@
 			>
 				<Minus size={12} class="text-black" />
 			</button>
-			<span class="min-w-[2rem] px-3 text-center text-sm font-medium text-black" style="font-family: 'Poppins', sans-serif;">{quantity}</span>
+			<input
+				type="number"
+				min="1"
+				value={quantity}
+				oninput={handleInputChange}
+				onblur={handleInputBlur}
+				class="w-10 text-center text-sm font-medium text-black bg-transparent outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+				style="font-family: 'Poppins', sans-serif;"
+			/>
 			<button
 				onclick={incrementQuantity}
 				class="flex h-8 w-8 items-center justify-center p-0"

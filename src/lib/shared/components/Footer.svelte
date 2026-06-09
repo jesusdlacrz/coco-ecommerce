@@ -6,8 +6,9 @@
 
 	onMount(() => {
 		function handleScroll() {
-			showScrollTop = window.scrollY > 400;
+			showScrollTop = window.scrollY > 200;
 		}
+		handleScroll(); // check initial position (covers mid-page mounts on navigation)
 		window.addEventListener('scroll', handleScroll, { passive: true });
 		return () => window.removeEventListener('scroll', handleScroll);
 	});
