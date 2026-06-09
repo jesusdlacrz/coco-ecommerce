@@ -98,13 +98,15 @@
 	backgroundColor={currentBackground}
 />
 <Toaster/>
-<main class="min-h-screen {currentBackground} transition-colors duration-700">
-	{@render children?.()}
-</main>
+<div class="{currentBackground} transition-colors duration-700">
+	<main class="min-h-screen">
+		{@render children?.()}
+	</main>
 
-{#if !isHomePage}
-	<Footer backgroundColor={currentBackground} />
-{/if}
+	{#if !isHomePage}
+		<Footer />
+	{/if}
+</div>
 
 <CartDrawer
 	isOpen={isCartOpen}
