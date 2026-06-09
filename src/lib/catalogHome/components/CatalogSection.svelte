@@ -6,6 +6,7 @@
 	import { sampleProducts } from '$lib/dataProducts/products';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
+import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	// =================== STATE ===================
 	let activeTab = $state<Category>('men');
@@ -42,7 +43,7 @@
 		activeCategory.set(tab);
 
 		// Obtener la URL relativa actual con parámetros modificados
-		const searchParams = new URLSearchParams(page.url.search);
+		const searchParams = new SvelteURLSearchParams(page.url.search);
 		searchParams.set('category', tab);
 
 		goto(`?${searchParams.toString()}`, {
@@ -56,7 +57,7 @@
 	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 		<!-- Page Header -->
 		<div class="mb-8 text-center text-[#484848]">
-			<h2 class="mb-4 text-3xl" style="">Catálogo Preview</h2>
+			<h2 class="mb-4 text-3xl font-['Volkhov',serif]">Catálogo Preview</h2>
 			<p class="text-sm text-[#8A8A8A]">
 				Vista previa de nuestros productos. Haz clic en cualquier producto para ver detalles
 				completos.

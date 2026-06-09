@@ -21,6 +21,7 @@
 	// Detect exact products index vs product detail
 	const path = $derived($page.url.pathname.replace(/\/+$/, ''));
 	const isProductsPage = $derived(path === '/productos');
+	const isHomePage = $derived(path === '');
 	
 	// Get background color for productos page
 	const categoryBackgrounds = {
@@ -101,7 +102,9 @@
 	{@render children?.()}
 </main>
 
-<Footer backgroundColor={currentBackground} />
+{#if !isHomePage}
+	<Footer backgroundColor={currentBackground} />
+{/if}
 
 <CartDrawer
 	isOpen={isCartOpen}
