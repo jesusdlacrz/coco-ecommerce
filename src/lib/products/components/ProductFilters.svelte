@@ -129,21 +129,24 @@
 		}
 	}
 
+	function handleRangeChange(range: { min: number; max: number }) {
+		pricePreset = null;
+		priceRange = range;
+	}
+
 	// Counts using pure helpers
 	// counts para presets dinámicos reutilizando filteredForCounts
 	const pricePresetCounts = $derived(Object.fromEntries(dynamicPricePresets.map(pr => [pr.id, filteredForCounts.filter(p=> priceInPreset(p.price, pr)).length])) as Record<string, number>);
 	const filteredExceptCategory = $derived(productsExceptCategory(products, { selectedCategories, selectedSizes, selectedColors, priceRange, pricePreset }));
 	const categoryCounts = $derived(buildCategoryCounts(allCategories, filteredExceptCategory));
-	const pricePresetLabel = (id: string | null) => dynamicPricePresets.find(p=>p.id===id)?.label ?? null;
+	const pricePresetLabel = (id: string | null) => dynamicPricePresets.find(p => p.id === id)?.label ?? null;
 
-	function buildChips() {
-		return [
-			...selectedCategories.map(c=>({label:c,remove:()=>toggleCategory(c)})),
-			...selectedSizes.map(s=>({label:s,remove:()=>toggleSize(s)})),
-			...selectedColors.map(c=>({label:c,remove:()=>toggleColor(c)})),
-			...(pricePreset? [{label: pricePresetLabel(pricePreset)!, remove:()=>selectPricePreset(pricePreset!)}]:[])
-		];
-	}
+	const chips = $derived([
+		...selectedCategories.map(c => ({ label: c, remove: () => toggleCategory(c) })),
+		...selectedSizes.map(s => ({ label: s, remove: () => toggleSize(s) })),
+		...selectedColors.map(c => ({ label: c, remove: () => toggleColor(c) })),
+		...(pricePreset ? [{ label: pricePresetLabel(pricePreset)!, remove: () => selectPricePreset(pricePreset!) }] : [])
+	]);
 
 	// ensure active preset still valid when dynamic presets regenerate
 	$effect(() => {
@@ -155,10 +158,10 @@
 
 
 	// Reset filters when the external activeCategory changes
-	let lastCategory = $state(activeCategory);
+	let prevCategory = activeCategory;
 	$effect(() => {
-		if (lastCategory !== activeCategory) {
-			lastCategory = activeCategory;
+		if (activeCategory !== prevCategory) {
+			prevCategory = activeCategory;
 			clearAllFilters();
 		}
 	});
@@ -217,7 +220,7 @@
 					class="flex h-full w-80 max-w-full animate-[slideIn_.25s_cubic-bezier(.4,0,.2,1)] flex-col overflow-hidden bg-white shadow-2xl outline-none focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2"
 				>
 					<div class="flex items-center justify-between border-b px-4 py-3">
-						<h3 class="text-base font-semibold">Filtros</h3>
+						<h3 class="text-base font-semibold font-['Volkhov',serif]">Filtros</h3>
 						<div class="flex gap-2">
 							{#if activeFiltersCount > 0}
 								<button
@@ -251,7 +254,7 @@
 						{/if}
 						<div class="rounded-md border p-3">
 							<h4 class="mb-3 text-sm font-medium text-gray-900">Precio</h4>
-							<PriceFilter currentStyle={currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} />
+							<PriceFilter {currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} minBound={minPrice} maxBound={maxPrice} {priceRange} onRangeChange={handleRangeChange} />
 						</div>
 					</div>
 					<div class="flex gap-2 border-t px-4 py-3">
@@ -276,32 +279,32 @@
 <div class="hidden lg:block">
 	<!-- Desktop Heading -->
 	<div class="mb-6 flex items-center justify-between">
-		<h3 class="text-2xl font-semibold {currentStyle.textAccent}">Filtros</h3>
+		<h3 class="text-2xl font-semibold font-['Volkhov',serif] {currentStyle.textAccent}">Filtros</h3>
 	</div>
 	<!-- Categories -->
 	<div class="mb-6">
-		<h4 class="text-md mb-3 font-medium text-gray-900">Categorías</h4>
+		<h4 class="text-md mb-3 font-medium font-['Volkhov',serif] text-gray-900">Categorías</h4>
 		<CategoryFilter {currentStyle} categories={allCategories} selected={selectedCategories} counts={categoryCounts} {toggleCategory} />
 	</div>
 	<!-- Sizes -->
 	{#if selectedCategories.length > 0 && availableSizes.length > 0}
 		<div class="mb-6">
-			<h4 class="mb-3 text-sm font-medium text-gray-900">Tallas</h4>
+			<h4 class="text-md mb-3 font-medium font-['Volkhov',serif] text-gray-900">Tallas</h4>
 			<SizeFilter {currentStyle} sizes={availableSizes} {selectedSizes} {toggleSize} />
 		</div>
 	{/if}
 	<!-- Colors -->
 	{#if availableColors.length > 0}
 		<div class="mb-6">
-			<h4 class="mb-3 text-sm font-medium text-gray-900">Colores</h4>
+			<h4 class="text-md mb-3 font-medium font-['Volkhov',serif] text-gray-900">Colores</h4>
 			<ColorFilter {currentStyle} colors={availableColors} {selectedColors} {toggleColor} containerClass="grid grid-cols-8 gap-1" />
 		</div>
 	{/if}
 	<!-- Price -->
 	<div class="mb-6">
-		<h4 class="mb-3 text-sm font-medium text-gray-900">Precio</h4>
-		<PriceFilter currentStyle={currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} />
+		<h4 class="text-md mb-3 font-medium font-['Volkhov',serif] text-gray-900">Precio</h4>
+		<PriceFilter {currentStyle} presets={dynamicPricePresets} counts={pricePresetCounts} activePreset={pricePreset} selectPreset={selectPricePreset} minBound={minPrice} maxBound={maxPrice} {priceRange} onRangeChange={handleRangeChange} />
 	</div>
 	<!-- Active Filters Summary -->
-	<ActiveFiltersChips {currentStyle} chips={buildChips()} />
+	<ActiveFiltersChips {currentStyle} {chips} clearAll={clearAllFilters} />
 </div>

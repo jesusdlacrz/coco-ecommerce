@@ -1,7 +1,7 @@
 // Category style configuration extracted from ProductFilters.svelte
 export type CategoryKey = 'men' | 'women' | 'boys' | 'girls';
 
-interface CategoryStyle {
+export interface CategoryStyle {
   accent: string;
   accentHover: string;
   textAccent: string;
@@ -10,6 +10,7 @@ interface CategoryStyle {
   ringColor: string;
   borderColor: string;
   hoverBorderColor: string;
+  accentColor: string; // raw hex for inline CSS (sliders, gradients)
 }
 
 export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
@@ -21,7 +22,8 @@ export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
     rangeAccent: 'accent-[#16167F]',
     ringColor: 'ring-[#16167F]',
     borderColor: 'border-[#16167F]',
-    hoverBorderColor: 'hover:border-[#0F0F5F]'
+    hoverBorderColor: 'hover:border-[#0F0F5F]',
+    accentColor: '#16167F'
   },
   women: {
     accent: 'bg-[#5A00B8] border-[#5A00B8] text-white',
@@ -31,7 +33,8 @@ export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
     rangeAccent: 'accent-[#7C00F4]',
     ringColor: 'ring-[#7C00F4]',
     borderColor: 'border-[#7C00F4]',
-    hoverBorderColor: 'hover:border-[#5A00B8]'
+    hoverBorderColor: 'hover:border-[#5A00B8]',
+    accentColor: '#7C00F4'
   },
   boys: {
     accent: 'bg-[#2C71CC] border-[#2C71CC] text-white',
@@ -41,7 +44,8 @@ export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
     rangeAccent: 'accent-[#2C71CC]',
     ringColor: 'ring-[#6297DB]',
     borderColor: 'border-[#6297DB]',
-    hoverBorderColor: 'hover:border-[#4A7BC1]'
+    hoverBorderColor: 'hover:border-[#4A7BC1]',
+    accentColor: '#2C71CC'
   },
   girls: {
     accent: 'bg-[#FF91C1] border-[#FF91C1] text-white',
@@ -51,7 +55,8 @@ export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
     rangeAccent: 'accent-[#FF91C1]',
     ringColor: 'ring-[#FF91C1]',
     borderColor: 'border-[#FF91C1]',
-    hoverBorderColor: 'hover:border-[#E5729A]'
+    hoverBorderColor: 'hover:border-[#E5729A]',
+    accentColor: '#FF91C1'
   }
 };
 
