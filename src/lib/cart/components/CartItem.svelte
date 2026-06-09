@@ -3,7 +3,6 @@
 	import type { CartItem } from '$lib/shared/model/products';
 	import Plus from '$lib/shared/icons/Plus.svelte';
 	import Minus from '$lib/shared/icons/Minus.svelte';
-	import Trash from '$lib/shared/icons/Trash.svelte';
 
 	type Props = {
 		item: CartItem;
@@ -12,64 +11,67 @@
 	};
 
 	let { item, onUpdateQuantity, onRemoveItem }: Props = $props();
+
+	const meta = $derived(
+		[item.size ? `Talla: ${item.size}` : '', item.color ? `Color: ${item.color}` : '']
+			.filter(Boolean)
+			.join(' | ')
+	);
 </script>
 
-<div class="flex space-x-3 p-3 border-b border-[#00000063]">
-	<div class="w-30 h-auto flex-shrink-0">
+<div class="flex gap-3 px-6 py-4 border-b border-gray-100">
+	<!-- Imagen -->
+	<div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-gray-50">
 		<img
 			src={item.image || '/placeholder.svg'}
 			alt={item.name}
-			class="h-full w-full rounded object-cover"
+			class="h-full w-full object-cover"
 		/>
 	</div>
 
-	<div class="min-w-0 flex-1">
-		<h4 class="truncate text-sm font-medium">{item.name}</h4>
-		<div class="mt-1 flex flex-wrap gap-1">
-			{#if item.size}
-				<span
-					class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-800" style="font-family: 'Poppins', sans-serif;"
-				>
-					{item.size}
-				</span>
-			{/if}
-			{#if item.color}
-				<span
-					class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-800"
-				>
-					{item.color}
-				</span>
-			{/if}
+	<!-- Info -->
+	<div class="flex min-w-0 flex-1 flex-col gap-1">
+		<div class="flex items-start justify-between gap-2">
+			<h4 class="font-['Volkhov',serif] text-sm font-semibold leading-snug text-[#262635]">
+				{item.name}
+			</h4>
+			<!-- X sutil -->
+			<button
+				onclick={() => onRemoveItem(item.id)}
+				aria-label="Eliminar {item.name}"
+				class="flex-shrink-0 text-gray-300 transition-colors hover:text-[#262635]"
+			>
+				<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+				</svg>
+			</button>
 		</div>
-		<p class="mt-1 text-sm font-medium text-black" style="font-family: 'Poppins', sans-serif;">
+
+		{#if meta}
+			<p class="font-['Jost',sans-serif] text-xs text-gray-400">{meta}</p>
+		{/if}
+
+		<p class="font-['Jost',sans-serif] text-sm font-semibold text-[#262635]">
 			{formatPrice(item.price)}
 		</p>
 
-		<div class="mt-2 flex items-center justify-between">
-			<div class="flex items-center space-x-2 bg-[#F1F1F1] h-10">
-				<button
-					onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-					disabled={item.quantity <= 1}
-					class="flex h-8 w-8 items-center justify-center p-0  disabled:opacity-50"
-				>
-					<Minus size={12} class="text-black" />
-				</button>
-				<span class="min-w-[2rem] px-3 text-center text-sm font-medium text-[#8A8A8A]" style="font-family: 'Poppins', sans-serif;"
-					>{item.quantity}</span
-				>
-				<button
-					onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-					class="flex h-8 w-8 items-center justify-center p-0 "
-				>
-					<Plus size={12} />
-				</button>
-			</div>
-
+		<!-- Selector de cantidad -->
+		<div class="mt-1 flex h-8 w-fit items-center rounded bg-gray-100">
 			<button
-				onclick={() => onRemoveItem(item.id)}
-				class="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+				onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+				disabled={item.quantity <= 1}
+				class="flex h-8 w-8 items-center justify-center text-[#262635] transition-colors hover:bg-gray-200 rounded-l disabled:opacity-30"
 			>
-				<Trash size={12} />
+				<Minus size={11} />
+			</button>
+			<span class="w-8 text-center font-['Jost',sans-serif] text-sm font-bold text-[#262635]">
+				{item.quantity}
+			</span>
+			<button
+				onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+				class="flex h-8 w-8 items-center justify-center text-[#262635] transition-colors hover:bg-gray-200 rounded-r"
+			>
+				<Plus size={11} />
 			</button>
 		</div>
 	</div>

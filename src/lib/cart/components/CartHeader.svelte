@@ -11,13 +11,18 @@
 	let { totalItems, total, onClose }: Props = $props();
 </script>
 
-<!-- Header -->
-<div class="flex items-center justify-between p-4">
+<div class="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100">
 	<div>
-		<h2 class="text-lg font-semibold text-black mb-2 ml-4">Carro De Compras</h2>
-		<p style="font-family: 'Poppins', sans-serif;" class="text-sm text-gray-600 ml-4">{totalItems} productos - {formatPrice(total)}</p>
+		<h2 class="font-['Volkhov',serif] text-xl font-bold text-[#262635]">Carro De Compras</h2>
+		<p class="mt-1 font-['Jost',sans-serif] text-sm text-gray-500">
+			{totalItems} {totalItems === 1 ? 'producto' : 'productos'} — {formatPrice(total)}
+		</p>
 	</div>
-	<button onclick={onClose} class="rounded p-2 hover:bg-gray-100">
-		<X size={20} />
+	<button
+		onclick={onClose}
+		aria-label="Cerrar carrito"
+		class="rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+	>
+		<X size={18} />
 	</button>
 </div>
