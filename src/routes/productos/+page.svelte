@@ -3,10 +3,14 @@
 	import ProductFilters from '$lib/products/components/ProductFilters.svelte';
 	import SimpleCategoryTabs from '$lib/products/components/CatalogCategoryTabs.svelte';
 	import { goto } from '$app/navigation';
-	
-	import { sampleProducts } from '$lib/dataProducts/products';
+
+	import type { Product } from '$lib/shared/model/products';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { page } from '$app/state';
+	import type { PageData } from './$types';
+
+	// =================== PROPS ===================
+	let { data }: { data: PageData } = $props();
 
 	// =================== STATE ===================
 	// Detectar categoría inicial desde el query param antes del primer render para evitar parpadeo.
@@ -20,13 +24,13 @@
 	activeCategory.set(initialCategory);
 
 	let activeTab = $state<Category>(initialCategory);
-	let filteredProducts = $state<typeof sampleProducts>([]);
+	let filteredProducts = $state<Product[]>([]);
 
 	// =================== DERIVED DATA ===================
-	const menProducts = sampleProducts.filter((p) => p.gender === 'men');
-	const womenProducts = sampleProducts.filter((p) => p.gender === 'women');
-	const boysProducts = sampleProducts.filter((p) => p.gender === 'boys');
-	const girlsProducts = sampleProducts.filter((p) => p.gender === 'girls');
+	const menProducts = $derived(data.products.filter((p) => p.gender === 'men'));
+	const womenProducts = $derived(data.products.filter((p) => p.gender === 'women'));
+	const boysProducts = $derived(data.products.filter((p) => p.gender === 'boys'));
+	const girlsProducts = $derived(data.products.filter((p) => p.gender === 'girls'));
 
 	const currentProducts = $derived(
 		activeTab === 'men' ? menProducts :
@@ -65,7 +69,7 @@
 	}
 
 	
-	function handleFiltersChange(filtered: typeof sampleProducts) {
+	function handleFiltersChange(filtered: Product[]) {
 		filteredProducts = filtered;
 	}
 </script>

@@ -3,19 +3,22 @@
 	import CategoryTabs from '$lib/catalogHome/components/CategoryTabs.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { sampleProducts } from '$lib/dataProducts/products';
+	import type { Product } from '$lib/shared/model/products';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
-import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
+
+	// =================== PROPS ===================
+	let { products }: { products: Product[] } = $props();
 
 	// =================== STATE ===================
 	let activeTab = $state<Category>('men');
 
 	// =================== DERIVED DATA ===================
-	const menProducts = sampleProducts.filter((p) => p.gender === 'men');
-	const womenProducts = sampleProducts.filter((p) => p.gender === 'women');
-	const boysProducts = sampleProducts.filter((p) => p.gender === 'boys');
-	const girlsProducts = sampleProducts.filter((p) => p.gender === 'girls');
+	const menProducts = $derived(products.filter((p) => p.gender === 'men'));
+	const womenProducts = $derived(products.filter((p) => p.gender === 'women'));
+	const boysProducts = $derived(products.filter((p) => p.gender === 'boys'));
+	const girlsProducts = $derived(products.filter((p) => p.gender === 'girls'));
 
 	const currentProducts = $derived(
 		activeTab === 'men'
@@ -38,7 +41,6 @@ import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	// =================== UI HANDLERS ===================
 	function handleTabChange(tab: Category) {
-		console.log(`Switching to ${tab} tab`);
 		activeTab = tab;
 		activeCategory.set(tab);
 

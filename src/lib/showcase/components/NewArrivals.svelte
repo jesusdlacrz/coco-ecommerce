@@ -2,24 +2,44 @@
 	import { onMount } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import type { Product } from '$lib/shared/model/products';
 
-	const slides = [
-		{ label: '01', sale: 'Spring Sale', discount: '30% OFF', image: '/placeholder.svg?height=580&width=404', alt: 'Spring Sale' },
-		{ label: '02', sale: 'Summer Collection', discount: '20% OFF', image: '/placeholder.svg?height=580&width=404', alt: 'Summer' },
-		{ label: '03', sale: 'Invierno', discount: '15% OFF', image: '/placeholder.svg?height=580&width=404', alt: 'Invierno' },
-		{ label: '04', sale: 'Otoño', discount: '25% OFF', image: '/placeholder.svg?height=580&width=404', alt: 'Otoño' }
-	];
+	// Los productos más recientes de WooCommerce (los primeros que llegan del load).
+	let { products = [] }: { products?: Product[] } = $props();
+
+	const MAX_SLIDES = 6;
+
+	function priceTag(product: Product): string {
+		// En una tienda mayorista el "descuento" es el ahorro del precio mayorista.
+		if (product.wholesalePrice && product.wholesalePrice < product.price) {
+			const pct = Math.round(((product.price - product.wholesalePrice) / product.price) * 100);
+			return `${pct}% OFF`;
+		}
+		return `$${product.price.toLocaleString('es-CO')}`;
+	}
+
+	const slides = $derived(
+		products.slice(0, MAX_SLIDES).map((product, i) => ({
+			label: String(i + 1).padStart(2, '0'),
+			sale: product.name,
+			discount: priceTag(product),
+			image: product.images[0] ?? '/placeholder.svg',
+			alt: product.name
+		}))
+	);
 
 	// Desktop: current index + direction for transition
 	let current = $state(0);
 	let direction = $state(1); // 1 = forward, -1 = backward
-	const nextIdx = $derived((current + 1) % slides.length);
+	const nextIdx = $derived(slides.length ? (current + 1) % slides.length : 0);
 
 	function goPrev() {
+		if (!slides.length) return;
 		direction = -1;
 		current = (current - 1 + slides.length) % slides.length;
 	}
 	function goNext() {
+		if (!slides.length) return;
 		direction = 1;
 		current = (current + 1) % slides.length;
 	}
@@ -28,8 +48,8 @@
 	let mobileActive = $state(0);
 	let tabletActive = $state(0);
 
-	let mobileCarousel: HTMLElement | null = null;
-	let tabletCarousel: HTMLElement | null = null;
+	let mobileCarousel = $state<HTMLElement | null>(null);
+	let tabletCarousel = $state<HTMLElement | null>(null);
 
 	function setupObserver(container: HTMLElement, onActive: (i: number) => void) {
 		const observer = new IntersectionObserver(
@@ -69,7 +89,7 @@
 </script>
 
 <section class="overflow-hidden bg-gradient-to-b from-[#FCA12054] to-transparent">
-
+{#if slides.length}
 	<!-- ===================== DESKTOP (lg+) ===================== -->
 	<div class="mx-auto hidden overflow-hidden lg:flex px-4 sm:px-6 lg:px-8" style="height: 680px; max-width: 80rem;">
 
@@ -253,5 +273,5 @@
 			{/each}
 		</div>
 	</div>
-
+{/if}
 </section>

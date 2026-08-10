@@ -1,5 +1,23 @@
 <script lang="ts">
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
+	import type { Product } from '$lib/shared/model/products';
+
+	// Productos recientes de WooCommerce para las imágenes del hero.
+	let { products = [] }: { products?: Product[] } = $props();
+
+	const PLACEHOLDER = '/placeholder.svg';
+
+	function image(index: number): { src: string; alt: string } {
+		const product = products[index];
+		return {
+			src: product?.images[0] ?? PLACEHOLDER,
+			alt: product?.name ?? 'Producto destacado'
+		};
+	}
+
+	const left = $derived(image(0));
+	const center = $derived(image(1));
+	const right = $derived(image(2));
 </script>
 
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -12,7 +30,7 @@
 			class="hidden w-full overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg lg:block"
 			style="aspect-ratio: 1/2; grid-column: 1; grid-row: 1;"
 		>
-			<img src="/placeholder.svg?height=900&width=600" alt="Modelo izquierda" class="h-full w-full object-cover object-top" />
+			<img src={left.src} alt={left.alt} class="h-full w-full object-cover object-top" />
 		</div>
 
 		<!-- Columna central — en lg ocupa col 2, row 1 -->
@@ -45,7 +63,7 @@
 
 			<!-- Imagen horizontal: order-2 en móvil (va después del texto) -->
 			<div class="order-2 w-full overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg lg:order-1" style="aspect-ratio: 3/1;">
-				<img src="/placeholder.svg?height=200&width=600" alt="Grupo" class="h-full w-full object-cover" />
+				<img src={center.src} alt={center.alt} class="h-full w-full object-cover" />
 			</div>
 
 		</div>
@@ -55,16 +73,16 @@
 			class="hidden w-full overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg lg:block"
 			style="aspect-ratio: 1/2; grid-column: 3; grid-row: 1;"
 		>
-			<img src="/placeholder.svg?height=900&width=600" alt="Modelo derecha" class="h-full w-full object-cover object-top" />
+			<img src={right.src} alt={right.alt} class="h-full w-full object-cover object-top" />
 		</div>
 
 		<!-- Sub-grid de imágenes laterales para móvil (order-3, visible solo en < lg) -->
 		<div class="order-3 grid grid-cols-2 gap-3 lg:hidden">
 			<div class="overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg" style="aspect-ratio: 1/2;">
-				<img src="/placeholder.svg?height=900&width=600" alt="Modelo izquierda" class="h-full w-full object-cover object-top" />
+				<img src={left.src} alt={left.alt} class="h-full w-full object-cover object-top" />
 			</div>
 			<div class="overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg" style="aspect-ratio: 1/2;">
-				<img src="/placeholder.svg?height=900&width=600" alt="Modelo derecha" class="h-full w-full object-cover object-top" />
+				<img src={right.src} alt={right.alt} class="h-full w-full object-cover object-top" />
 			</div>
 		</div>
 

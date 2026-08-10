@@ -8,6 +8,9 @@
 	import Testimonials from '$lib/showcase/components/Testimonials.svelte';
 	import AboutSection from '$lib/showcase/components/AboutSection.svelte';
 	import Footer from '$lib/shared/components/Footer.svelte';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
 </script>
 
 <svelte:head>
@@ -16,19 +19,19 @@
 
 <!-- Hero -->
 <section class="relative min-h-screen overflow-hidden bg-gradient-to-t from-[#FCA12054] to-white">
-	<ModelGallery />
+	<ModelGallery products={data.products} />
 </section>
 
 <!-- Lo Más Nuevo -->
 <section class="bg-gradient-to-b from-white to-white">
-<NewArrivals />
+<NewArrivals products={data.products} />
 </section>
 
 <hr class="mx-auto my-20 max-w-3xl border-t border-[#707070]" />
 
 <!-- Catálogo con tabs -->
 <section class="">
-	<CatalogSection />
+	<CatalogSection products={data.products} />
 </section>
 
 <!-- Features bar -->

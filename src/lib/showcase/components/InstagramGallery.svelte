@@ -1,4 +1,7 @@
 <script lang="ts">
+	// Pendiente: conectar con el feed real vía la API de Instagram (Instagram Graph
+	// API / Basic Display). No depende de WordPress; requiere token de Meta aparte.
+	// Por ahora se muestran marcadores de posición.
 	const images = [
 		{ label: 'foto 1' },
 		{ label: 'foto 2' },
