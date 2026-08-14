@@ -2,6 +2,8 @@
 	import ProductPreview from '$lib/products/components/ProductCardPreview.svelte';
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import type { Product } from '$lib/shared/model/products';
+	import { page } from '$app/state';
+	import { HOUSE_STORE } from '$lib/storefront/model';
 
 	interface Props {
 		products: Product[];
@@ -9,6 +11,8 @@
 	}
 
 	let { products, activeTab }: Props = $props();
+
+	const store = $derived(page.data.storefront ?? HOUSE_STORE);
 
 	// Limitar a máximo 6 productos
 	const previewProducts = $derived(products.slice(0, 6));
@@ -23,7 +27,7 @@
 
 	<div class="pt-6 text-center">
 		<TransitionLink
-			href="/productos?category={activeTab}"
+			href="{store.basePath}/productos?category={activeTab}"
 			hero={false}
 			class="inline-flex items-center rounded-lg border border-transparent bg-black px-14 py-3 text-sm font-medium text-white shadow-md transition-colors hover:bg-gray-800 hover:shadow-lg"
 		>

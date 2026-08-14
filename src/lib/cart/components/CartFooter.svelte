@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatPrice } from '$lib/shared/utils/cartUtils';
+	import { formatPrice } from '$lib/shared/utils/price';
 
 	type Props = {
 		cartItems: any[];
@@ -30,7 +30,9 @@
 		<!-- Total -->
 		<div class="flex items-center justify-between">
 			<span class="font-['Volkhov',serif] text-base font-bold text-[#262635]">Total</span>
-			<span class="font-['Jost',sans-serif] text-base font-bold text-[#262635]">{formatPrice(total)}</span>
+			<span class="font-['Jost',sans-serif] text-base font-bold text-[#262635]"
+				>{formatPrice(total)}</span
+			>
 		</div>
 
 		<!-- Botones -->
@@ -39,8 +41,8 @@
 				disabled={!canCheckout}
 				class="w-full rounded-md px-4 py-3 font-['Jost',sans-serif] text-sm font-semibold tracking-wide transition-colors
 					{canCheckout
-						? 'bg-[#262635] text-white hover:bg-black'
-						: 'cursor-not-allowed bg-gray-200 text-gray-400'}"
+					? 'bg-[#262635] text-white hover:bg-black'
+					: 'cursor-not-allowed bg-gray-200 text-gray-400'}"
 			>
 				{canCheckout ? 'Proceder al Checkout' : `Faltan ${missingUnits} unidades`}
 			</button>

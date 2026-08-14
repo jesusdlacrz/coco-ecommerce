@@ -1,0 +1,122 @@
+<script lang="ts">
+	import Header from '$lib/shared/components/Header.svelte';
+	import { cartItemCount, cartStore, cartItems } from '$lib/cart/stores/cartStore';
+	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
+	import Footer from '$lib/shared/components/Footer.svelte';
+	import CartDrawer from '$lib/cart/components/CartDrawer.svelte';
+	import { page } from '$app/state';
+	import { onMount } from 'svelte';
+	import { HOUSE_STORE } from '$lib/storefront/model';
+
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+	const { children }: Props = $props();
+
+	const store = $derived(page.data.storefront ?? HOUSE_STORE);
+
+	// Cada revista de vendedor tiene su propio carrito — evita mezclar
+	// precios con comisiones distintas si el cliente navega entre tiendas.
+	$effect(() => {
+		cartStore.useStore(store.cartKey);
+	});
+
+	// =================== CART STATE ===================
+	let isCartOpen = $state(false);
+	let currentCategory = $state<Category>('women');
+
+	// Detect exact products index vs product detail
+	const path = $derived(page.url.pathname.replace(/\/+$/, ''));
+	const isProductsPage = $derived(path === '/productos');
+	const isHomePage = $derived(path === '');
+
+	// Get background color for productos page
+	const categoryBackgrounds = {
+		women: 'bg-[#f8f4fc]',
+		men: 'bg-[#f0fcfc]',
+		girls: 'bg-[#ffecf4]',
+		boys: 'bg-[#f0f4fc]'
+	};
+
+	const currentBackground = $derived(isProductsPage ? categoryBackgrounds[currentCategory] : '');
+
+	// Update category from URL params more responsively
+	$effect(() => {
+		const categoryParam = page.url.searchParams.get('category');
+		if (categoryParam && ['women', 'men', 'girls', 'boys'].includes(categoryParam)) {
+			const category = categoryParam as Category;
+			currentCategory = category;
+			activeCategory.set(category);
+		}
+	});
+
+	// =================== LIFECYCLE ===================
+	onMount(() => {
+		// Listen for cart open events from header
+		const handleOpenCart = () => {
+			isCartOpen = true;
+		};
+		window.addEventListener('openCart', handleOpenCart);
+
+		// Subscribe to category changes
+		const unsubscribe = activeCategory.subscribe((category) => {
+			currentCategory = category;
+		});
+
+		return () => {
+			window.removeEventListener('openCart', handleOpenCart);
+			unsubscribe();
+		};
+	});
+
+	// =================== CART HANDLERS ===================
+	function handleCartClick() {
+		isCartOpen = true;
+	}
+
+	function handleAccountClick() {
+		console.log('Account clicked - implement navigation');
+	}
+
+	function handleUpdateQuantity(itemId: string, quantity: number) {
+		cartStore.updateQuantity(itemId, quantity);
+	}
+
+	function handleRemoveItem(itemId: string) {
+		cartStore.removeItem(itemId);
+	}
+
+	function handleClearCart() {
+		cartStore.clearCart();
+	}
+
+	function handleCloseCart() {
+		isCartOpen = false;
+	}
+</script>
+
+<Header
+	cartItemCount={$cartItemCount}
+	onCartClick={handleCartClick}
+	onAccountClick={handleAccountClick}
+	useDynamicColors={isProductsPage}
+	backgroundColor={currentBackground}
+/>
+<div class="{currentBackground} transition-colors duration-700">
+	<main class="min-h-screen">
+		{@render children?.()}
+	</main>
+
+	{#if !isHomePage}
+		<Footer />
+	{/if}
+</div>
+
+<CartDrawer
+	isOpen={isCartOpen}
+	cartItems={$cartItems}
+	onClose={handleCloseCart}
+	onUpdateQuantity={handleUpdateQuantity}
+	onRemoveItem={handleRemoveItem}
+	onClearCart={handleClearCart}
+/>

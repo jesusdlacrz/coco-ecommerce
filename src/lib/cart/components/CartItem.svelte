@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatPrice } from '$lib/shared/utils/cartUtils';
+	import { formatPrice } from '$lib/shared/utils/price';
 	import type { CartItem } from '$lib/shared/model/products';
 	import Plus from '$lib/shared/icons/Plus.svelte';
 	import Minus from '$lib/shared/icons/Minus.svelte';
@@ -19,7 +19,7 @@
 	);
 </script>
 
-<div class="flex gap-3 px-6 py-4 border-b border-gray-100">
+<div class="flex gap-3 border-b border-gray-100 px-6 py-4">
 	<!-- Imagen -->
 	<div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-gray-50">
 		<img
@@ -32,7 +32,7 @@
 	<!-- Info -->
 	<div class="flex min-w-0 flex-1 flex-col gap-1">
 		<div class="flex items-start justify-between gap-2">
-			<h4 class="font-['Volkhov',serif] text-sm font-semibold leading-snug text-[#262635]">
+			<h4 class="font-['Volkhov',serif] text-sm leading-snug font-semibold text-[#262635]">
 				{item.name}
 			</h4>
 			<!-- X sutil -->
@@ -60,7 +60,7 @@
 			<button
 				onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
 				disabled={item.quantity <= 1}
-				class="flex h-8 w-8 items-center justify-center text-[#262635] transition-colors hover:bg-gray-200 rounded-l disabled:opacity-30"
+				class="flex h-8 w-8 items-center justify-center rounded-l text-[#262635] transition-colors hover:bg-gray-200 disabled:opacity-30"
 			>
 				<Minus size={11} />
 			</button>
@@ -69,7 +69,7 @@
 			</span>
 			<button
 				onclick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-				class="flex h-8 w-8 items-center justify-center text-[#262635] transition-colors hover:bg-gray-200 rounded-r"
+				class="flex h-8 w-8 items-center justify-center rounded-r text-[#262635] transition-colors hover:bg-gray-200"
 			>
 				<Plus size={11} />
 			</button>

@@ -1,15 +1,18 @@
 <script lang="ts">
-	import { formatPrice } from '$lib/shared/utils/cartUtils';
+	import {
+		formatPrice,
+		displayPrice as getDisplayPrice,
+		strikePrice,
+		savingsPercent
+	} from '$lib/shared/utils/price';
 	import type { Product } from '$lib/shared/model/products';
 
 	type Props = { product: Product };
 	let { product }: Props = $props();
 
-	const displayPrice = $derived(product.wholesalePrice ?? product.price);
-	const originalPrice = $derived(product.wholesalePrice ? product.price : null);
-	const savingsPct = $derived(
-		originalPrice ? Math.round((1 - displayPrice / originalPrice) * 100) : 0
-	);
+	const displayPrice = $derived(getDisplayPrice(product));
+	const originalPrice = $derived(strikePrice(product));
+	const savingsPct = $derived(originalPrice ? savingsPercent(displayPrice, originalPrice) : 0);
 </script>
 
 <!-- Título con serif premium -->
@@ -32,14 +35,18 @@
 				</svg>
 			{/each}
 		</div>
-		<span class="font-['Poppins',sans-serif] text-sm text-[#262635]">(12 reseñas de mayoristas)</span>
+		<span class="font-['Poppins',sans-serif] text-sm text-[#262635]"
+			>(12 reseñas de mayoristas)</span
+		>
 	</div>
 </div>
 
 <!-- Precios -->
 <div class="space-y-1">
 	<div class="flex flex-wrap items-center gap-3">
-		<span class="text-3xl font-bold font-['Volkhov',serif] text-[#262635]">{formatPrice(displayPrice)}</span>
+		<span class="font-['Volkhov',serif] text-3xl font-bold text-[#262635]"
+			>{formatPrice(displayPrice)}</span
+		>
 		{#if originalPrice}
 			<span class="font-['Jost',sans-serif] text-lg text-[#a0a0a0] line-through"
 				>{formatPrice(originalPrice)}</span
@@ -51,7 +58,7 @@
 			</span>
 		{/if}
 	</div>
-	<p class="font-['Jost',sans-serif]  text-sm text-[#767676]">
+	<p class="font-['Jost',sans-serif] text-sm text-[#767676]">
 		SKU: {product.sku} • Stock: {product.stockQuantity}
 	</p>
 </div>

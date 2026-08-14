@@ -29,6 +29,12 @@ body {
 	--color-main: rgba(252, 161, 32, 0.33);
 	--font-poppins: 'Poppins', sans-serif;
 	--font-weight: 400;
+
+	/* Tokens para componentes nuevos (formularios, panel de vendedor) */
+	--color-ink: #262635;
+	--color-accent: #fca120;
+	--color-muted: #767676;
+	--color-line: #e5e5e5;
 }
 
 button {

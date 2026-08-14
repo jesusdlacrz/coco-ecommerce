@@ -205,24 +205,37 @@ function describe(err: unknown): string {
 	return parts.join(' → ');
 }
 
+// Error específico para poder distinguir "no configurado" (setup local sin
+// .env) de un fallo real de red al decidir el TTL de la caché.
+export class WooNotConfiguredError extends Error {}
+
+/**
+ * Trae los productos publicados directo de WooCommerce, sin fallback. Lanza
+ * si no está configurado o si la API falla — lo usa la caché en
+ * `$lib/server/products/cache.ts` para decidir cuánto reintentar.
+ */
+export async function fetchProductsOrThrow(fetchFn: typeof fetch = fetch): Promise<Product[]> {
+	if (!getConfig()) {
+		throw new WooNotConfiguredError('WooCommerce no configurado');
+	}
+	const products = await wooRequest<WooProduct[]>('/products?per_page=100&status=publish', fetchFn);
+	return products.map(mapWooProduct);
+}
+
 /**
  * Devuelve todos los productos publicados. Si WooCommerce no está configurado
  * (falta el .env) o la API no responde, cae a los productos de ejemplo para que
  * el sitio nunca se rompa durante el setup. El fallo se registra en consola.
  */
 export async function getProducts(fetchFn: typeof fetch = fetch): Promise<Product[]> {
-	if (!getConfig()) {
-		console.warn('[woocommerce] Sin configurar — usando productos de ejemplo.');
-		return sampleProducts;
-	}
 	try {
-		const products = await wooRequest<WooProduct[]>(
-			'/products?per_page=100&status=publish',
-			fetchFn
-		);
-		return products.map(mapWooProduct);
+		return await fetchProductsOrThrow(fetchFn);
 	} catch (err) {
-		console.error(`[woocommerce] Error al traer productos (${describe(err)}). Usando ejemplos.`);
+		if (!(err instanceof WooNotConfiguredError)) {
+			console.error(`[woocommerce] Error al traer productos (${describe(err)}). Usando ejemplos.`);
+		} else {
+			console.warn('[woocommerce] Sin configurar — usando productos de ejemplo.');
+		}
 		return sampleProducts;
 	}
 }
