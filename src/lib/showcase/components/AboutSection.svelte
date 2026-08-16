@@ -1,32 +1,43 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import type { SiteAboutSlide } from '$lib/shared/services/siteContent.server';
 
-	const slides = [
+	// Contenido de respaldo mientras no haya slides cargados en WordPress.
+	const FALLBACK_SLIDES: SiteAboutSlide[] = [
 		{
 			heading: 'Nuestra Misión',
 			body: [
 				'Nuestra misión es impulsar el crecimiento de los negocios de moda proporcionando prendas de alta calidad a precios altamente competitivos. Buscamos ser el proveedor de confianza que facilite el éxito de tu tienda.',
 				'Nos esforzamos por actualizar constantemente nuestro catálogo, asegurando que siempre tengas acceso a las últimas tendencias del mercado con un servicio ágil, cercano y sin complicaciones.'
-			]
+			],
+			image: null
 		},
 		{
 			heading: 'Nuestra Historia',
 			body: [
 				'Cocos nació de la pasión por la moda y el compromiso con la calidad. Desde nuestros inicios, hemos trabajado con los mejores proveedores para ofrecer prendas que combinan estilo y durabilidad.',
 				'Hoy somos aliados estratégicos de cientos de boutiques y emprendedores en toda la región, respaldados por años de experiencia mayorista.'
-			]
+			],
+			image: null
 		},
 		{
 			heading: 'Nuestros Valores',
 			body: [
 				'La honestidad, la puntualidad y el servicio personalizado son los pilares de cada pedido que despachamos. Creemos que la confianza se construye con cada entrega.',
 				'Nos comprometemos a mantener los más altos estándares de calidad para que tu negocio siempre tenga lo mejor que ofrecer.'
-			]
+			],
+			image: null
 		}
 	];
 
+	const IMAGE_FALLBACK = '/placeholder.svg?height=600&width=480';
+
+	let { slides: provided = [] }: { slides?: SiteAboutSlide[] } = $props();
+
+	const slides = $derived(provided.length ? provided : FALLBACK_SLIDES);
+
 	let current = $state(0);
-	const len = slides.length;
+	const len = $derived(slides.length);
 
 	function goPrev() {
 		current = (current - 1 + len) % len;
@@ -91,8 +102,8 @@
 			<div class="flex justify-center lg:justify-end">
 				<div class="w-full max-w-[480px] overflow-hidden rounded-2xl shadow-2xl">
 					<img
-						src="/placeholder.svg?height=600&width=480"
-						alt="Nosotros"
+						src={slides[current]?.image ?? IMAGE_FALLBACK}
+						alt={slides[current]?.heading ?? 'Nosotros'}
 						class="h-[480px] w-full object-cover lg:h-[540px]"
 					/>
 				</div>

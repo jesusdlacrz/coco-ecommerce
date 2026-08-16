@@ -11,9 +11,10 @@
 		onUpdateQuantity: (itemId: string, quantity: number) => void;
 		onRemoveItem: (itemId: string) => void;
 		onClearCart: () => void;
+		onCheckout: () => void;
 	}
 
-	let { isOpen, cartItems, onClose, onUpdateQuantity, onRemoveItem, onClearCart }: Props = $props();
+	let { isOpen, cartItems, onClose, onUpdateQuantity, onRemoveItem, onClearCart, onCheckout }: Props = $props();
 
 	// Hacer que estos valores sean reactivos usando $derived con cartItems
 	// Usamos el spread operator para forzar la reactividad
@@ -68,6 +69,7 @@
 			{canCheckout}
 			{missingUnits}
 			{onClearCart}
+			{onCheckout}
 		/>
 	</div>
 {/if}

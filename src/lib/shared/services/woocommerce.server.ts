@@ -4,6 +4,7 @@
 import { env } from '$env/dynamic/private';
 import type { Color, Product } from '$lib/shared/model/products';
 import { sampleProducts } from '$lib/dataProducts/products';
+import { describeError } from '$lib/shared/utils/describeError';
 
 // ------------------------------------------------------------------ tipos Woo
 
@@ -192,18 +193,6 @@ async function wooRequest<T>(path: string, fetchFn: typeof fetch): Promise<T> {
 	return res.json() as Promise<T>;
 }
 
-function describe(err: unknown): string {
-	if (!(err instanceof Error)) return String(err);
-	// "fetch failed" oculta el motivo real en err.cause; lo desenrollamos.
-	const parts: string[] = [err.message];
-	let cause: unknown = (err as { cause?: unknown }).cause;
-	while (cause instanceof Error) {
-		const code = (cause as { code?: string }).code;
-		parts.push(code ? `${cause.message} [${code}]` : cause.message);
-		cause = (cause as { cause?: unknown }).cause;
-	}
-	return parts.join(' → ');
-}
 
 /**
  * Devuelve todos los productos publicados. Si WooCommerce no está configurado
@@ -222,7 +211,7 @@ export async function getProducts(fetchFn: typeof fetch = fetch): Promise<Produc
 		);
 		return products.map(mapWooProduct);
 	} catch (err) {
-		console.error(`[woocommerce] Error al traer productos (${describe(err)}). Usando ejemplos.`);
+		console.error(`[woocommerce] Error al traer productos (${describeError(err)}). Usando ejemplos.`);
 		return sampleProducts;
 	}
 }
@@ -245,7 +234,7 @@ export async function getProduct(
 		);
 		return matches.length ? mapWooProduct(matches[0]) : null;
 	} catch (err) {
-		console.error(`[woocommerce] Error al traer el producto "${id}" (${describe(err)}).`);
+		console.error(`[woocommerce] Error al traer el producto "${id}" (${describeError(err)}).`);
 		return sampleProducts.find((p) => p.id === id) ?? null;
 	}
 }

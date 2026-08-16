@@ -1,16 +1,17 @@
 <script lang="ts">
-	// Pendiente: conectar con el feed real vía la API de Instagram (Instagram Graph
-	// API / Basic Display). No depende de WordPress; requiere token de Meta aparte.
-	// Por ahora se muestran marcadores de posición.
-	const images = [
-		{ label: 'foto 1' },
-		{ label: 'foto 2' },
-		{ label: 'foto 3' },
-		{ label: 'foto 4' },
-		{ label: 'foto 5' },
-		{ label: 'foto 6' },
-		{ label: 'foto 7' }
-	];
+	import type { SiteInstagramImage } from '$lib/shared/services/siteContent.server';
+
+	const PLACEHOLDER = '/placeholder.svg?height=400&width=400';
+
+	// Marcadores de posición mientras no haya imágenes cargadas en WordPress.
+	const FALLBACK_IMAGES: SiteInstagramImage[] = Array.from({ length: 7 }, (_, i) => ({
+		src: null,
+		alt: `foto ${i + 1}`
+	}));
+
+	let { images: provided = [] }: { images?: SiteInstagramImage[] } = $props();
+
+	const images = $derived(provided.length ? provided : FALLBACK_IMAGES);
 </script>
 
 <section class="py-20">
@@ -40,12 +41,12 @@
 	<div class="relative">
 		<!-- Mobile: horizontal scroll -->
 		<div class="flex snap-x snap-mandatory overflow-x-auto scrollbar-hide md:hidden">
-			{#each images as img (img.label)}
+			{#each images as img, i (i)}
 				<div class="w-[45vw] flex-shrink-0 snap-center">
 					<div class="group relative aspect-square overflow-hidden">
 						<img
-							src="/placeholder.svg?height=400&width=400"
-							alt={img.label}
+							src={img.src ?? PLACEHOLDER}
+							alt={img.alt}
 							class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 						/>
 						<div
@@ -64,11 +65,11 @@
 
 		<!-- Tablet: 4 columns grid -->
 		<div class="hidden grid-cols-4 md:grid lg:hidden cursor-pointer">
-			{#each images as img (img.label)}
+			{#each images as img, i (i)}
 				<div class="group relative aspect-square overflow-hidden">
 					<img
-						src="/placeholder.svg?height=400&width=400"
-						alt={img.label}
+						src={img.src ?? PLACEHOLDER}
+						alt={img.alt}
 						class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 					/>
 					<div
@@ -86,11 +87,11 @@
 
 		<!-- Desktop: 7 columns strip -->
 		<div class="hidden grid-cols-7 lg:grid cursor-pointer">
-			{#each images as img (img.label)}
+			{#each images as img, i (i)}
 				<div class="group relative aspect-square overflow-hidden">
 					<img
-						src="/placeholder.svg?height=400&width=400"
-						alt={img.label}
+						src={img.src ?? PLACEHOLDER}
+						alt={img.alt}
 						class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 					/>
 					<div

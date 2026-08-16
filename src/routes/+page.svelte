@@ -19,12 +19,16 @@
 
 <!-- Hero -->
 <section class="relative min-h-screen overflow-hidden bg-gradient-to-t from-[#FCA12054] to-white">
-	<ModelGallery products={data.products} />
+	<ModelGallery
+		products={data.products}
+		copy={data.siteContent?.copy}
+		heroImages={data.siteContent?.heroImages}
+	/>
 </section>
 
 <!-- Lo Más Nuevo -->
 <section class="bg-gradient-to-b from-white to-white">
-<NewArrivals products={data.products} />
+<NewArrivals products={data.products} copy={data.siteContent?.copy} />
 </section>
 
 <hr class="mx-auto my-20 max-w-3xl border-t border-[#707070]" />
@@ -38,13 +42,13 @@
 <Features />
 
 <!-- Instagram Gallery -->
-<InstagramGallery />
+<InstagramGallery images={data.siteContent?.instagram} />
 
 <!-- Testimonios -->
-<Testimonials />
+<Testimonials testimonials={data.siteContent?.testimonials} />
 
 <!-- Nosotros + Footer dentro del mismo degradado -->
 <div class="bg-gradient-to-b from-white via-[#fca12014] to-[#fca12030]">
-	<AboutSection />
+	<AboutSection slides={data.siteContent?.about} />
 	<Footer />
 </div>

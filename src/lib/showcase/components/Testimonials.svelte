@@ -1,14 +1,16 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import type { SiteTestimonial } from '$lib/shared/services/siteContent.server';
 
-	const testimonials = [
+	// Contenido de respaldo mientras no haya testimonios cargados en WordPress.
+	const FALLBACK_TESTIMONIALS: SiteTestimonial[] = [
 		{
 			name: 'Ana María G.',
 			role: 'Dueña de Boutique',
 			quote:
 				'"La calidad de los productos de Cocos superó nuestras expectativas. Desde que incluimos su catálogo en nuestra tienda, nuestras ventas y márgenes de ganancia han mejorado notablemente. ¡Totalmente recomendados!"',
 			stars: 5,
-			photo: '/placeholder.svg?height=120&width=120'
+			photo: null
 		},
 		{
 			name: 'Daniel T.',
@@ -16,7 +18,7 @@
 			quote:
 				'"Nuestros clientes son muy exigentes con los acabados, y los materiales que maneja Cocos nos permiten ofrecer un producto de primera categoría sin inflar nuestros costos. Excelente inversión."',
 			stars: 5,
-			photo: '/placeholder.svg?height=120&width=120'
+			photo: null
 		},
 		{
 			name: 'Diego R.',
@@ -24,7 +26,7 @@
 			quote:
 				'"Llevamos meses haciendo pedidos mayoristas y la puntualidad es impecable. Saber que los despachos llegan a tiempo y exactamente con lo que pedimos nos da muchísima tranquilidad."',
 			stars: 5,
-			photo: '/placeholder.svg?height=120&width=120'
+			photo: null
 		},
 		{
 			name: 'Camila J.',
@@ -32,12 +34,16 @@
 			quote:
 				'"Más que un proveedor, Cocos se ha convertido en un aliado estratégico para nuestro negocio. La atención personalizada y la facilidad para gestionar grandes volúmenes de compra hacen toda la diferencia."',
 			stars: 5,
-			photo: '/placeholder.svg?height=120&width=120'
+			photo: null
 		}
 	];
 
+	let { testimonials: provided = [] }: { testimonials?: SiteTestimonial[] } = $props();
+
+	const testimonials = $derived(provided.length ? provided : FALLBACK_TESTIMONIALS);
+
 	let activeIndex = $state(1);
-	const len = testimonials.length;
+	const len = $derived(testimonials.length);
 
 	function goPrev() {
 		activeIndex = (activeIndex - 1 + len) % len;
@@ -49,6 +55,13 @@
 	function getOffset(i: number): number {
 		const raw = ((i - activeIndex + len) % len);
 		return raw > len / 2 ? raw - len : raw;
+	}
+
+	function initials(name: string): string {
+		const words = name.trim().split(/\s+/).filter(Boolean);
+		if (!words.length) return '?';
+		if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+		return (words[0][0] + words[1][0]).toUpperCase();
 	}
 </script>
 
@@ -74,7 +87,13 @@
 						<div class="relative h-14 w-14 shrink-0">
 							<div class="absolute -bottom-1 -right-1 h-full w-full rounded-sm bg-[#d9d9d9]"></div>
 							<div class="relative h-full w-full overflow-hidden rounded-sm bg-[#d5d5d5]">
-								<img src={t.photo} alt={t.name} class="h-full w-full object-cover" />
+								{#if t.photo}
+									<img src={t.photo} alt={t.name} class="h-full w-full object-cover" />
+								{:else}
+									<div class="flex h-full w-full items-center justify-center text-lg font-semibold text-[#8a8a8a]">
+										{initials(t.name)}
+									</div>
+								{/if}
 							</div>
 						</div>
 						<div>
@@ -122,7 +141,13 @@
 								<div class="relative h-[120px] w-[120px]">
 									<div class="absolute -bottom-1.5 -right-1.5 h-full w-full rounded-sm bg-[#d9d9d9]"></div>
 									<div class="relative h-full w-full overflow-hidden rounded-sm bg-[#d5d5d5]">
-										<img src={t.photo} alt={t.name} class="h-full w-full object-cover" />
+										{#if t.photo}
+											<img src={t.photo} alt={t.name} class="h-full w-full object-cover" />
+										{:else}
+											<div class="flex h-full w-full items-center justify-center text-3xl font-semibold text-[#8a8a8a]">
+												{initials(t.name)}
+											</div>
+										{/if}
 									</div>
 								</div>
 							</div>
@@ -147,7 +172,13 @@
 								<div class="relative h-[48px] w-[48px]">
 									<div class="absolute -bottom-1 -right-1 h-full w-full rounded-sm bg-[#d9d9d9]"></div>
 									<div class="relative h-full w-full overflow-hidden rounded-sm bg-[#d5d5d5]">
-										<img src={t.photo} alt={t.name} class="h-full w-full object-cover" />
+										{#if t.photo}
+											<img src={t.photo} alt={t.name} class="h-full w-full object-cover" />
+										{:else}
+											<div class="flex h-full w-full items-center justify-center text-xs font-semibold text-[#8a8a8a]">
+												{initials(t.name)}
+											</div>
+										{/if}
 									</div>
 								</div>
 							</div>

@@ -8,9 +8,10 @@
 		canCheckout: boolean;
 		missingUnits: number;
 		onClearCart: () => void;
+		onCheckout: () => void;
 	};
 
-	let { cartItems, total, totalItems, canCheckout, missingUnits, onClearCart }: Props = $props();
+	let { cartItems, total, totalItems, canCheckout, missingUnits, onClearCart, onCheckout }: Props = $props();
 </script>
 
 {#if cartItems.length > 0}
@@ -37,6 +38,7 @@
 		<div class="flex flex-col gap-2">
 			<button
 				disabled={!canCheckout}
+				onclick={onCheckout}
 				class="w-full rounded-md px-4 py-3 font-['Jost',sans-serif] text-sm font-semibold tracking-wide transition-colors
 					{canCheckout
 						? 'bg-[#262635] text-white hover:bg-black'

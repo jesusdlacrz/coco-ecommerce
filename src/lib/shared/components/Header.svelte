@@ -29,17 +29,17 @@
 
     const navigationButtons = $derived([
         {
-            label: 'Home',
+            label: 'Inicio',
             href: '/'
         },
         {
-            label: 'Shop',
+            label: 'Tienda',
             href: useDynamicColors ? `/productos?category=${$activeCategory}` : '/productos?category=women'
         },
-        // Condicionalmente agregar "Products"
+        // Condicionalmente agregar "Productos"
         ...(
             isProductDetail
-                ? [{ label: 'Products', href: `/productos?category=${$activeCategory}` }]
+                ? [{ label: 'Productos', href: `/productos?category=${$activeCategory}` }]
                 : []
         )
     ]);
@@ -61,9 +61,9 @@
                     <TransitionLink
                         href={button.href}
                         class="cursor-pointer text-sm font-medium transition-all duration-200 px-1 {
-                            isProductDetail && button.label === 'Products'
+                            isProductDetail && button.label === 'Productos'
                                 ? 'border-b-2 border-black text-gray-900'
-                                : useDynamicColors && button.label === 'Shop'
+                                : useDynamicColors && button.label === 'Tienda'
                                     ? `border-b-2 ${colors.border} ${colors.text} hover:opacity-80`
                                     : 'border-b-2 border-transparent text-gray-600 hover:text-gray-800'
                         }"

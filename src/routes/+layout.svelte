@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import Header from '$lib/shared/components/Header.svelte';
 	import { cartItemCount, cartStore, cartItems } from '$lib/cart/stores/cartStore';
 	import { Toaster } from 'svelte-5-french-toast';
@@ -88,6 +89,11 @@
 	function handleCloseCart() {
 		isCartOpen = false;
 	}
+
+	function handleCheckout() {
+		isCartOpen = false;
+		goto('/carrito');
+	}
 </script>
 
 <Header
@@ -115,4 +121,5 @@
 	onUpdateQuantity={handleUpdateQuantity}
 	onRemoveItem={handleRemoveItem}
 	onClearCart={handleClearCart}
+	onCheckout={handleCheckout}
 />

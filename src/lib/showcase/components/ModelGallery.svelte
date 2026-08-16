@@ -1,23 +1,38 @@
 <script lang="ts">
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import type { Product } from '$lib/shared/model/products';
+	import type { SiteCopy, SiteHeroImages } from '$lib/shared/services/siteContent.server';
 
-	// Productos recientes de WooCommerce para las imágenes del hero.
-	let { products = [] }: { products?: Product[] } = $props();
+	// Productos recientes de WooCommerce para las imágenes del hero, salvo que
+	// se haya subido una imagen personalizada en WordPress para esa posición.
+	let {
+		products = [],
+		copy = null,
+		heroImages = null
+	}: { products?: Product[]; copy?: SiteCopy | null; heroImages?: SiteHeroImages | null } =
+		$props();
+
+	const line1 = $derived(copy?.offerLine1 || 'GRAN');
+	const line2 = $derived(copy?.offerLine2 || 'OFERTA');
+	const subtitle = $derived(copy?.offerSubtitle || 'NUEVA COLECCIÓN');
 
 	const PLACEHOLDER = '/placeholder.svg';
 
-	function image(index: number): { src: string; alt: string } {
-		const product = products[index];
+	function image(
+		override: string | null | undefined,
+		productIndex: number
+	): { src: string; alt: string } {
+		if (override) return { src: override, alt: 'Gran Oferta' };
+		const product = products[productIndex];
 		return {
 			src: product?.images[0] ?? PLACEHOLDER,
 			alt: product?.name ?? 'Producto destacado'
 		};
 	}
 
-	const left = $derived(image(0));
-	const center = $derived(image(1));
-	const right = $derived(image(2));
+	const left = $derived(image(heroImages?.left, 0));
+	const center = $derived(image(heroImages?.center, 1));
+	const right = $derived(image(heroImages?.right, 2));
 </script>
 
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -40,16 +55,16 @@
 			<div class="order-1 flex flex-col items-center gap-5 py-6 text-center font-['Poppins',sans-serif] lg:order-2 lg:mt-8 lg:py-0">
 				<div>
 					<h1 class="font-bold tracking-tight text-[#484848]" style="font-size: clamp(2rem, 5vw, 4rem); line-height: 1.1;">
-						GRAN
+						{line1}
 					</h1>
 					<h2
 						class="bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-500 bg-clip-text font-bold tracking-tight text-transparent"
 						style="font-size: clamp(3rem, 8vw, 6.5rem); line-height: 1;"
 					>
-						OFERTA
+						{line2}
 					</h2>
 					<p class="mt-3 text-sm font-medium tracking-[3px] uppercase text-[#484848] lg:text-base">
-						NUEVA COLECCIÓN
+						{subtitle}
 					</p>
 				</div>
 				<TransitionLink

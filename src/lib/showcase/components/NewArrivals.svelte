@@ -3,9 +3,17 @@
 	import { fly, fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import type { Product } from '$lib/shared/model/products';
+	import type { SiteCopy } from '$lib/shared/services/siteContent.server';
+
+	const DEFAULT_TITLE = 'Lo Más Nuevo';
+	const DEFAULT_TEXT =
+		'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin';
 
 	// Los productos más recientes de WooCommerce (los primeros que llegan del load).
-	let { products = [] }: { products?: Product[] } = $props();
+	let { products = [], copy = null }: { products?: Product[]; copy?: SiteCopy | null } = $props();
+
+	const title = $derived(copy?.newArrivalsTitle || DEFAULT_TITLE);
+	const text = $derived(copy?.newArrivalsText || DEFAULT_TEXT);
 
 	const MAX_SLIDES = 6;
 
@@ -95,11 +103,8 @@
 
 		<!-- Col 1: Text — fluid, up to 460px -->
 		<div class="flex min-w-[220px] max-w-[460px] flex-[2] flex-col justify-center gap-5 pr-6">
-			<h2 class="font-['Volkhov',serif] text-4xl leading-tight text-[#262635] xl:text-5xl">Lo Más Nuevo</h2>
-			<p class="leading-relaxed text-[#8a8a8a]">
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices
-				sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin
-			</p>
+			<h2 class="font-['Volkhov',serif] text-4xl leading-tight text-[#262635] xl:text-5xl">{title}</h2>
+			<p class="leading-relaxed text-[#8a8a8a]">{text}</p>
 			<a href="/productos" class="inline-block w-fit rounded-xl bg-[#262635] px-8 py-3 text-sm font-medium text-white shadow-[0px_20px_35px_0px_rgba(0,0,0,0.15)] transition-all hover:bg-[#3a3a4d] xl:px-10 xl:py-4">
 				Comprar
 			</a>
@@ -166,11 +171,8 @@
 	<div class="hidden flex-col py-14 md:flex lg:hidden">
 
 		<div class="space-y-4 px-8 text-center">
-			<h2 class="font-['Volkhov',serif] text-5xl leading-tight text-[#262635]">Lo Más Nuevo</h2>
-			<p class="mx-auto max-w-md leading-relaxed text-[#8a8a8a]">
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices
-				sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin
-			</p>
+			<h2 class="font-['Volkhov',serif] text-5xl leading-tight text-[#262635]">{title}</h2>
+			<p class="mx-auto max-w-md leading-relaxed text-[#8a8a8a]">{text}</p>
 			<a href="/productos" class="inline-block rounded-xl bg-[#262635] px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-[#3a3a4d]">
 				Comprar
 			</a>
@@ -233,10 +235,8 @@
 	<div class="flex flex-col py-12 md:hidden">
 
 		<div class="space-y-4 px-6 text-center">
-			<h2 class="font-['Volkhov',serif] text-4xl leading-tight text-[#262635]">Lo Más Nuevo</h2>
-			<p class="mx-auto max-w-xs leading-relaxed text-[#8a8a8a]">
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices sollicitudin aliquam sem.
-			</p>
+			<h2 class="font-['Volkhov',serif] text-4xl leading-tight text-[#262635]">{title}</h2>
+			<p class="mx-auto max-w-xs leading-relaxed text-[#8a8a8a]">{text}</p>
 			<a href="/productos" class="inline-block rounded-xl bg-[#262635] px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-[#3a3a4d]">
 				Comprar
 			</a>
