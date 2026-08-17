@@ -1,55 +1,56 @@
 export interface Color {
-  name: string
-  hex: string
+	name: string;
+	hex: string;
 }
 
 export interface Product {
-  id: string
-  name: string
-  price: number
-  wholesalePrice?: number
-  images: string[]
-  category: string
-  gender: 'men' | 'women' | 'boys' | 'girls'
-  sizes: string[]
-  colors: Color[]
-  sku: string
-  minOrderQuantity: number
-  description: string
-  inStock: boolean
-  stockQuantity: number
+	id: string;
+	name: string;
+	price: number;
+	wholesalePrice?: number;
+	images: string[];
+	category: string;
+	gender: 'men' | 'women' | 'boys' | 'girls';
+	sizes: string[];
+	colors: Color[];
+	sku: string;
+	minOrderQuantity: number;
+	description: string;
+	inStock: boolean;
+	stockQuantity: number;
 }
 
 export interface CartItem {
-  id: string
-  productId: string
-  name: string
-  price: number
-  originalPrice?: number
-  image: string
-  category: string
-  gender: 'men' | 'women' | 'boys' | 'girls'
-  size: string | null
-  color: string | null
-  quantity: number
-  sku: string
-  minOrderQuantity: number
-  discountApplied?: number
-  addedAt: string
-  updatedAt: string
+	id: string;
+	productId: string;
+	name: string;
+	price: number;
+	originalPrice?: number;
+	image: string;
+	category: string;
+	gender: 'men' | 'women' | 'boys' | 'girls';
+	size: string | null;
+	color: string | null;
+	quantity: number;
+	sku: string;
+	minOrderQuantity: number;
+	discountApplied?: number;
+	vendorSlug: string | null; // null = precio de la casa, sin comisión
+	addedAt: string;
+	updatedAt: string;
 }
 
 export interface CartSummary {
-  totalItems: number
-  totalQuantity: number
-  subtotal: number
-  totalDiscount: number
-  finalTotal: number
-  byGender: {
-    men: { items: number; quantity: number; total: number }
-    women: { items: number; quantity: number; total: number }
-    boys: { items: number; quantity: number; total: number }
-    girls: { items: number; quantity: number; total: number }
-  }
-  byCategory: Record<string, { items: number; quantity: number; total: number }>
+	totalItems: number;
+	totalQuantity: number;
+	subtotal: number;
+	totalDiscount: number;
+	finalTotal: number;
+	byGender: {
+		men: { items: number; quantity: number; total: number };
+		women: { items: number; quantity: number; total: number };
+		boys: { items: number; quantity: number; total: number };
+		girls: { items: number; quantity: number; total: number };
+	};
+	byCategory: Record<string, { items: number; quantity: number; total: number }>;
 }

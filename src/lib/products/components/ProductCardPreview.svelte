@@ -1,7 +1,10 @@
 <script lang="ts">
 	import type { Product } from '$lib/shared/model/products';
-	import { formatPrice } from '$lib/shared/utils/cartUtils';
+	import { formatPrice, displayPrice } from '$lib/shared/utils/price';
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
+	import { page } from '$app/state';
+	import { HOUSE_STORE } from '$lib/storefront/model';
+
 	interface Props {
 		product: Product;
 		category?: string;
@@ -9,11 +12,12 @@
 
 	let { product, category = '' }: Props = $props();
 
+	const store = $derived(page.data.storefront ?? HOUSE_STORE);
 	const isAlmostSoldOut = $derived(product.stockQuantity <= 20);
 </script>
 
 <TransitionLink
-	href={`/productos/${product.id}${category ? `?category=${category}&from=home` : ''}`}
+	href={`${store.basePath}/productos/${product.id}${category ? `?category=${category}&from=home` : ''}`}
 	class="group w-full cursor-pointer rounded-lg bg-white shadow-md transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
 >
 	<div class="p-4">
@@ -36,7 +40,7 @@
 
 			<div class="flex items-center justify-between">
 				<span class="text-xl font-medium">
-					{formatPrice(product.wholesalePrice || product.price)}
+					{formatPrice(displayPrice(product))}
 				</span>
 
 				{#if isAlmostSoldOut}

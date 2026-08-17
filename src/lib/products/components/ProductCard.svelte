@@ -2,6 +2,13 @@
 	import type { Product } from '$lib/shared/model/products';
 	import { categoryColors, type Category } from '$lib/shared/stores/categoryStore';
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
+	import {
+		displayPrice as getDisplayPrice,
+		strikePrice,
+		formatPrice
+	} from '$lib/shared/utils/price';
+	import { page } from '$app/state';
+	import { HOUSE_STORE } from '$lib/storefront/model';
 
 	interface Props {
 		product: Product;
@@ -10,31 +17,28 @@
 
 	let { product, currentCategory }: Props = $props();
 
+	const store = $derived(page.data.storefront ?? HOUSE_STORE);
 	const colors = $derived(categoryColors[currentCategory]);
 
-	// wholesalePrice = precio final con descuento (principal), price = precio original (tachado)
-	const displayPrice = $derived(product.wholesalePrice ?? product.price);
-	const originalPrice = $derived(product.wholesalePrice ? product.price : null);
+	const displayPrice = $derived(getDisplayPrice(product));
+	const originalPrice = $derived(strikePrice(product));
 
 	let selectedColor = $state(product.colors[0]?.name ?? '');
 
-	function formatPrice(price: number): string {
-		return new Intl.NumberFormat('es-CO', {
-			style: 'currency',
-			currency: 'COP',
-			minimumFractionDigits: 0
-		}).format(price);
-	}
-
 	function isWhite(color: { name: string; hex: string }): boolean {
 		const h = color.hex.toUpperCase();
-		return h === '#FFFFFF' || h === '#FFF' || color.name.toLowerCase() === 'blanco' || color.name.toLowerCase() === 'white';
+		return (
+			h === '#FFFFFF' ||
+			h === '#FFF' ||
+			color.name.toLowerCase() === 'blanco' ||
+			color.name.toLowerCase() === 'white'
+		);
 	}
 </script>
 
 <TransitionLink
-	href={`/productos/${product.id}?category=${currentCategory}&from=productos`}
-	class="block cursor-pointer overflow-hidden transition-all duration-300 group"
+	href={`${store.basePath}/productos/${product.id}?category=${currentCategory}&from=productos`}
+	class="group block cursor-pointer overflow-hidden transition-all duration-300"
 >
 	<!-- Image container -->
 	<div class="relative aspect-square p-2">
@@ -51,7 +55,7 @@
 		{#if !product.inStock}
 			<div class="absolute inset-0 m-2 flex items-center justify-center">
 				<span
-					class="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-center text-[10px] font-semibold uppercase leading-tight tracking-widest text-gray-600 shadow"
+					class="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-center text-[10px] leading-tight font-semibold tracking-widest text-gray-600 uppercase shadow"
 				>
 					SOLD<br />OUT
 				</span>
@@ -60,19 +64,21 @@
 	</div>
 
 	<!-- Product info -->
-	<div class="space-y-2 px-2 pb-4 pt-1">
+	<div class="space-y-2 px-2 pt-1 pb-4">
 		<!-- Name -->
-		<h3 class="product-name font-['Volkhov',serif] line-clamp-2 text-sm font-medium text-[#262635] transition-colors group-hover:text-gray-500">
+		<h3
+			class="product-name line-clamp-2 font-['Volkhov',serif] text-sm font-medium text-[#262635] transition-colors group-hover:text-gray-500"
+		>
 			{product.name}
 		</h3>
 
 		<!-- Price -->
 		<div class="flex items-baseline gap-2">
-			<span class="text-base font-semibold font-['Jost',sans-serif] text-[#262635]">
+			<span class="font-['Jost',sans-serif] text-base font-semibold text-[#262635]">
 				{formatPrice(displayPrice)}
 			</span>
 			{#if originalPrice}
-				<span class="text-sm text-[#a0a0a0] font-['Jost',sans-serif] line-through">
+				<span class="font-['Jost',sans-serif] text-sm text-[#a0a0a0] line-through">
 					{formatPrice(originalPrice)}
 				</span>
 			{/if}
@@ -86,13 +92,14 @@
 						class="h-5 w-5 cursor-pointer rounded-full transition-all duration-150
 							{isWhite(color) ? 'border border-gray-300' : ''}"
 						style="background-color: {color.hex};
-							{selectedColor === color.name
-								? `box-shadow: 0 0 0 2px white, 0 0 0 3.5px ${color.hex};`
-								: ''}"
+							{selectedColor === color.name ? `box-shadow: 0 0 0 2px white, 0 0 0 3.5px ${color.hex};` : ''}"
 						title={color.name}
 						role="button"
 						tabindex="0"
-						onclick={(e) => { e.stopPropagation(); selectedColor = color.name; }}
+						onclick={(e) => {
+							e.stopPropagation();
+							selectedColor = color.name;
+						}}
 						onkeydown={(e) => {
 							if (e.key === 'Enter' || e.key === ' ') {
 								e.stopPropagation();
@@ -102,7 +109,9 @@
 					></div>
 				{/each}
 				{#if product.colors.length > 6}
-					<span class="inline-flex h-5 w-5 items-center justify-center text-[10px] font-medium {colors.text}">
+					<span
+						class="inline-flex h-5 w-5 items-center justify-center text-[10px] font-medium {colors.text}"
+					>
 						+{product.colors.length - 6}
 					</span>
 				{/if}
