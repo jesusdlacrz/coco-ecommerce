@@ -581,3 +581,105 @@ rompa nada mientras tanto.
 | `left`                                | Campo ACF `imagen_izquierda` (o `null` si vacío → usa el producto más reciente) |
 | `center`                              | Campo ACF `imagen_central` (o `null` → producto) |
 | `right`                               | Campo ACF `imagen_derecha` (o `null` → producto) |
+
+---
+
+## Parte 4 — Colores reales (sin adivinar desde el nombre)
+
+Hoy el frontend **adivina** el color de un swatch a partir del nombre que
+escribe el vendedor ("Celeste", "Rosado"...). Funciona para la mayoría de
+casos, pero nunca es 100% exacto. Esta parte lo reemplaza por el **hex real**,
+elegido con un selector de color en WordPress — sin adivinar nada.
+
+> Requiere que **Color** sea un atributo **global** de WooCommerce (no uno
+> escrito a mano por producto). Si seguiste la Parte 1 de esta guía, ya lo es:
+> se creó en **Productos → Atributos**, que siempre genera un atributo global
+> con términos reales (cada color es una "entrada" propia, reutilizable en
+> todos los productos).
+
+### Paso 1 — Campo ACF para el hex de cada color
+
+1. **ACF → Grupos de campos → Añadir nuevo**. Nombre: "Color real".
+2. Añade un campo:
+
+   | Etiqueta   | Nombre del campo | Tipo               |
+   | ---------- | ---------------- | ------------------ |
+   | Color real | `color_hex`      | Selector de color   |
+
+3. **Reglas de ubicación**: "Taxonomía" → **es igual a** → **"Color"** (el
+   atributo `pa_color`). Si no aparece "Taxonomía" como opción, busca
+   "Término de taxonomía" — el nombre exacto varía un poco según la versión
+   de ACF, pero la idea es la misma: se aplica a los **términos** del
+   atributo Color, no a los productos.
+4. Publicar.
+
+### Paso 2 — Elegir el color real de cada término
+
+1. Ve a **Productos → Atributos → Color → Configurar términos**.
+2. Para cada color que ya tengas (Celeste, Rosado, Negro, etc.), haz clic para
+   **editarlo** — debería aparecer el campo "Color real" con la paleta de
+   selección.
+3. Elige el tono exacto que corresponde y **Actualizar**.
+4. Repite para todos los colores. Los que no configures aquí seguirán
+   usando el diccionario de respaldo del frontend (no se rompe nada mientras
+   vas actualizando de a poco).
+
+### Paso 3 — Endpoint que expone los colores reales
+
+Nuevo snippet en **Code Snippets** (título: "Endpoint colores reales"):
+
+```php
+add_action('rest_api_init', function () {
+	register_rest_route('coco/v1', '/color-swatches', [
+		'methods'             => 'GET',
+		'callback'            => 'coco_get_color_swatches',
+		'permission_callback' => '__return_true', // no es información sensible
+	]);
+});
+
+function coco_get_color_swatches() {
+	$terms = get_terms([
+		'taxonomy'   => 'pa_color',
+		'hide_empty' => false,
+	]);
+
+	if (is_wp_error($terms)) {
+		return [];
+	}
+
+	return array_map(function ($term) {
+		return [
+			'name' => $term->name,
+			'hex'  => function_exists('get_field') ? (get_field('color_hex', $term) ?: null) : null,
+		];
+	}, $terms);
+}
+```
+
+**Run everywhere** → **Save and Activate**.
+
+### Paso 4 — Probar
+
+Abre en el navegador:
+
+```
+https://beige-newt-613576.hostingersite.com/wp-json/coco/v1/color-swatches
+```
+
+Deberías ver un JSON tipo `[{"name":"Celeste","hex":"#7dd3fc"}, ...]`. Los
+colores que aún no configuraste en el Paso 2 saldrán con `"hex":null` — el
+frontend los detecta y usa el diccionario de respaldo automáticamente para
+esos, sin romper nada.
+
+### Cómo lo lee el frontend (referencia técnica)
+
+El endpoint se consume en `fetchColorSwatches()` dentro de
+`src/lib/shared/services/woocommerce.server.ts`, junto con cada carga de
+productos. Por cada color de un producto:
+
+1. Busca el nombre en el mapa de `color-swatches` (el hex real de WordPress).
+2. Si no está ahí, cae al diccionario/búsqueda difusa de nombres en español.
+3. Si tampoco encuentra nada, usa un gris neutro (`#CCCCCC`).
+
+Así el sitio nunca se rompe mientras vas configurando los colores reales de a
+poco, pero cada uno que configures deja de depender de adivinar.

@@ -41,7 +41,7 @@
 	class="group block cursor-pointer overflow-hidden transition-all duration-300"
 >
 	<!-- Image container -->
-	<div class="relative aspect-square p-2">
+	<div class="relative aspect-[3/4] p-2">
 		<div class="h-full w-full overflow-hidden rounded border-4 {colors.border}">
 			<img
 				src={product.images[0]}

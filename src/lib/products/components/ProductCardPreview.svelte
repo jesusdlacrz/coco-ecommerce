@@ -22,7 +22,7 @@
 >
 	<div class="p-4">
 		<!-- Imagen del producto -->
-		<div class="relative mb-3 aspect-square overflow-hidden rounded-md">
+		<div class="relative mb-3 aspect-[3/4] overflow-hidden rounded-md">
 			<img
 				src={product.images[0] || '/placeholder.svg'}
 				alt={product.name}

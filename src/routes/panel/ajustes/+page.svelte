@@ -56,6 +56,7 @@
 					{id}
 					name="slug"
 					value={value('slug', vendor?.slug ?? '')}
+					prefix="coco.com/v/"
 					required
 					error={form?.errors?.slug}
 					{describedBy}

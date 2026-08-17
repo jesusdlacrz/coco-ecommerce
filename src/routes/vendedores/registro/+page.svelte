@@ -46,16 +46,14 @@
 			{/snippet}
 		</Field>
 
-		<Field
-			label="Dirección de tu revista (coco.com/v/tu-tienda)"
-			name="slug"
-			error={form?.errors?.slug}
-		>
+		<Field label="Dirección de tu revista" name="slug" error={form?.errors?.slug}>
 			{#snippet children({ id, describedBy })}
 				<TextInput
 					{id}
 					name="slug"
 					value={form?.values?.slug ?? ''}
+					placeholder="tu-tienda"
+					prefix="coco.com/v/"
 					required
 					error={form?.errors?.slug}
 					{describedBy}

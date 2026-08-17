@@ -73,22 +73,96 @@ const GENDER_BY_SLUG: Record<string, Product['gender']> = {
 };
 
 // WooCommerce no guarda el hex de un color por defecto (solo su nombre como
-// atributo). Mapeamos los nombres más comunes; el resto cae a un gris neutro.
+// atributo). Mapeamos la mayor cantidad posible de nombres usados en moda; el
+// resto (uno que no esté aquí) cae a un gris neutro en `toColors()`.
 const HEX_BY_COLOR_NAME: Record<string, string> = {
+	// Neutros
 	negro: '#000000',
 	blanco: '#FFFFFF',
+	'blanco roto': '#F5F1E8',
 	gris: '#6B7280',
+	'gris claro': '#D1D5DB',
 	'gris oscuro': '#374151',
+	'gris perla': '#C7C7CC',
+	plata: '#C0C0C0',
+	plateado: '#C0C0C0',
+	crema: '#FFFDD0',
+	marfil: '#FFFFF0',
+	beige: '#D6C7A1',
+	arena: '#D9C6A5',
+	caqui: '#8B8767',
+	khaki: '#8B8767',
+	topo: '#8D7B68',
+	taupe: '#8D7B68',
+
+	// Marrones / tierra
+	marron: '#A16207',
+	cafe: '#6F4E37',
+	chocolate: '#5C3A21',
+	camel: '#C19A6B',
+	cognac: '#9A463D',
+	tabaco: '#6B4423',
+	oxido: '#B7410E',
+	terracota: '#C6693B',
+	mostaza: '#D4A017',
+
+	// Azules
 	azul: '#2563EB',
 	'azul marino': '#1E3A8A',
-	rojo: '#DC2626',
+	'azul rey': '#1D4ED8',
+	'azul cielo': '#7DD3FC',
+	celeste: '#7DD3FC',
+	'azul petroleo': '#0F4C5C',
+	'azul acero': '#4682B4',
+	turquesa: '#14B8A6',
+	aqua: '#22D3D3',
+	cian: '#06B6D4',
+
+	// Verdes
 	verde: '#16A34A',
-	amarillo: '#EAB308',
-	naranja: '#EA580C',
+	'verde oliva': '#556B2F',
+	oliva: '#556B2F',
+	'verde militar': '#4B5320',
+	'verde botella': '#065F46',
+	'verde menta': '#86EFAC',
+	menta: '#86EFAC',
+	'verde esmeralda': '#059669',
+	esmeralda: '#059669',
+	'verde limon': '#A3E635',
+
+	// Rojos / rosas
+	rojo: '#DC2626',
+	'rojo vino': '#7F1D1D',
+	vino: '#7F1D1D',
+	'vino tinto': '#7F1D1D',
+	guinda: '#7F1D1D',
+	borgona: '#800020',
+	granate: '#800020',
+	burdeos: '#800020',
+	coral: '#FF7F6B',
+	salmon: '#FA8072',
 	rosa: '#EC4899',
+	rosado: '#EC4899',
+	'rosa palo': '#E8B4B8',
+	'rosa pastel': '#F9CFE0',
+	fucsia: '#D6006D',
+	magenta: '#C2185B',
+
+	// Morados
 	morado: '#7C3AED',
-	marron: '#A16207',
-	beige: '#D6C7A1'
+	lila: '#C4A7E7',
+	lavanda: '#B497D6',
+	violeta: '#7C3AED',
+	purpura: '#6D28D9',
+	ciruela: '#6B3346',
+
+	// Amarillos / naranjas
+	amarillo: '#EAB308',
+	dorado: '#D4AF37',
+	oro: '#D4AF37',
+	naranja: '#EA580C',
+	melocoton: '#FFCBA4',
+	durazno: '#FFCBA4'
 };
 
 const DIACRITICS = /[̀-ͯ]/g;
@@ -124,10 +198,32 @@ function findAttribute(attributes: WooAttribute[], ...names: string[]): string[]
 	return match?.options ?? [];
 }
 
-function toColors(names: string[]): Color[] {
+// Umbral mínimo para la coincidencia parcial: evita que una clave corta como
+// "oro" o "vino" dispare falsos positivos dentro de una palabra no relacionada.
+const FUZZY_MATCH_MIN_LENGTH = 4;
+
+function resolveColorHex(name: string): string {
+	const normalized = normalize(name);
+	const exact = HEX_BY_COLOR_NAME[normalized];
+	if (exact) return exact;
+
+	// El vendedor puede escribir variantes que no están en el diccionario
+	// ("rosado", "azulado", "rosa viejo"): buscamos si alguna palabra base
+	// conocida está contenida en el nombre, o el nombre en una clave compuesta.
+	for (const [key, hex] of Object.entries(HEX_BY_COLOR_NAME)) {
+		if (key.length < FUZZY_MATCH_MIN_LENGTH) continue;
+		if (normalized.includes(key) || key.includes(normalized)) return hex;
+	}
+
+	return '#CCCCCC';
+}
+
+function toColors(names: string[], swatches: Map<string, string>): Color[] {
 	return names.map((name) => ({
 		name,
-		hex: HEX_BY_COLOR_NAME[normalize(name)] ?? '#CCCCCC'
+		// El hex real elegido en WordPress manda; el diccionario/búsqueda difusa
+		// es solo el respaldo para colores que el vendedor aún no configuró ahí.
+		hex: swatches.get(normalize(name)) ?? resolveColorHex(name)
 	}));
 }
 
@@ -138,7 +234,7 @@ function readMetaNumber(meta: WooMeta[], key: string): number | undefined {
 	return Number.isFinite(num) ? num : undefined;
 }
 
-function mapWooProduct(woo: WooProduct): Product {
+function mapWooProduct(woo: WooProduct, swatches: Map<string, string>): Product {
 	// Campos ACF (mayorista). Ver guía de WordPress para los nombres exactos.
 	const wholesalePrice = readMetaNumber(woo.meta_data, 'wholesale_price');
 	const minOrderQuantity = readMetaNumber(woo.meta_data, 'min_order_quantity') ?? 1;
@@ -152,7 +248,7 @@ function mapWooProduct(woo: WooProduct): Product {
 		category: pickCategoryLabel(woo.categories),
 		gender: detectGender(woo.categories),
 		sizes: findAttribute(woo.attributes, 'Talla', 'Tallas', 'Size', 'pa_talla'),
-		colors: toColors(findAttribute(woo.attributes, 'Color', 'Colores', 'pa_color')),
+		colors: toColors(findAttribute(woo.attributes, 'Color', 'Colores', 'pa_color'), swatches),
 		sku: woo.sku,
 		minOrderQuantity,
 		description: woo.description || woo.short_description || '',
@@ -194,6 +290,40 @@ async function wooRequest<T>(path: string, fetchFn: typeof fetch): Promise<T> {
 }
 
 
+interface WooColorSwatch {
+	name?: string;
+	hex?: string;
+}
+
+/**
+ * Trae el hex real de cada término de color, elegido en WordPress con un
+ * selector de color (no adivinado). Si el endpoint no existe o falla, devuelve
+ * un mapa vacío — `toColors()` cae entonces al diccionario/búsqueda difusa.
+ */
+async function fetchColorSwatches(fetchFn: typeof fetch): Promise<Map<string, string>> {
+	const config = getConfig();
+	if (!config) return new Map();
+	try {
+		const res = await fetchFn(`${config.baseUrl}/wp-json/coco/v1/color-swatches`, {
+			signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+		});
+		if (!res.ok) {
+			throw new Error(`color-swatches ${res.status}: ${await res.text()}`);
+		}
+		const raw = (await res.json()) as WooColorSwatch[];
+		const swatches = new Map<string, string>();
+		for (const { name, hex } of raw) {
+			if (name && hex) swatches.set(normalize(name), hex);
+		}
+		return swatches;
+	} catch (err) {
+		console.error(
+			`[woocommerce] Error al traer los colores reales de WordPress (${describeError(err)}). Usando el diccionario de respaldo.`
+		);
+		return new Map();
+	}
+}
+
 // Error específico para poder distinguir "no configurado" (setup local sin
 // .env) de un fallo real de red al decidir el TTL de la caché.
 export class WooNotConfiguredError extends Error {}
@@ -207,8 +337,11 @@ export async function fetchProductsOrThrow(fetchFn: typeof fetch = fetch): Promi
 	if (!getConfig()) {
 		throw new WooNotConfiguredError('WooCommerce no configurado');
 	}
-	const products = await wooRequest<WooProduct[]>('/products?per_page=100&status=publish', fetchFn);
-	return products.map(mapWooProduct);
+	const [products, swatches] = await Promise.all([
+		wooRequest<WooProduct[]>('/products?per_page=100&status=publish', fetchFn),
+		fetchColorSwatches(fetchFn)
+	]);
+	return products.map((product) => mapWooProduct(product, swatches));
 }
 
 /**
@@ -241,11 +374,11 @@ export async function getProduct(
 		return sampleProducts.find((p) => p.id === id) ?? null;
 	}
 	try {
-		const matches = await wooRequest<WooProduct[]>(
-			`/products?slug=${encodeURIComponent(id)}&status=publish`,
-			fetchFn
-		);
-		return matches.length ? mapWooProduct(matches[0]) : null;
+		const [matches, swatches] = await Promise.all([
+			wooRequest<WooProduct[]>(`/products?slug=${encodeURIComponent(id)}&status=publish`, fetchFn),
+			fetchColorSwatches(fetchFn)
+		]);
+		return matches.length ? mapWooProduct(matches[0], swatches) : null;
 	} catch (err) {
 		console.error(`[woocommerce] Error al traer el producto "${id}" (${describeError(err)}).`);
 		return sampleProducts.find((p) => p.id === id) ?? null;
