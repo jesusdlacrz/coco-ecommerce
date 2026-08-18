@@ -7,6 +7,10 @@ import { displayPrice, strikePrice } from '$lib/shared/utils/price';
 // ya guardados en localStorage de antes de esta feature.
 const LEGACY_KEY = 'cart';
 
+// Mínimo mayorista — usado también por el checkout en el servidor para
+// rechazar un intento de pago que no lo cumpla.
+export const MIN_PAYMENT_UNITS = 4;
+
 function readFromStorage(key: string): CartItem[] {
 	if (!browser) return [];
 	try {
@@ -177,7 +181,7 @@ export const totalUnits = derived(cartItems, ($items) =>
 	$items.reduce((total, item) => total + item.quantity, 0)
 );
 
-export const canProceedToPayment = derived(totalUnits, ($totalUnits) => $totalUnits >= 4);
+export const canProceedToPayment = derived(totalUnits, ($totalUnits) => $totalUnits >= MIN_PAYMENT_UNITS);
 
 export const missingUnitsForPayment = derived(totalUnits, ($totalUnits) =>
 	Math.max(0, 4 - $totalUnits)

@@ -40,6 +40,27 @@ export const sessions = sqliteTable(
 	]
 );
 
+// Puente entre el widget de Wompi (que solo recibe reference + monto) y el
+// carrito real: el webhook necesita reconstruir la orden de WooCommerce sin
+// depender de nada que viva únicamente en localStorage del cliente.
+export const pendingCheckouts = sqliteTable(
+	'pending_checkouts',
+	{
+		reference: text('reference').primaryKey(),
+		vendorSlug: text('vendor_slug'),
+		cartJson: text('cart_json').notNull(),
+		customerJson: text('customer_json').notNull(),
+		amountInCents: integer('amount_in_cents').notNull(),
+		status: text('status', { enum: ['pending', 'approved', 'declined'] })
+			.notNull()
+			.default('pending'),
+		wooOrderId: integer('woo_order_id'),
+		createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull().default(now),
+		updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull().default(now)
+	},
+	(t) => [index('idx_pending_checkouts_status').on(t.status)]
+);
+
 // Solo se guardan las prendas con personalización; el resto usa vendors.commissionPercent.
 export const vendorProducts = sqliteTable(
 	'vendor_products',

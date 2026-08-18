@@ -273,13 +273,22 @@ function getConfig(): { baseUrl: string; auth: string } | null {
 // tardar en la primera petición (arranque en frío).
 const REQUEST_TIMEOUT_MS = 30000;
 
-async function wooRequest<T>(path: string, fetchFn: typeof fetch): Promise<T> {
+async function wooRequest<T>(
+	path: string,
+	fetchFn: typeof fetch,
+	init?: { method?: string; body?: unknown }
+): Promise<T> {
 	const config = getConfig();
 	if (!config) {
 		throw new Error('WooCommerce no configurado');
 	}
 	const res = await fetchFn(`${config.baseUrl}/wp-json/wc/v3${path}`, {
-		headers: { Authorization: `Basic ${config.auth}` },
+		method: init?.method ?? 'GET',
+		headers: {
+			Authorization: `Basic ${config.auth}`,
+			...(init?.body ? { 'Content-Type': 'application/json' } : {})
+		},
+		body: init?.body ? JSON.stringify(init.body) : undefined,
 		signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
 	});
 	if (!res.ok) {
@@ -383,4 +392,118 @@ export async function getProduct(
 		console.error(`[woocommerce] Error al traer el producto "${id}" (${describeError(err)}).`);
 		return sampleProducts.find((p) => p.id === id) ?? null;
 	}
+}
+
+// ------------------------------------------------------------------- pedidos
+
+/**
+ * El carrito solo guarda el slug (nuestro `Product.id`), pero la API de
+ * pedidos de WooCommerce exige el `product_id` numérico real en cada
+ * line_item. Se resuelve al momento de crear el pedido (webhook, no en el
+ * camino crítico del checkout) en vez de exponer el id numérico en todo el
+ * modelo `Product` solo para este único uso.
+ */
+export async function resolveWooProductId(
+	slug: string,
+	fetchFn: typeof fetch = fetch
+): Promise<number> {
+	const matches = await wooRequest<WooProduct[]>(
+		`/products?slug=${encodeURIComponent(slug)}`,
+		fetchFn
+	);
+	if (!matches.length) {
+		throw new Error(`No se encontró el producto "${slug}" en WooCommerce`);
+	}
+	return matches[0].id;
+}
+
+export interface CreateOrderLineItem {
+	productId: number;
+	quantity: number;
+	total: string; // precio ya ajustado por comisión, forzado explícito (ver createOrder)
+	meta: { key: string; value: string }[];
+}
+
+export interface CreateOrderAddress {
+	firstName: string;
+	lastName: string;
+	email?: string;
+	phone: string;
+	address: string;
+	addressComplement: string; // apto, torre, interior, bloque
+	dwellingType: string; // Casa / Apartamento / Otro
+	city: string;
+	postalCode: string;
+	country: string; // ISO 3166-1 alpha-2
+}
+
+export interface CreateOrderInput {
+	reference: string;
+	vendorSlug: string | null;
+	lineItems: CreateOrderLineItem[];
+	shippingTotal: string;
+	billing: CreateOrderAddress;
+}
+
+interface WooOrderResponse {
+	id: number;
+	status: string;
+}
+
+/**
+ * Crea el pedido real en WooCommerce. Se llama solo desde el webhook de
+ * Wompi, una vez confirmado el pago — nunca antes.
+ *
+ * `subtotal`/`total` se fuerzan explícitamente en cada line_item: si no se
+ * mandan, WooCommerce recalcula con el precio base del producto (sin la
+ * comisión del vendedor) y el total del pedido dejaría de cuadrar con lo
+ * cobrado en Wompi.
+ */
+export async function createOrder(
+	input: CreateOrderInput,
+	fetchFn: typeof fetch = fetch
+): Promise<{ id: number; status: string }> {
+	const payload = {
+		status: 'processing',
+		payment_method: 'wompi',
+		payment_method_title: 'Wompi',
+		set_paid: true,
+		billing: {
+			first_name: input.billing.firstName,
+			last_name: input.billing.lastName,
+			email: input.billing.email,
+			phone: input.billing.phone,
+			address_1: input.billing.address,
+			address_2: input.billing.addressComplement,
+			city: input.billing.city,
+			postcode: input.billing.postalCode,
+			country: input.billing.country
+		},
+		shipping: {
+			first_name: input.billing.firstName,
+			last_name: input.billing.lastName,
+			phone: input.billing.phone,
+			address_1: input.billing.address,
+			address_2: input.billing.addressComplement,
+			city: input.billing.city,
+			postcode: input.billing.postalCode,
+			country: input.billing.country
+		},
+		line_items: input.lineItems.map((item) => ({
+			product_id: item.productId,
+			quantity: item.quantity,
+			subtotal: item.total,
+			total: item.total,
+			meta_data: item.meta.map((m) => ({ key: m.key, value: m.value }))
+		})),
+		shipping_lines: [
+			{ method_id: 'flat_rate', method_title: 'Envío', total: input.shippingTotal }
+		],
+		meta_data: [
+			{ key: '_wompi_reference', value: input.reference },
+			{ key: '_vendor_slug', value: input.vendorSlug ?? '' },
+			{ key: '_dwelling_type', value: input.billing.dwellingType }
+		]
+	};
+	return wooRequest<WooOrderResponse>('/orders', fetchFn, { method: 'POST', body: payload });
 }

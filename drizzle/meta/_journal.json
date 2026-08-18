@@ -8,6 +8,13 @@
       "when": 1786665644012,
       "tag": "0000_left_ken_ellis",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1787003701559,
+      "tag": "0001_yielding_firestar",
+      "breakpoints": true
     }
   ]
 }

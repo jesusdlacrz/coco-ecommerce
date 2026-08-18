@@ -55,6 +55,23 @@ export async function loadVendorProduct(
 	return product ? applyCommission(product, pricing) : null;
 }
 
+// Misma revalidación que getVendorCartPrices() pero para el carrito de la
+// casa (sin vendedor/comisión) — la usa el checkout para nunca confiar en el
+// precio que venga del cliente.
+export async function getHouseCartPrices(
+	productIds: string[],
+	fetchFn: typeof fetch
+): Promise<Record<string, number | null>> {
+	const products = await getCachedProducts(fetchFn);
+	const byId = new Map(products.map((p) => [p.id, p]));
+	const result: Record<string, number | null> = {};
+	for (const id of productIds) {
+		const product = byId.get(id);
+		result[id] = product ? displayPrice(product) : null;
+	}
+	return result;
+}
+
 // Revalida los precios de un carrito ya guardado en localStorage contra la
 // comisión VIGENTE del vendedor. `null` en el resultado significa "ya no
 // existe o está oculta" — el carrito debe eliminar esa prenda.

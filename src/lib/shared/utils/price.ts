@@ -1,5 +1,9 @@
 import type { Product } from '$lib/shared/model/products';
 
+// Envío plano — mismo valor usado en el resumen del carrito y en el
+// recálculo server-side del checkout, para que nunca queden desincronizados.
+export const SHIPPING_COST = 60;
+
 // Instancia única: crear un Intl.NumberFormat por llamada es costoso cuando se
 // formatean decenas de precios por render (catálogo, filtros, carrito).
 const COP = new Intl.NumberFormat('es-CO', {
