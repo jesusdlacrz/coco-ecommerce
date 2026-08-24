@@ -3,6 +3,9 @@ import { defineConfig } from 'drizzle-kit';
 export default defineConfig({
 	schema: './src/lib/server/db/schema.ts',
 	out: './drizzle',
-	dialect: 'sqlite',
-	dbCredentials: { url: process.env.DATABASE_URL ?? './data/coco.db' }
+	dialect: 'turso',
+	dbCredentials: {
+		url: process.env.TURSO_DATABASE_URL ?? 'file:./data/coco.db',
+		authToken: process.env.TURSO_AUTH_TOKEN
+	}
 });

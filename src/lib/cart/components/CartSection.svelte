@@ -7,21 +7,23 @@
 	type Props = {
 		items: CartItem[];
 		itemsCount: number;
+		stockByItemId: Record<string, number>;
 		onUpdateQuantity: (itemId: string, quantity: number) => void;
 		onRemoveItem: (itemId: string) => void;
 	};
 
-	let { items, itemsCount, onUpdateQuantity, onRemoveItem }: Props = $props();
+	let { items, itemsCount, stockByItemId, onUpdateQuantity, onRemoveItem }: Props = $props();
 </script>
 
 {#if items.length > 0}
 	<div>
 		<div class="space-y-3">
 			{#each items as item (item.id + '-' + item.quantity)}
-				<CartItemComponent 
-					{item} 
-					{onUpdateQuantity} 
-					{onRemoveItem} 
+				<CartItemComponent
+					{item}
+					maxQuantity={stockByItemId[item.id]}
+					{onUpdateQuantity}
+					{onRemoveItem}
 				/>
 			{/each}
 		</div>

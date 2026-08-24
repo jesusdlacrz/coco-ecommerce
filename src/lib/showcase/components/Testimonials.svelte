@@ -71,7 +71,7 @@
 		<div class="mb-16 text-center">
 			<h2 class="font-['Volkhov',serif] text-4xl text-[#262635]">Opiniones</h2>
 			<p class="mt-3 text-sm text-[#8a8a8a]">
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis
+				Historias reales de negocios que confían en nuestro catálogo mayorista.
 			</p>
 		</div>
 

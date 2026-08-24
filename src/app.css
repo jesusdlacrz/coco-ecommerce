@@ -14,7 +14,19 @@
 
 @import 'tailwindcss';
 
+/* Red de seguridad contra desbordes horizontales en móviles reales: unidades
+   `vw` (ej. clamp(...,5vw,...) en textos grandes) se calculan contra el
+   viewport de layout, que en Chrome/Safari móvil puede ser más ancho que el
+   visible antes de que colapse la barra de direcciones — un elemento hijo
+   así de ancho no debería poder abrir scroll horizontal en toda la página.
+   Los carruseles con scroll propio (overflow-x-auto en su propio contenedor)
+   no se ven afectados por esto. */
+html {
+	overflow-x: hidden;
+}
+
 body {
+	overflow-x: hidden;
 	font-family: 'Poppins', serif;
 	font-weight: 400;
 	font-style: normal;

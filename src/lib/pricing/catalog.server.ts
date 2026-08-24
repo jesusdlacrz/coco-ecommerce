@@ -1,4 +1,5 @@
 import type { Product } from '$lib/shared/model/products';
+import { getVariationStock } from '$lib/shared/model/stock';
 import { getCachedProducts, getCachedProduct } from '$lib/server/products/cache';
 import { getApprovedVendorBySlug, getVendorProductOverrides } from '$lib/server/vendors/repository';
 import { applyCommission, priceCatalog, isHidden, type VendorPricing } from './commission';
@@ -97,4 +98,28 @@ export async function getVendorCartPrices(
 		result[id] = displayPrice(applyCommission(product, pricing));
 	}
 	return result;
+}
+
+export interface CartStockCheck {
+	productId: string;
+	size: string | null;
+	color: string | null;
+}
+
+// El stock (a diferencia del precio) es el mismo sin importar el vendedor —
+// es la misma prenda física. Se usa desde el checkout para rechazar antes de
+// cobrar una cantidad que ya no existe en esa talla/color; es sobre la
+// caché, así que un cambio de stock hecho en WordPress hace efecto en el
+// checkout con el mismo retraso que ya tiene el catálogo (ver
+// `$lib/server/products/cache`), no en tiempo real.
+export async function getCartStock(
+	checks: CartStockCheck[],
+	fetchFn: typeof fetch
+): Promise<number[]> {
+	const products = await getCachedProducts(fetchFn);
+	const byId = new Map(products.map((p) => [p.id, p]));
+	return checks.map(({ productId, size, color }) => {
+		const product = byId.get(productId);
+		return product ? getVariationStock(product, size, color) : 0;
+	});
 }

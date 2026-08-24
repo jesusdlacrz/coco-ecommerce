@@ -184,5 +184,5 @@ export const totalUnits = derived(cartItems, ($items) =>
 export const canProceedToPayment = derived(totalUnits, ($totalUnits) => $totalUnits >= MIN_PAYMENT_UNITS);
 
 export const missingUnitsForPayment = derived(totalUnits, ($totalUnits) =>
-	Math.max(0, 4 - $totalUnits)
+	Math.max(0, MIN_PAYMENT_UNITS - $totalUnits)
 );

@@ -51,7 +51,10 @@ export const pendingCheckouts = sqliteTable(
 		cartJson: text('cart_json').notNull(),
 		customerJson: text('customer_json').notNull(),
 		amountInCents: integer('amount_in_cents').notNull(),
-		status: text('status', { enum: ['pending', 'approved', 'declined'] })
+		// 'processing' = un webhook ya reclamó esta fila y está creando la orden
+		// en WooCommerce — evita que un reintento concurrente de Wompi cree un
+		// segundo pedido para el mismo pago (ver claimPendingCheckout()).
+		status: text('status', { enum: ['pending', 'processing', 'approved', 'declined'] })
 			.notNull()
 			.default('pending'),
 		wooOrderId: integer('woo_order_id'),

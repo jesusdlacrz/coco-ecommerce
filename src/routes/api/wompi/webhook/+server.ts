@@ -5,20 +5,28 @@ import { getWompiConfig } from '$lib/server/wompi/config';
 import { verifyEventChecksum } from '$lib/server/wompi/signature';
 import {
 	getPendingCheckout,
+	claimPendingCheckout,
+	releasePendingCheckout,
 	markCheckoutResolved,
 	type PendingCheckout
 } from '$lib/server/checkout/repository';
 import {
 	createOrder,
-	resolveWooProductId,
+	resolveOrderTarget,
 	type CreateOrderLineItem
 } from '$lib/shared/services/woocommerce.server';
 import { describeError } from '$lib/shared/utils/describeError';
 
+// Estados terminales negativos de Wompi. 'PENDING' NO está aquí a propósito:
+// métodos async (PSE, transferencia) mandan primero un evento PENDING y
+// después el definitivo — tratarlo como declinado bloquearía para siempre el
+// evento APPROVED real que llega después (la fila ya no estaría en 'pending').
+type WompiTerminalStatus = 'DECLINED' | 'VOIDED' | 'ERROR';
+
 interface WompiTransaction {
 	id: string;
 	reference: string;
-	status: 'APPROVED' | 'DECLINED' | 'VOIDED' | 'ERROR' | 'PENDING';
+	status: 'APPROVED' | WompiTerminalStatus | 'PENDING';
 	amount_in_cents: number;
 }
 
@@ -29,37 +37,56 @@ interface WompiWebhookPayload {
 	timestamp: number;
 }
 
+// Misma combinación producto+talla+color no debe resolverse dos veces contra
+// WooCommerce aunque aparezca en más de una línea del carrito.
+function itemKey(item: { productId: string; size: string | null; color: string | null }): string {
+	return `${item.productId}::${item.size ?? ''}::${item.color ?? ''}`;
+}
+
 async function buildLineItems(
 	checkout: PendingCheckout,
 	fetchFn: typeof fetch
 ): Promise<CreateOrderLineItem[]> {
-	const productIdCache = new Map<string, number>();
-	const lineItems: CreateOrderLineItem[] = [];
+	const uniqueItems = new Map<string, { productId: string; size: string | null; color: string | null }>();
 	for (const item of checkout.items) {
-		let wooProductId = productIdCache.get(item.productId);
-		if (wooProductId === undefined) {
-			wooProductId = await resolveWooProductId(item.productId, fetchFn);
-			productIdCache.set(item.productId, wooProductId);
-		}
+		uniqueItems.set(itemKey(item), { productId: item.productId, size: item.size, color: item.color });
+	}
+	const resolvedPairs = await Promise.all(
+		[...uniqueItems.entries()].map(
+			async ([key, { productId, size, color }]) =>
+				[key, await resolveOrderTarget(productId, size, color, fetchFn)] as const
+		)
+	);
+	const targetByKey = new Map(resolvedPairs);
+
+	return checkout.items.map((item) => {
 		const meta = [
 			...(item.color ? [{ key: 'Color', value: item.color }] : []),
 			...(item.size ? [{ key: 'Talla', value: item.size }] : [])
 		];
-		lineItems.push({
-			productId: wooProductId,
+		const target = targetByKey.get(itemKey(item));
+		if (!target) {
+			throw new Error(`No se pudo resolver el producto/variación de "${item.productId}" en WooCommerce`);
+		}
+		return {
+			productId: target.productId,
+			variationId: target.variationId,
 			quantity: item.quantity,
 			total: (item.price * item.quantity).toFixed(2),
 			meta
-		});
-	}
-	return lineItems;
+		};
+	});
 }
 
 export const POST: RequestHandler = async ({ request, fetch }) => {
 	const wompi = getWompiConfig();
 	if (!wompi) {
+		// 500 (no 200): si Wompi no está configurado en este ambiente, queremos
+		// que Wompi reintente en vez de dar por entregado un evento que nunca
+		// se procesó — un 200 aquí perdería confirmaciones de pago reales para
+		// siempre en cuanto se corrija la configuración.
 		console.error('[wompi-webhook] Evento recibido pero Wompi no está configurado.');
-		return json({ ok: true });
+		throw error(500, 'Wompi no está configurado');
 	}
 
 	const payload = (await request.json()) as WompiWebhookPayload;
@@ -75,19 +102,33 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 	}
 
 	const { transaction } = payload.data;
-	const checkout = await getPendingCheckout(transaction.reference);
-	if (!checkout) {
-		console.warn(`[wompi-webhook] Referencia desconocida: ${transaction.reference}`);
-		return json({ ok: true });
-	}
 
-	// Idempotencia: Wompi puede reenviar el mismo evento varias veces.
-	if (checkout.status !== 'pending') {
+	// Estado intermedio (ej. PSE/transferencia todavía procesando) — no hay
+	// nada que resolver aún, el evento definitivo llega después.
+	if (transaction.status === 'PENDING') {
 		return json({ ok: true });
 	}
 
 	if (transaction.status !== 'APPROVED') {
-		await markCheckoutResolved(transaction.reference, 'declined', null);
+		const checkout = await getPendingCheckout(transaction.reference);
+		if (checkout?.status === 'pending') {
+			await markCheckoutResolved(transaction.reference, 'declined', null);
+		}
+		return json({ ok: true });
+	}
+
+	// Reclamo atómico: si dos entregas del mismo webhook llegan casi a la vez
+	// (Wompi reintenta si no responde 200 rápido), solo una de ellas logra
+	// pasar de 'pending' a 'processing' — la otra ve claimed=false y no crea
+	// un segundo pedido en WooCommerce para el mismo pago.
+	const claimed = await claimPendingCheckout(transaction.reference);
+	if (!claimed) {
+		return json({ ok: true });
+	}
+
+	const checkout = await getPendingCheckout(transaction.reference);
+	if (!checkout) {
+		console.warn(`[wompi-webhook] Referencia desconocida: ${transaction.reference}`);
 		return json({ ok: true });
 	}
 
@@ -116,8 +157,10 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 		);
 		await markCheckoutResolved(transaction.reference, 'approved', order.id);
 	} catch (err) {
-		// No se marca como resuelto: si Wompi reintenta el webhook, se vuelve a
-		// intentar crear el pedido en vez de perder la venta silenciosamente.
+		// Se libera de vuelta a 'pending' (no se queda atascada en
+		// 'processing') para que el próximo reintento de Wompi pueda
+		// reclamarla e intentar de nuevo, en vez de perder la venta.
+		await releasePendingCheckout(transaction.reference);
 		console.error(
 			`[wompi-webhook] Error creando el pedido para "${transaction.reference}" (${describeError(err)}).`
 		);

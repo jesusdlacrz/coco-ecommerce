@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ImageLightbox from './ImageLightbox.svelte';
+
 	type Props = {
 		images: string[];
 		productName: string;
@@ -9,6 +11,8 @@
 	};
 
 	let { images, productName, selectedImageIndex, onImageSelect, id, accentColor = '#262635' }: Props = $props();
+
+	let isLightboxOpen = $state(false);
 </script>
 
 <!-- Galería: thumbnails verticales izquierda + imagen principal derecha -->
@@ -31,13 +35,35 @@
 		</div>
 	{/if}
 
-	<!-- Imagen principal -->
-	<div class="min-h-[340px] flex-1 overflow-hidden rounded-lg bg-white shadow-md sm:min-h-[420px]">
+	<!-- Imagen principal: clic o tap la abre en zoom (funciona en celular con pellizco/doble tap) -->
+	<button
+		type="button"
+		onclick={() => (isLightboxOpen = true)}
+		aria-label="Ampliar imagen de {productName}"
+		class="group relative min-h-[340px] flex-1 cursor-zoom-in overflow-hidden rounded-lg bg-white shadow-md sm:min-h-[420px]"
+	>
 		<img
 			src={images[selectedImageIndex] || '/placeholder.svg'}
 			alt={productName}
 			class="h-full w-full object-cover"
 			style="view-transition-name: image-{id};"
 		/>
-	</div>
+		<span
+			class="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#262635] opacity-0 shadow transition-opacity group-hover:opacity-100"
+		>
+			<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+				<circle cx="11" cy="11" r="7" />
+				<path stroke-linecap="round" d="M21 21l-4.35-4.35M11 8v6M8 11h6" />
+			</svg>
+		</span>
+	</button>
 </div>
+
+{#if isLightboxOpen}
+	<ImageLightbox
+		{images}
+		{productName}
+		initialIndex={selectedImageIndex}
+		onClose={() => (isLightboxOpen = false)}
+	/>
+{/if}

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db } from '$lib/server/db/client';
 import { pendingCheckouts } from '$lib/server/db/schema';
 import type { CartItem } from '$lib/shared/model/products';
@@ -34,13 +34,15 @@ export async function createPendingCheckout(input: CreatePendingCheckoutInput): 
 	});
 }
 
+export type CheckoutStatus = 'pending' | 'processing' | 'approved' | 'declined';
+
 export interface PendingCheckout {
 	reference: string;
 	vendorSlug: string | null;
 	items: CartItem[];
 	customer: CheckoutCustomer;
 	amountInCents: number;
-	status: 'pending' | 'approved' | 'declined';
+	status: CheckoutStatus;
 	wooOrderId: number | null;
 }
 
@@ -63,8 +65,28 @@ export async function getPendingCheckout(reference: string): Promise<PendingChec
 	};
 }
 
-// El webhook de Wompi puede reintentar el mismo evento — marcar el estado
-// junto con el id del pedido evita crear un segundo pedido en WooCommerce.
+// El webhook de Wompi puede reintentar el mismo evento en paralelo — este
+// UPDATE condicionado a status='pending' es la única fuente de verdad sobre
+// quién "gana" el reintento: solo una llamada concurrente puede pasar de
+// pending a processing (rowsAffected === 1 para ella, 0 para las demás), así
+// que solo una crea el pedido en WooCommerce.
+export async function claimPendingCheckout(reference: string): Promise<boolean> {
+	const result = await db
+		.update(pendingCheckouts)
+		.set({ status: 'processing', updatedAt: new Date() })
+		.where(and(eq(pendingCheckouts.reference, reference), eq(pendingCheckouts.status, 'pending')));
+	return result.rowsAffected === 1;
+}
+
+// Si crear el pedido en WooCommerce falla, se libera la fila de vuelta a
+// "pending" para que el próximo reintento de Wompi pueda reclamarla otra vez.
+export async function releasePendingCheckout(reference: string): Promise<void> {
+	await db
+		.update(pendingCheckouts)
+		.set({ status: 'pending', updatedAt: new Date() })
+		.where(eq(pendingCheckouts.reference, reference));
+}
+
 export async function markCheckoutResolved(
 	reference: string,
 	status: 'approved' | 'declined',

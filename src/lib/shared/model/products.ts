@@ -3,6 +3,17 @@ export interface Color {
 	hex: string;
 }
 
+// Una combinación real de talla+color con su propio stock — viene de una
+// variación de WooCommerce (producto variable). `size`/`color` son `null`
+// cuando ese atributo no aplica (ej. solo se varía por color, no por talla).
+export interface ProductVariation {
+	id: number;
+	size: string | null;
+	color: string | null;
+	stock: number;
+	inStock: boolean;
+}
+
 export interface Product {
 	id: string;
 	name: string;
@@ -18,6 +29,10 @@ export interface Product {
 	description: string;
 	inStock: boolean;
 	stockQuantity: number;
+	// Ausente/vacío para los productos de ejemplo (fallback sin WooCommerce) o
+	// para un producto simple que todavía no se convirtió a variable — en ese
+	// caso el stock disponible es `stockQuantity` a nivel de producto completo.
+	variations?: ProductVariation[];
 }
 
 export interface CartItem {

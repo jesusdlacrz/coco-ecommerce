@@ -48,6 +48,42 @@
 			});
 	});
 
+	// El stock (a diferencia del precio) es el mismo sin importar el
+	// vendedor — se revalida siempre que se abre el carrito, para no dejar
+	// subir la cantidad de una talla/color por encima de lo que de verdad
+	// hay. Es solo la capa de UX: `checkout/start` es quien de verdad lo
+	// bloquea si esto se salta.
+	let stockByItemId = $state<Record<string, number>>({});
+
+	$effect(() => {
+		if (!isOpen || cartItems.length === 0) return;
+
+		const items = cartItems.map((item) => item.id);
+		fetch('/api/cart/stock', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				items: cartItems.map((item) => ({
+					productId: item.productId,
+					size: item.size,
+					color: item.color
+				}))
+			})
+		})
+			.then((res) => res.json())
+			.then((data: { stock: number[] }) => {
+				const next: Record<string, number> = {};
+				items.forEach((id, index) => {
+					next[id] = data.stock[index] ?? 0;
+				});
+				stockByItemId = next;
+			})
+			.catch(() => {
+				// Best-effort: si falla, no se limita la cantidad desde el
+				// frontend — el checkout igual la revalida en el servidor.
+			});
+	});
+
 	// Hacer que estos valores sean reactivos usando $derived con cartItems
 	// Usamos el spread operator para forzar la reactividad
 	const total = $derived([...cartItems].reduce((sum, item) => sum + item.price * item.quantity, 0));
@@ -86,6 +122,7 @@
 			{womenItemsCount}
 			{boysItemsCount}
 			{girlsItemsCount}
+			{stockByItemId}
 			{onUpdateQuantity}
 			{onRemoveItem}
 		/>

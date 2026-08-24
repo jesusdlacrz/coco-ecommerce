@@ -38,15 +38,17 @@
 				{product.name}
 			</h3>
 
-			<div class="flex items-center justify-between">
-				<span class="text-xl font-medium">
-					{formatPrice(displayPrice(product))}
-				</span>
+			<span class="block text-xl font-medium">
+				{formatPrice(displayPrice(product))}
+			</span>
 
-				{#if isAlmostSoldOut}
-					<span class="px-2 py-1 text-xs font-medium text-red-600"> Almost Sold Out </span>
-				{/if}
-			</div>
+			{#if isAlmostSoldOut}
+				<span
+					class="inline-block rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600"
+				>
+					Pocas unidades
+				</span>
+			{/if}
 		</div>
 	</div>
 </TransitionLink>

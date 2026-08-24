@@ -12,22 +12,24 @@
 		womenItemsCount: number;
 		boysItemsCount: number;
 		girlsItemsCount: number;
+		stockByItemId: Record<string, number>;
 		onUpdateQuantity: (itemId: string, quantity: number) => void;
 		onRemoveItem: (itemId: string) => void;
 	};
 
-	let { 
-		cartItems, 
-		menItems, 
-		womenItems, 
-		boysItems, 
+	let {
+		cartItems,
+		menItems,
+		womenItems,
+		boysItems,
 		girlsItems,
 		menItemsCount,
 		womenItemsCount,
 		boysItemsCount,
 		girlsItemsCount,
-		onUpdateQuantity, 
-		onRemoveItem 
+		stockByItemId,
+		onUpdateQuantity,
+		onRemoveItem
 	}: Props = $props();
 
 </script>
@@ -39,34 +41,38 @@
 		</div>
 	{:else}
 		<div class="space-y-6">
-			<CartSection 
+			<CartSection
 				items={menItems}
 
 				itemsCount={menItemsCount}
+				{stockByItemId}
 				{onUpdateQuantity}
 				{onRemoveItem}
 			/>
 
-			<CartSection 
+			<CartSection
 				items={womenItems}
 
 				itemsCount={womenItemsCount}
+				{stockByItemId}
 				{onUpdateQuantity}
 				{onRemoveItem}
 			/>
 
-			<CartSection 
+			<CartSection
 				items={boysItems}
 
 				itemsCount={boysItemsCount}
+				{stockByItemId}
 				{onUpdateQuantity}
 				{onRemoveItem}
 			/>
 
-			<CartSection 
+			<CartSection
 				items={girlsItems}
 
 				itemsCount={girlsItemsCount}
+				{stockByItemId}
 				{onUpdateQuantity}
 				{onRemoveItem}
 			/>

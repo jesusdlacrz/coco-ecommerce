@@ -14,7 +14,7 @@
 
 <div class="py-15">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+		<div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
 			{#each features as feature (feature.id)}
 				<div class="flex flex-row items-center gap-4">
 					<div class="shrink-0">

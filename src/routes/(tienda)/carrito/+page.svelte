@@ -8,6 +8,9 @@
 	} from '$lib/cart/stores/cartStore';
 	import { formatPrice, SHIPPING_COST } from '$lib/shared/utils/price';
 	import ChevronDown from '$lib/shared/icons/ChevronDown.svelte';
+	import Lock from '$lib/shared/icons/Lock.svelte';
+
+	const PAYMENT_METHODS = ['Tarjeta', 'PSE', 'Nequi'];
 	import { HOUSE_STORE } from '$lib/storefront/model';
 	import toast from 'svelte-5-french-toast';
 
@@ -60,7 +63,6 @@
 	let dwellingType = $state('');
 	let city = $state('');
 	let postalCode = $state('');
-	let discountCode = $state('');
 	let isSubmitting = $state(false);
 
 	const store = $derived(page.data.storefront ?? HOUSE_STORE);
@@ -68,11 +70,6 @@
 	const subtotal = $derived($cartTotal ?? 0);
 	const shipping = $derived(cartList.length > 0 ? SHIPPING_COST : 0);
 	const total = $derived(subtotal + shipping);
-
-	function applyDiscount() {
-		if (!discountCode.trim()) return;
-		// TODO: validar y aplicar el código contra los cupones de WooCommerce.
-	}
 
 	function hasValidContactInfo(): boolean {
 		return Boolean(
@@ -160,7 +157,7 @@
 
 	<div class="mt-8 border-t border-[#d9d9d6]">
 		<div class="mx-auto grid max-w-[1200px] px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-			<section class="rounded-none bg-transparent px-12 py-10 lg:border-r lg:border-[#d9d9d6]">
+			<section class="order-2 rounded-none bg-transparent px-12 py-10 lg:order-1 lg:border-r lg:border-[#d9d9d6]">
 				<div class="space-y-8">
 					<div>
 						<h2 class="mb-5 font-['Volkhov',serif] text-2xl font-bold text-black">
@@ -276,10 +273,20 @@
 							Método de pago
 						</h2>
 
-						<div class="rounded-xl border border-[#d1d1d1] bg-white p-4 text-sm text-[#4a4a4a]">
-							Al hacer clic en "Pagar ahora" se abrirá la ventana segura de <strong>Wompi</strong>,
-							donde puedes pagar con tarjeta, PSE o Nequi. Nunca vemos ni guardamos los datos de tu
-							tarjeta.
+						<div class="rounded-xl border border-[#d1d1d1] bg-white p-4">
+							<div class="flex flex-wrap gap-2">
+								{#each PAYMENT_METHODS as method (method)}
+									<span
+										class="rounded-full border border-[#d1d1d1] px-3 py-1 text-xs font-semibold text-[#262635]"
+									>
+										{method}
+									</span>
+								{/each}
+							</div>
+							<div class="mt-3 flex items-center gap-2 text-xs text-[#6b6b6b]">
+								<Lock size={14} class="flex-shrink-0" />
+								<span>Pago seguro procesado por <strong>Wompi</strong> — nunca vemos tu tarjeta.</span>
+							</div>
 						</div>
 
 						{#if !$canProceedToPayment}
@@ -300,7 +307,7 @@
 				</div>
 			</section>
 
-			<aside class="rounded-none bg-[#FCA1201C] p-4 sm:p-6 lg:p-10">
+			<aside class="order-1 rounded-none bg-[#FCA1201C] p-4 sm:p-6 lg:order-2 lg:p-10">
 				{#if cartList.length === 0}
 					<div class="flex min-h-[240px] items-center justify-center text-center">
 						<div>
@@ -338,23 +345,6 @@
 						{/each}
 					</div>
 				{/if}
-
-				<div class="mt-6">
-					<div class="flex items-center gap-2">
-						<input
-							bind:value={discountCode}
-							placeholder="Código de descuento"
-							class="h-12 w-full border border-[#d1d1d1] bg-white px-4 text-sm text-[#262635] outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
-						/>
-						<button
-							type="button"
-							onclick={applyDiscount}
-							class="h-12 rounded-xl bg-[#2f3c4f] px-5 text-sm font-semibold uppercase tracking-[0.06em] text-white transition-colors hover:bg-[#253243]"
-						>
-							Aplicar
-						</button>
-					</div>
-				</div>
 
 				<div class="mt-8 space-y-4 text-[#454545]">
 					<div class="flex items-center justify-between text-base">

@@ -2,7 +2,7 @@
 // (el sufijo ".server.ts" impide que SvelteKit lo incluya en el bundle del
 // cliente, manteniendo las API keys fuera del navegador).
 import { env } from '$env/dynamic/private';
-import type { Color, Product } from '$lib/shared/model/products';
+import type { Color, Product, ProductVariation } from '$lib/shared/model/products';
 import { sampleProducts } from '$lib/dataProducts/products';
 import { describeError } from '$lib/shared/utils/describeError';
 
@@ -40,12 +40,26 @@ interface WooProduct {
 	sale_price: string;
 	description: string;
 	short_description: string;
+	type: string; // 'simple' | 'variable' | ...
 	stock_status: 'instock' | 'outofstock' | 'onbackorder';
 	stock_quantity: number | null;
 	images: WooImage[];
 	categories: WooCategory[];
 	attributes: WooAttribute[];
 	meta_data: WooMeta[];
+}
+
+interface WooVariationAttribute {
+	id: number;
+	name: string;
+	option: string;
+}
+
+interface WooVariation {
+	id: number;
+	attributes: WooVariationAttribute[];
+	stock_status: 'instock' | 'outofstock' | 'onbackorder';
+	stock_quantity: number | null;
 }
 
 // --------------------------------------------------------------- mapeo dominio
@@ -234,10 +248,49 @@ function readMetaNumber(meta: WooMeta[], key: string): number | undefined {
 	return Number.isFinite(num) ? num : undefined;
 }
 
-function mapWooProduct(woo: WooProduct, swatches: Map<string, string>): Product {
+// Talla/Color de una variación vienen como atributos "planos" (name/option),
+// igual que `findAttribute` para el producto — mismo criterio de nombres
+// aceptados en español/inglés/slug global.
+function readVariationAttr(attrs: WooVariationAttribute[], ...names: string[]): string | null {
+	const wanted = names.map(normalize);
+	const match = attrs.find((a) => wanted.includes(normalize(a.name)));
+	return match?.option || null;
+}
+
+function mapVariation(v: WooVariation): ProductVariation {
+	// `stock_quantity: null` significa que esta variación NO tiene gestión de
+	// inventario activada — WooCommerce la deja "en stock" indefinidamente
+	// por defecto (es lo que trae recién generada, antes de que alguien la
+	// configure a mano). Tratarlo como "ilimitado" dejaría comprar sin límite
+	// cualquier talla/color que el vendedor todavía no haya terminado de
+	// configurar — se trata como agotada hasta que tenga un número real.
+	const stock = v.stock_status === 'instock' ? (v.stock_quantity ?? 0) : 0;
+	return {
+		id: v.id,
+		size: readVariationAttr(v.attributes, 'Talla', 'Tallas', 'Size', 'pa_talla'),
+		color: readVariationAttr(v.attributes, 'Color', 'Colores', 'pa_color'),
+		stock,
+		inStock: stock > 0
+	};
+}
+
+function mapWooProduct(woo: WooProduct, swatches: Map<string, string>, variations: WooVariation[]): Product {
 	// Campos ACF (mayorista). Ver guía de WordPress para los nombres exactos.
 	const wholesalePrice = readMetaNumber(woo.meta_data, 'wholesale_price');
 	const minOrderQuantity = readMetaNumber(woo.meta_data, 'min_order_quantity') ?? 1;
+
+	// En un producto variable el stock real vive en cada variación (talla +
+	// color), no en el producto padre — WooCommerce ni siquiera mantiene
+	// `stock_quantity` del padre actualizado en ese caso. Se agrega desde las
+	// variaciones cuando existen; si no (producto simple, o uno que todavía
+	// no se convirtió a variable), se cae al campo del producto.
+	const mappedVariations = variations.map(mapVariation);
+	const stockQuantity = mappedVariations.length
+		? mappedVariations.reduce((sum, v) => sum + (Number.isFinite(v.stock) ? v.stock : 0), 0)
+		: (woo.stock_quantity ?? 0);
+	const inStock = mappedVariations.length
+		? mappedVariations.some((v) => v.inStock)
+		: woo.stock_status === 'instock';
 
 	return {
 		id: woo.slug || String(woo.id),
@@ -252,8 +305,9 @@ function mapWooProduct(woo: WooProduct, swatches: Map<string, string>): Product 
 		sku: woo.sku,
 		minOrderQuantity,
 		description: woo.description || woo.short_description || '',
-		inStock: woo.stock_status === 'instock',
-		stockQuantity: woo.stock_quantity ?? 0
+		inStock,
+		stockQuantity,
+		variations: mappedVariations
 	};
 }
 
@@ -298,6 +352,10 @@ async function wooRequest<T>(
 	return res.json() as Promise<T>;
 }
 
+
+async function fetchVariations(productId: number, fetchFn: typeof fetch): Promise<WooVariation[]> {
+	return wooRequest<WooVariation[]>(`/products/${productId}/variations?per_page=100`, fetchFn);
+}
 
 interface WooColorSwatch {
 	name?: string;
@@ -350,7 +408,12 @@ export async function fetchProductsOrThrow(fetchFn: typeof fetch = fetch): Promi
 		wooRequest<WooProduct[]>('/products?per_page=100&status=publish', fetchFn),
 		fetchColorSwatches(fetchFn)
 	]);
-	return products.map((product) => mapWooProduct(product, swatches));
+	return Promise.all(
+		products.map(async (product) => {
+			const variations = product.type === 'variable' ? await fetchVariations(product.id, fetchFn) : [];
+			return mapWooProduct(product, swatches, variations);
+		})
+	);
 }
 
 /**
@@ -387,7 +450,10 @@ export async function getProduct(
 			wooRequest<WooProduct[]>(`/products?slug=${encodeURIComponent(id)}&status=publish`, fetchFn),
 			fetchColorSwatches(fetchFn)
 		]);
-		return matches.length ? mapWooProduct(matches[0], swatches) : null;
+		if (!matches.length) return null;
+		const product = matches[0];
+		const variations = product.type === 'variable' ? await fetchVariations(product.id, fetchFn) : [];
+		return mapWooProduct(product, swatches, variations);
 	} catch (err) {
 		console.error(`[woocommerce] Error al traer el producto "${id}" (${describeError(err)}).`);
 		return sampleProducts.find((p) => p.id === id) ?? null;
@@ -396,29 +462,58 @@ export async function getProduct(
 
 // ------------------------------------------------------------------- pedidos
 
+export interface ResolvedOrderTarget {
+	productId: number;
+	// `null` en un producto simple (o uno que todavía no se convirtió a
+	// variable) — no hay variación que asociar al pedido.
+	variationId: number | null;
+}
+
 /**
- * El carrito solo guarda el slug (nuestro `Product.id`), pero la API de
- * pedidos de WooCommerce exige el `product_id` numérico real en cada
- * line_item. Se resuelve al momento de crear el pedido (webhook, no en el
- * camino crítico del checkout) en vez de exponer el id numérico en todo el
- * modelo `Product` solo para este único uso.
+ * El carrito solo guarda el slug (nuestro `Product.id`) más la talla/color
+ * elegidos como texto, pero la API de pedidos de WooCommerce exige el
+ * `product_id` numérico real (y, si es una variación, su `variation_id`) en
+ * cada line_item — así el stock que se descuenta es el de la talla+color
+ * correcta, no el del producto genérico. Se resuelve en vivo al momento de
+ * crear el pedido (webhook, ya con el pago confirmado), no en el modelo
+ * `Product` cacheado, para no exponer ids internos de WooCommerce en todo el
+ * catálogo solo para este único uso.
  */
-export async function resolveWooProductId(
+export async function resolveOrderTarget(
 	slug: string,
+	size: string | null,
+	color: string | null,
 	fetchFn: typeof fetch = fetch
-): Promise<number> {
+): Promise<ResolvedOrderTarget> {
 	const matches = await wooRequest<WooProduct[]>(
-		`/products?slug=${encodeURIComponent(slug)}`,
+		`/products?slug=${encodeURIComponent(slug)}&status=publish`,
 		fetchFn
 	);
 	if (!matches.length) {
 		throw new Error(`No se encontró el producto "${slug}" en WooCommerce`);
 	}
-	return matches[0].id;
+	const product = matches[0];
+	if (product.type !== 'variable') {
+		return { productId: product.id, variationId: null };
+	}
+
+	const variations = await fetchVariations(product.id, fetchFn);
+	const variation = variations.find((v) => {
+		const vSize = readVariationAttr(v.attributes, 'Talla', 'Tallas', 'Size', 'pa_talla');
+		const vColor = readVariationAttr(v.attributes, 'Color', 'Colores', 'pa_color');
+		return vSize === size && vColor === color;
+	});
+	if (!variation) {
+		throw new Error(
+			`No se encontró la variación (talla "${size ?? '-'}", color "${color ?? '-'}") de "${slug}" en WooCommerce`
+		);
+	}
+	return { productId: product.id, variationId: variation.id };
 }
 
 export interface CreateOrderLineItem {
 	productId: number;
+	variationId: number | null;
 	quantity: number;
 	total: string; // precio ya ajustado por comisión, forzado explícito (ver createOrder)
 	meta: { key: string; value: string }[];
@@ -491,6 +586,7 @@ export async function createOrder(
 		},
 		line_items: input.lineItems.map((item) => ({
 			product_id: item.productId,
+			...(item.variationId ? { variation_id: item.variationId } : {}),
 			quantity: item.quantity,
 			subtotal: item.total,
 			total: item.total,

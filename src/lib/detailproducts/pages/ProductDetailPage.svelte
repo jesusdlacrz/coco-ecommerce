@@ -4,6 +4,7 @@
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
 	import type { Product } from '$lib/shared/model/products';
+	import { stockForCombo } from '$lib/shared/model/stock';
 	import ImageGallery from '$lib/detailproducts/components/ImageGallery.svelte';
 	import ProductInfo from '$lib/detailproducts/components/ProductInfo.svelte';
 	import ProductOptions from '$lib/detailproducts/components/ProductOptions.svelte';
@@ -13,6 +14,12 @@
 	import { getCategoryStyle } from '$lib/products/filters/categoryStyles';
 	import { HOUSE_STORE } from '$lib/storefront/model';
 	import toast from 'svelte-5-french-toast';
+
+	// La descripción viene de WordPress como HTML — el meta description debe
+	// ser texto plano, no puede llevar las etiquetas tal cual.
+	function stripHtml(html: string): string {
+		return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+	}
 
 	interface Props {
 		product: Product;
@@ -124,6 +131,26 @@
 			toast.error('Por favor selecciona un color');
 			return false;
 		}
+		// Defensa extra por si `quantity` quedó desincronizado (ej. el usuario
+		// cambió de talla y el límite bajó) antes de llegar al carrito. El
+		// checkout server-side es la validación real; esto solo evita un
+		// mensaje confuso más adelante.
+		const variations = product.variations ?? [];
+		if (variations.length > 0) {
+			const stock = stockForCombo(
+				variations,
+				product.sizes.length > 0 ? selectedSize : null,
+				product.colors.length > 0 ? selectedColor : null
+			);
+			if (quantity > stock) {
+				toast.error(
+					stock > 0
+						? `Solo quedan ${stock} unidades disponibles en esa combinación`
+						: 'Esa combinación de talla/color está agotada'
+				);
+				return false;
+			}
+		}
 		return true;
 	}
 
@@ -145,7 +172,7 @@
 
 <svelte:head>
 	<title>{product.name} - {store.name}</title>
-	<meta name="description" content={product.description} />
+	<meta name="description" content={stripHtml(product.description)} />
 </svelte:head>
 
 <div class="min-h-screen {currentBackground} transition-colors duration-700">
@@ -171,6 +198,7 @@
 				<ProductOptions
 					sizes={product.sizes}
 					colors={product.colors}
+					variations={product.variations ?? []}
 					{selectedSize}
 					{selectedColor}
 					{quantity}
