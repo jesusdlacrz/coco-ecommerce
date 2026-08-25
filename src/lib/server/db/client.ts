@@ -19,7 +19,16 @@ await client.execute('PRAGMA foreign_keys = ON');
 
 export const db = drizzle(client, { schema });
 
-// Migraciones automáticas al arrancar: evita el paso manual de "correr
-// migrate antes de levantar el server". Es idempotente — sólo aplica lo que
-// falte, registrado en __drizzle_migrations.
-await migrate(db, { migrationsFolder: './drizzle' });
+// Migraciones automáticas SOLO contra el archivo SQLite local (sin Turso) —
+// es información de desarrollo, cómoda porque evita el paso manual de correr
+// migrate antes de levantar el server. Contra Turso (producción en Vercel)
+// esto se desactiva a propósito: el bundle serverless de Vercel no empaqueta
+// la carpeta `drizzle/` (solo lo que el grafo de imports de JS alcanza), así
+// que `migrate()` tronaba buscando esos archivos .sql en cada request — y
+// como este módulo se carga en cada petición (vía hooks.server.ts), tumbaba
+// el sitio completo. Las migraciones contra Turso se corren manualmente desde
+// local (`npm run db:generate` + levantar el server local apuntando a Turso)
+// antes de desplegar.
+if (!env.TURSO_DATABASE_URL) {
+	await migrate(db, { migrationsFolder: './drizzle' });
+}
