@@ -58,6 +58,7 @@ interface WooVariationAttribute {
 interface WooVariation {
 	id: number;
 	attributes: WooVariationAttribute[];
+	regular_price: string;
 	stock_status: 'instock' | 'outofstock' | 'onbackorder';
 	stock_quantity: number | null;
 }
@@ -292,10 +293,25 @@ function mapWooProduct(woo: WooProduct, swatches: Map<string, string>, variation
 		? mappedVariations.some((v) => v.inStock)
 		: woo.stock_status === 'instock';
 
+	// Un producto variable no tiene `regular_price` propio — WooCommerce lo
+	// deja vacío en el padre porque cada variación puede tener el suyo. El
+	// campo `price` del padre tampoco sirve: es el precio ACTUAL (con
+	// descuento aplicado) de la variación más barata, no el de referencia sin
+	// descontar. Usar ese campo aquí mostraría el precio rebajado como si
+	// fuera el precio normal. Se toma el `regular_price` más bajo entre las
+	// variaciones — si el vendedor las deja todas iguales (el flujo normal),
+	// es exactamente ese precio.
+	const variationPrices = variations
+		.map((v) => Number(v.regular_price))
+		.filter((n) => Number.isFinite(n) && n > 0);
+	const price = variationPrices.length
+		? Math.min(...variationPrices)
+		: Number(woo.regular_price || woo.price) || 0;
+
 	return {
 		id: woo.slug || String(woo.id),
 		name: woo.name,
-		price: Number(woo.regular_price || woo.price) || 0,
+		price,
 		wholesalePrice,
 		images: woo.images.length ? woo.images.map((img) => img.src) : ['/placeholder.svg'],
 		category: pickCategoryLabel(woo.categories),
