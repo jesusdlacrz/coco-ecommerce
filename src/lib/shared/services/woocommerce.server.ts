@@ -569,16 +569,22 @@ interface WooOrderResponse {
  * mandan, WooCommerce recalcula con el precio base del producto (sin la
  * comisión del vendedor) y el total del pedido dejaría de cuadrar con lo
  * cobrado en Wompi.
+ *
+ * Se crea en dos pasos (pending → processing) a propósito: WooCommerce solo
+ * descuenta el stock de cada variación cuando el pedido CAMBIA de estado
+ * (el hook está enganchado a la transición, no a la creación). Si se crea
+ * directo en "processing" en la misma petición, no hay transición que
+ * dispare el descuento y el stock se queda intacto aunque el pedido exista
+ * — es justo lo que pasaba antes de este cambio.
  */
 export async function createOrder(
 	input: CreateOrderInput,
 	fetchFn: typeof fetch = fetch
 ): Promise<{ id: number; status: string }> {
 	const payload = {
-		status: 'processing',
+		status: 'pending',
 		payment_method: 'wompi',
 		payment_method_title: 'Wompi',
-		set_paid: true,
 		billing: {
 			first_name: input.billing.firstName,
 			last_name: input.billing.lastName,
@@ -617,5 +623,13 @@ export async function createOrder(
 			{ key: '_dwelling_type', value: input.billing.dwellingType }
 		]
 	};
-	return wooRequest<WooOrderResponse>('/orders', fetchFn, { method: 'POST', body: payload });
+	const created = await wooRequest<WooOrderResponse>('/orders', fetchFn, { method: 'POST', body: payload });
+
+	// Segundo paso: la transición real pending → processing, la que
+	// WooCommerce sí escucha para descontar stock. `set_paid: true` aquí
+	// también marca la fecha de pago (`date_paid`) correctamente.
+	return wooRequest<WooOrderResponse>(`/orders/${created.id}`, fetchFn, {
+		method: 'PUT',
+		body: { status: 'processing', set_paid: true }
+	});
 }
