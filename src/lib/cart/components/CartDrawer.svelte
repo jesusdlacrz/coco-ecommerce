@@ -5,7 +5,7 @@
 	import CartFooter from './CartFooter.svelte';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
-	import { cartStore } from '$lib/cart/stores/cartStore';
+	import { cartStore, MIN_PAYMENT_UNITS } from '$lib/cart/stores/cartStore';
 	import toast from 'svelte-5-french-toast';
 
 	interface Props {
@@ -18,7 +18,15 @@
 		onCheckout: () => void;
 	}
 
-	let { isOpen, cartItems, onClose, onUpdateQuantity, onRemoveItem, onClearCart, onCheckout }: Props = $props();
+	let {
+		isOpen,
+		cartItems,
+		onClose,
+		onUpdateQuantity,
+		onRemoveItem,
+		onClearCart,
+		onCheckout
+	}: Props = $props();
 
 	const store = $derived(page.data.storefront ?? HOUSE_STORE);
 
@@ -99,8 +107,8 @@
 	const boysItemsCount = $derived(boysItems.reduce((sum, item) => sum + item.quantity, 0));
 	const girlsItemsCount = $derived(girlsItems.reduce((sum, item) => sum + item.quantity, 0));
 
-	const canCheckout = $derived(totalItems >= 4);
-	const missingUnits = $derived(Math.max(0, 4 - totalItems));
+	const canCheckout = $derived(totalItems >= MIN_PAYMENT_UNITS);
+	const missingUnits = $derived(Math.max(0, MIN_PAYMENT_UNITS - totalItems));
 </script>
 
 {#if isOpen}
