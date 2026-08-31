@@ -22,7 +22,9 @@ export function displayPrice(product: Pick<Product, 'price' | 'wholesalePrice'>)
 }
 
 export function strikePrice(product: Pick<Product, 'price' | 'wholesalePrice'>): number | null {
-	return product.wholesalePrice ? product.price : null;
+	// Un precio mayorista igual (o mayor) al regular no es un descuento real —
+	// mostrarlo tachado igual produce el "AHORRAS 0%" sin sentido.
+	return product.wholesalePrice && product.wholesalePrice < product.price ? product.price : null;
 }
 
 export function savingsPercent(finalPrice: number, originalPrice: number): number {

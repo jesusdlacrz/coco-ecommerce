@@ -8,6 +8,8 @@
 
 	let { form }: { form: ActionData } = $props();
 	let submitting = $state(false);
+	let password = $state('');
+	const hasMinLength = $derived(password.length >= 8);
 </script>
 
 <svelte:head>
@@ -84,9 +86,28 @@
 					name="password"
 					autocomplete="new-password"
 					required
+					bind:value={password}
 					error={form?.errors?.password}
 					{describedBy}
 				/>
+				<p
+					class="mt-2 flex items-center gap-1.5 font-['Jost',sans-serif] text-xs transition-colors {hasMinLength
+						? 'text-[#1f8a55]'
+						: 'text-[#767676]'}"
+				>
+					<span
+						class="flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full border transition-colors {hasMinLength
+							? 'border-[#1f8a55] bg-[#1f8a55] text-white'
+							: 'border-black/20'}"
+					>
+						{#if hasMinLength}
+							<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M20 6 9 17l-5-5" />
+							</svg>
+						{/if}
+					</span>
+					Mínimo 8 caracteres
+				</p>
 			{/snippet}
 		</Field>
 

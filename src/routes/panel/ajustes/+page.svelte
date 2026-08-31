@@ -23,7 +23,7 @@
 
 <h1 class="mb-6 font-['Volkhov',serif] text-2xl font-bold text-[#262635]">Ajustes de tu tienda</h1>
 
-<div class="max-w-xl rounded-2xl border border-black/10 bg-white p-6">
+<div class="max-w-xl rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
 	<form
 		method="POST"
 		action="?/guardar"

@@ -138,7 +138,7 @@
 	</div>
 </div>
 
-<div class="overflow-x-auto rounded-xl border border-black/10 bg-white">
+<div class="overflow-x-auto rounded-xl border border-black/10 bg-white shadow-sm">
 	<table class="w-full text-left text-sm">
 		<thead class="border-b border-black/10 text-xs text-[#a0a0a0] uppercase">
 			<tr>

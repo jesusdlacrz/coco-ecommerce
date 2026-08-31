@@ -30,7 +30,7 @@
 </h1>
 
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-	<div class="rounded-xl border border-black/10 bg-white p-5 sm:col-span-2">
+	<div class="rounded-xl border border-black/10 bg-white p-5 shadow-sm sm:col-span-2">
 		<h2 class="font-['Poppins',sans-serif] text-sm font-medium text-[#767676]">Tu revista</h2>
 		<div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
 			<input
@@ -65,7 +65,7 @@
 		</div>
 	</div>
 
-	<div class="rounded-xl border border-black/10 bg-white p-5">
+	<div class="rounded-xl border border-black/10 bg-white p-5 shadow-sm">
 		<h2 class="font-['Poppins',sans-serif] text-sm font-medium text-[#767676]">Comisión global</h2>
 		<p class="mt-2 font-['Volkhov',serif] text-4xl font-bold text-[#262635]">
 			{vendor?.commissionPercent}%
@@ -81,7 +81,7 @@
 		</a>
 	</div>
 
-	<div class="rounded-xl border border-black/10 bg-white p-5">
+	<div class="rounded-xl border border-black/10 bg-white p-5 shadow-sm">
 		<h2 class="font-['Poppins',sans-serif] text-sm font-medium text-[#767676]">
 			Con comisión propia
 		</h2>
@@ -96,7 +96,7 @@
 		</a>
 	</div>
 
-	<div class="rounded-xl border border-black/10 bg-white p-5">
+	<div class="rounded-xl border border-black/10 bg-white p-5 shadow-sm">
 		<h2 class="font-['Poppins',sans-serif] text-sm font-medium text-[#767676]">Prendas ocultas</h2>
 		<p class="mt-2 font-['Volkhov',serif] text-4xl font-bold text-[#262635]">{data.hiddenCount}</p>
 		<a

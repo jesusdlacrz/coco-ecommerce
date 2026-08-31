@@ -154,13 +154,22 @@ export function isReservedSlug(slug: string): boolean {
 	return RESERVED_SLUGS.has(slug);
 }
 
-// Mensaje de "UNIQUE constraint failed: vendors.email" (node:sqlite y
-// bun:sqlite comparten este formato) — permite distinguir qué campo chocó
-// cuando dos registros simultáneos compiten por el mismo email o slug.
+// El mensaje real "UNIQUE constraint failed: vendors.email" no está en el
+// error de más afuera — Drizzle envuelve el error del driver en
+// `DrizzleQueryError`, y libsql envuelve el suyo en `LibsqlError` →
+// `ResponseError`, cada uno con su propio `.message` genérico y el texto real
+// solo visible varios niveles abajo en la cadena de `.cause`. Se recorre esa
+// cadena en vez de mirar solo el mensaje del error recibido.
 export function parseUniqueViolation(err: unknown): 'email' | 'slug' | null {
-	const message = err instanceof Error ? err.message : String(err);
-	if (!message.includes('UNIQUE constraint failed')) return null;
-	if (message.includes('vendors.email')) return 'email';
-	if (message.includes('vendors.slug')) return 'slug';
+	let current: unknown = err;
+	while (current) {
+		const message = current instanceof Error ? current.message : String(current);
+		if (message.includes('UNIQUE constraint failed')) {
+			if (message.includes('vendors.email')) return 'email';
+			if (message.includes('vendors.slug')) return 'slug';
+			return null;
+		}
+		current = current instanceof Error ? current.cause : undefined;
+	}
 	return null;
 }

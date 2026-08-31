@@ -28,6 +28,5 @@
 
 <!-- Información adicional del producto -->
 <div class="border-t border-white/60 pt-5 font-['Jost',serif]  text-sm text-[#000000] space-y-2">
-	<p><strong class="font-['Volkhov',serif]">Mínimo para mayorista:</strong> {product.minOrderQuantity} unidades</p>
 	<p><strong class="font-['Volkhov',serif]">Disponibilidad:</strong> {product.inStock ? 'En stock' : 'Agotado'}</p>
 </div>

@@ -1,4 +1,7 @@
 <script lang="ts">
+	import Eye from '$lib/shared/icons/Eye.svelte';
+	import EyeOff from '$lib/shared/icons/EyeOff.svelte';
+
 	interface Props {
 		type?: string;
 		name: string;
@@ -29,6 +32,13 @@
 	}: Props = $props();
 
 	const borderClass = error ? 'border-red-400 focus-within:border-red-400' : 'border-black/15 focus-within:border-[#FCA120]';
+
+	// Un campo de contraseña sin forma de ver lo que se escribió es la causa
+	// número uno de "no puedo entrar" en soporte — se puede alternar a texto
+	// plano sin cambiar el tipo real del campo hacia el resto del formulario.
+	const isPassword = type === 'password';
+	let revealed = $state(false);
+	const effectiveType = $derived(isPassword ? (revealed ? 'text' : 'password') : type);
 </script>
 
 {#if prefix}
@@ -50,6 +60,34 @@
 			aria-describedby={describedBy}
 			class="w-full rounded-r-lg py-3 pr-4 pl-1 outline-none"
 		/>
+	</div>
+{:else if isPassword}
+	<div class="relative">
+		<input
+			type={effectiveType}
+			{name}
+			{id}
+			{placeholder}
+			{autocomplete}
+			{required}
+			bind:value
+			aria-invalid={error ? 'true' : undefined}
+			aria-describedby={describedBy}
+			class="w-full rounded-lg border px-4 py-3 pr-11 font-['Jost',sans-serif] text-[#262635] transition-colors outline-none focus:ring-2 focus:ring-[#FCA120]/30
+				{error ? 'border-red-400 focus:border-red-400' : 'border-black/15 focus:border-[#FCA120]'}"
+		/>
+		<button
+			type="button"
+			onclick={() => (revealed = !revealed)}
+			aria-label={revealed ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+			class="absolute top-1/2 right-3 -translate-y-1/2 text-[#8a8a8a] transition-colors hover:text-[#262635]"
+		>
+			{#if revealed}
+				<EyeOff size={19} />
+			{:else}
+				<Eye size={19} />
+			{/if}
+		</button>
 	</div>
 {:else}
 	<input
