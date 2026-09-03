@@ -81,6 +81,10 @@ export async function updateVendorSettings(
 		.where(eq(vendors.id, vendorId));
 }
 
+export async function updateVendorPassword(vendorId: string, passwordHash: string): Promise<void> {
+	await db.update(vendors).set({ passwordHash, updatedAt: new Date() }).where(eq(vendors.id, vendorId));
+}
+
 export async function setVendorStatus(
 	vendorId: string,
 	status: 'approved' | 'suspended'

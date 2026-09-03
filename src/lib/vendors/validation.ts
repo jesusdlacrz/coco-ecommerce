@@ -39,6 +39,40 @@ export function validateRegisterForm(form: FormData): { errors: FieldErrors; dat
 	return { errors, data: { email, password, slug, storeName } };
 }
 
+export interface RequestResetInput {
+	email: string;
+}
+
+export function validateRequestResetForm(form: FormData): {
+	errors: FieldErrors;
+	data: RequestResetInput;
+} {
+	const email = String(form.get('email') ?? '')
+		.trim()
+		.toLowerCase();
+	const errors: FieldErrors = {};
+	if (!EMAIL_RE.test(email)) errors.email = 'Correo inválido';
+	return { errors, data: { email } };
+}
+
+export interface ResetPasswordInput {
+	password: string;
+	confirmPassword: string;
+}
+
+export function validateResetPasswordForm(form: FormData): {
+	errors: FieldErrors;
+	data: ResetPasswordInput;
+} {
+	const password = String(form.get('password') ?? '');
+	const confirmPassword = String(form.get('confirmPassword') ?? '');
+	const errors: FieldErrors = {};
+	if (password.length < 8) errors.password = 'Mínimo 8 caracteres';
+	if (password.length > 200) errors.password = 'Máximo 200 caracteres';
+	if (confirmPassword !== password) errors.confirmPassword = 'Las contraseñas no coinciden';
+	return { errors, data: { password, confirmPassword } };
+}
+
 export interface LoginInput {
 	email: string;
 	password: string;

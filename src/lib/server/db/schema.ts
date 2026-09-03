@@ -40,6 +40,21 @@ export const sessions = sqliteTable(
 	]
 );
 
+// Token de "olvidé mi contraseña" — igual que `sessions`, solo se guarda el
+// hash (nunca el token real) y expira rápido (1 hora, ver passwordReset.ts).
+export const passwordResetTokens = sqliteTable(
+	'password_reset_tokens',
+	{
+		id: text('id').primaryKey(), // sha256(token) en hex
+		vendorId: text('vendor_id')
+			.notNull()
+			.references(() => vendors.id, { onDelete: 'cascade' }),
+		expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
+		createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull().default(now)
+	},
+	(t) => [index('idx_password_reset_tokens_vendor').on(t.vendorId)]
+);
+
 // Puente entre el widget de Wompi (que solo recibe reference + monto) y el
 // carrito real: el webhook necesita reconstruir la orden de WooCommerce sin
 // depender de nada que viva únicamente en localStorage del cliente.

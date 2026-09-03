@@ -15,6 +15,13 @@
       "when": 1787003701559,
       "tag": "0001_yielding_firestar",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788202147755,
+      "tag": "0002_pale_sleepwalker",
+      "breakpoints": true
     }
   ]
 }

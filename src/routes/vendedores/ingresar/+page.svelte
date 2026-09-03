@@ -67,6 +67,13 @@
 			{/snippet}
 		</Field>
 
+		<a
+			href="/vendedores/recuperar"
+			class="block text-right font-['Jost',sans-serif] text-sm text-[#767676] hover:text-[#262635] hover:underline"
+		>
+			¿Olvidaste tu contraseña?
+		</a>
+
 		<Button type="submit" loading={submitting} class="w-full">Entrar</Button>
 	</form>
 </AuthCard>
