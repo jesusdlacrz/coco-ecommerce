@@ -544,6 +544,7 @@ export interface CreateOrderAddress {
 	addressComplement: string; // apto, torre, interior, bloque
 	dwellingType: string; // Casa / Apartamento / Otro
 	city: string;
+	state: string; // código de departamento (ver colombiaDepartments.ts) — WooCommerce lo espera así, no el nombre
 	postalCode: string;
 	country: string; // ISO 3166-1 alpha-2
 }
@@ -593,6 +594,7 @@ export async function createOrder(
 			address_1: input.billing.address,
 			address_2: input.billing.addressComplement,
 			city: input.billing.city,
+			state: input.billing.state,
 			postcode: input.billing.postalCode,
 			country: input.billing.country
 		},
@@ -603,6 +605,7 @@ export async function createOrder(
 			address_1: input.billing.address,
 			address_2: input.billing.addressComplement,
 			city: input.billing.city,
+			state: input.billing.state,
 			postcode: input.billing.postalCode,
 			country: input.billing.country
 		},

@@ -149,6 +149,7 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 					addressComplement: checkout.customer.addressComplement,
 					dwellingType: checkout.customer.dwellingType,
 					city: checkout.customer.city,
+					state: checkout.customer.state,
 					postalCode: checkout.customer.postalCode,
 					country: checkout.customer.country
 				}

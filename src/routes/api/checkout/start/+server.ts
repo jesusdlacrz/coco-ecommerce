@@ -25,6 +25,7 @@ function isValidCustomer(customer: CheckoutCustomer | undefined): customer is Ch
 			customer.phone?.trim() &&
 			customer.address?.trim() &&
 			customer.city?.trim() &&
+			customer.state?.trim() &&
 			customer.dwellingType?.trim() &&
 			customer.country?.trim()
 	);

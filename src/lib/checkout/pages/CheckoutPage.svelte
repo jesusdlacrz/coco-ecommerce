@@ -10,6 +10,7 @@
 	import { formatPrice, SHIPPING_COST } from '$lib/shared/utils/price';
 	import ChevronDown from '$lib/shared/icons/ChevronDown.svelte';
 	import Lock from '$lib/shared/icons/Lock.svelte';
+	import { COLOMBIA_DEPARTMENTS } from '$lib/shared/utils/colombiaDepartments';
 
 	const PAYMENT_METHODS = ['Tarjeta', 'PSE', 'Nequi'];
 	import { HOUSE_STORE } from '$lib/storefront/model';
@@ -63,6 +64,7 @@
 	let addressComplement = $state('');
 	let dwellingType = $state('');
 	let city = $state('');
+	let department = $state('');
 	let postalCode = $state('');
 	let isSubmitting = $state(false);
 
@@ -80,6 +82,7 @@
 				phone.trim() &&
 				address.trim() &&
 				city.trim() &&
+				department.trim() &&
 				dwellingType.trim()
 		);
 	}
@@ -111,6 +114,7 @@
 						addressComplement,
 						dwellingType,
 						city,
+						state: department,
 						postalCode,
 						country: COUNTRY
 					},
@@ -259,14 +263,34 @@
 							</label>
 						</div>
 
-						<label class="mt-4 block">
-							<span class="mb-2 block text-sm text-[#6b6b6b]">Código Postal (opcional)</span>
-							<input
-								bind:value={postalCode}
-								class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
-								placeholder="Código Postal"
-							/>
-						</label>
+						<div class="mt-4 grid gap-4 sm:grid-cols-2">
+							<label class="block">
+								<span class="mb-2 block text-sm text-[#6b6b6b]">Departamento</span>
+								<div class="relative">
+									<select
+										bind:value={department}
+										class="w-full appearance-none border border-[#d1d1d1] bg-white px-4 py-3 pr-10 text-base text-[#262635] transition-all outline-none focus:border-[#262635]"
+									>
+										<option value="">Selecciona una opción</option>
+										{#each COLOMBIA_DEPARTMENTS as department (department.code)}
+											<option value={department.code}>{department.name}</option>
+										{/each}
+									</select>
+									<ChevronDown
+										class="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-[#6b6b6b]"
+									/>
+								</div>
+							</label>
+
+							<label class="block">
+								<span class="mb-2 block text-sm text-[#6b6b6b]">Código Postal (opcional)</span>
+								<input
+									bind:value={postalCode}
+									class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
+									placeholder="Código Postal"
+								/>
+							</label>
+						</div>
 					</div>
 
 					<div class="pt-2">

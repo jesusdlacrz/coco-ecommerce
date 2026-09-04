@@ -12,6 +12,7 @@ export interface CheckoutCustomer {
 	addressComplement: string;
 	dwellingType: string;
 	city: string;
+	state: string;
 	postalCode: string;
 	country: string;
 }

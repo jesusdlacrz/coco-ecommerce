@@ -27,7 +27,11 @@
 	<form
 		method="POST"
 		class="space-y-4"
-		use:enhance={() => {
+		use:enhance={({ cancel }) => {
+			if (submitting) {
+				cancel();
+				return;
+			}
 			submitting = true;
 			return async ({ update }) => {
 				submitting = false;
