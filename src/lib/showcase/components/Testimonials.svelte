@@ -69,7 +69,7 @@
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<!-- Title -->
 		<div class="mb-16 text-center">
-			<h2 class="font-['Volkhov',serif] text-4xl text-[#262635]">Opiniones</h2>
+			<h2 class="font-display text-4xl text-[#262635]">Opiniones</h2>
 			<p class="mt-3 text-sm text-[#8a8a8a]">
 				Historias reales de negocios que confían en nuestro catálogo mayorista.
 			</p>
@@ -97,7 +97,7 @@
 							</div>
 						</div>
 						<div>
-							<p class="font-['Volkhov',serif] text-lg font-semibold text-[#262635]">{t.name}</p>
+							<p class="font-display text-lg font-semibold text-[#262635]">{t.name}</p>
 							<p class="text-sm text-[#8a8a8a]">{t.role}</p>
 						</div>
 					</div>
@@ -161,7 +161,7 @@
 								</div>
 								<p class="text-sm leading-relaxed text-[#484848]">{t.quote}</p>
 								<div class="border-t border-[#c8c8c8] pt-3">
-									<p class="font-['Volkhov',serif] text-lg font-semibold text-[#262635]">{t.name}</p>
+									<p class="font-display text-lg font-semibold text-[#262635]">{t.name}</p>
 									<p class="text-sm text-[#8a8a8a]">{t.role}</p>
 								</div>
 							</div>
@@ -192,7 +192,7 @@
 								</div>
 								<p class="line-clamp-3 text-xs leading-relaxed text-[#484848]">{t.quote}</p>
 								<div class="border-t border-[#c8c8c8] pt-2">
-									<p class="font-['Volkhov',serif] text-base text-[#262635]">{t.name}</p>
+									<p class="font-display text-base text-[#262635]">{t.name}</p>
 									<p class="text-xs text-[#8a8a8a]">{t.role}</p>
 								</div>
 							</div>

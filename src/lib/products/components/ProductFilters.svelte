@@ -258,7 +258,7 @@
 					class="flex h-full w-80 max-w-full animate-[slideIn_.25s_cubic-bezier(.4,0,.2,1)] flex-col overflow-hidden bg-white shadow-2xl outline-none focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2"
 				>
 					<div class="flex items-center justify-between border-b px-4 py-3">
-						<h3 class="font-['Volkhov',serif] text-base font-semibold">Filtros</h3>
+						<h3 class="font-display text-base font-semibold">Filtros</h3>
 						<div class="flex gap-2">
 							{#if activeFiltersCount > 0}
 								<button
@@ -339,11 +339,11 @@
 <div class="hidden lg:block">
 	<!-- Desktop Heading -->
 	<div class="mb-6 flex items-center justify-between">
-		<h3 class="font-['Volkhov',serif] text-2xl font-semibold {currentStyle.textAccent}">Filtros</h3>
+		<h3 class="font-display text-2xl font-semibold {currentStyle.textAccent}">Filtros</h3>
 	</div>
 	<!-- Categories -->
 	<div class="mb-6">
-		<h4 class="text-md mb-3 font-['Volkhov',serif] font-medium text-gray-900">Categorías</h4>
+		<h4 class="text-md mb-3 font-display font-medium text-gray-900">Categorías</h4>
 		<CategoryFilter
 			{currentStyle}
 			categories={allCategories}
@@ -355,14 +355,14 @@
 	<!-- Sizes -->
 	{#if selectedCategories.length > 0 && availableSizes.length > 0}
 		<div class="mb-6">
-			<h4 class="text-md mb-3 font-['Volkhov',serif] font-medium text-gray-900">Tallas</h4>
+			<h4 class="text-md mb-3 font-display font-medium text-gray-900">Tallas</h4>
 			<SizeFilter {currentStyle} sizes={availableSizes} {selectedSizes} {toggleSize} />
 		</div>
 	{/if}
 	<!-- Colors -->
 	{#if availableColors.length > 0}
 		<div class="mb-6">
-			<h4 class="text-md mb-3 font-['Volkhov',serif] font-medium text-gray-900">Colores</h4>
+			<h4 class="text-md mb-3 font-display font-medium text-gray-900">Colores</h4>
 			<ColorFilter
 				{currentStyle}
 				colors={availableColors}
@@ -374,7 +374,7 @@
 	{/if}
 	<!-- Price -->
 	<div class="mb-6">
-		<h4 class="text-md mb-3 font-['Volkhov',serif] font-medium text-gray-900">Precio</h4>
+		<h4 class="text-md mb-3 font-display font-medium text-gray-900">Precio</h4>
 		<PriceFilter
 			{currentStyle}
 			presets={dynamicPricePresets}

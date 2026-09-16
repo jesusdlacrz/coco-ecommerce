@@ -13,7 +13,7 @@
 </script>
 
 {#if chips.length > 0}
-	<div class="border-t pt-4 font-['Poppins',sans-serif]" style="border-color:{currentStyle.accentColor}20">
+	<div class="border-t pt-4 font-poppins" style="border-color:{currentStyle.accentColor}20">
 		<!-- Header: title + clear all -->
 		<div class="mb-2.5 flex items-center justify-between">
 			<h4 class="text-xs font-semibold uppercase tracking-wide text-[#484848]">

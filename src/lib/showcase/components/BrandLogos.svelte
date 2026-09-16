@@ -7,7 +7,7 @@
 		<div class="flex items-center justify-between gap-8">
 			{#each brands as brand (brand)}
 				<span
-					class="font-['Poppins',sans-serif] text-lg font-semibold tracking-widest text-[#262635] opacity-70 transition-opacity hover:opacity-100"
+					class="font-poppins text-lg font-semibold tracking-widest text-[#262635] opacity-70 transition-opacity hover:opacity-100"
 				>
 					{brand}
 				</span>

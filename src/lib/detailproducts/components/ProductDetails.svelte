@@ -14,7 +14,7 @@
 <!-- Urgencia de stock -->
 {#if showUrgency}
 	<div class="border-t border-white/60 pt-5">
-		<p class="mb-1.5 font-['Poppins',sans-serif] text-sm font-medium text-[#e05c5c]">
+		<p class="mb-1.5 font-poppins text-sm font-medium text-[#e05c5c]">
 			⚡ Solo quedan {pacasDisplay} pacas en stock
 		</p>
 		<div class="h-1.5 overflow-hidden rounded-full bg-gray-200">
@@ -27,6 +27,6 @@
 {/if}
 
 <!-- Información adicional del producto -->
-<div class="border-t border-white/60 pt-5 font-['Jost',serif]  text-sm text-[#000000] space-y-2">
-	<p><strong class="font-['Volkhov',serif]">Disponibilidad:</strong> {product.inStock ? 'En stock' : 'Agotado'}</p>
+<div class="border-t border-white/60 pt-5 font-body  text-sm text-[#000000] space-y-2">
+	<p><strong class="font-display">Disponibilidad:</strong> {product.inStock ? 'En stock' : 'Agotado'}</p>
 </div>

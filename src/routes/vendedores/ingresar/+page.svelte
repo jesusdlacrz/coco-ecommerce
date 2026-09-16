@@ -73,7 +73,7 @@
 
 		<a
 			href="/vendedores/recuperar"
-			class="block text-right font-['Jost',sans-serif] text-sm text-[#767676] hover:text-[#262635] hover:underline"
+			class="block text-right font-body text-sm text-[#767676] hover:text-[#262635] hover:underline"
 		>
 			¿Olvidaste tu contraseña?
 		</a>

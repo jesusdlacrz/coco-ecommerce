@@ -13,8 +13,8 @@
 </svelte:head>
 
 <div class="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 lg:px-8">
-	<h1 class="font-['Volkhov',serif] text-3xl font-bold text-[#262635]">Contáctanos</h1>
-	<p class="mt-3 font-['Jost',sans-serif] text-[#767676]">
+	<h1 class="font-display text-3xl font-bold text-[#262635]">Contáctanos</h1>
+	<p class="mt-3 font-body text-[#767676]">
 		¿Tienes preguntas sobre algún producto? Escríbenos directamente.
 	</p>
 	{#if whatsappHref}
@@ -27,7 +27,7 @@
 			Escribir por WhatsApp
 		</a>
 	{:else}
-		<p class="mt-8 font-['Jost',sans-serif] text-sm text-[#a0a0a0]">
+		<p class="mt-8 font-body text-sm text-[#a0a0a0]">
 			Esta tienda todavía no configuró un WhatsApp de contacto.
 		</p>
 	{/if}

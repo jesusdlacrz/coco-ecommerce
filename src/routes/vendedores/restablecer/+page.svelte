@@ -22,7 +22,7 @@
 		<FormAlert>Este link ya no es válido o venció.</FormAlert>
 		<a
 			href="/vendedores/recuperar"
-			class="mt-4 block text-center font-['Jost',sans-serif] text-sm font-semibold text-[#262635] hover:underline"
+			class="mt-4 block text-center font-body text-sm font-semibold text-[#262635] hover:underline"
 		>
 			Pedir un link nuevo
 		</a>
@@ -59,7 +59,7 @@
 						{describedBy}
 					/>
 					<p
-						class="mt-2 flex items-center gap-1.5 font-['Jost',sans-serif] text-xs transition-colors {hasMinLength
+						class="mt-2 flex items-center gap-1.5 font-body text-xs transition-colors {hasMinLength
 							? 'text-[#1f8a55]'
 							: 'text-[#767676]'}"
 					>

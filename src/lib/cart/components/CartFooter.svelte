@@ -19,10 +19,10 @@
 		<!-- Aviso B2B unidades mínimas -->
 		{#if !canCheckout}
 			<div class="rounded-md border border-orange-200 bg-orange-50 px-4 py-3">
-				<p class="font-['Jost',sans-serif] text-sm font-semibold text-orange-700">
+				<p class="font-body text-sm font-semibold text-orange-700">
 					{totalItems}/4 unidades mínimas
 				</p>
-				<p class="mt-0.5 font-['Jost',sans-serif] text-xs text-orange-500">
+				<p class="mt-0.5 font-body text-xs text-orange-500">
 					Agrega {missingUnits} unidades más para proceder al pago
 				</p>
 			</div>
@@ -30,8 +30,8 @@
 
 		<!-- Total -->
 		<div class="flex items-center justify-between">
-			<span class="font-['Volkhov',serif] text-base font-bold text-[#262635]">Total</span>
-			<span class="font-['Jost',sans-serif] text-base font-bold text-[#262635]"
+			<span class="font-display text-base font-bold text-[#262635]">Total</span>
+			<span class="font-body text-base font-bold text-[#262635]"
 				>{formatPrice(total)}</span
 			>
 		</div>
@@ -41,7 +41,7 @@
 			<button
 				disabled={!canCheckout}
 				onclick={onCheckout}
-				class="w-full rounded-md px-4 py-3 font-['Jost',sans-serif] text-sm font-semibold tracking-wide transition-colors
+				class="w-full rounded-md px-4 py-3 font-body text-sm font-semibold tracking-wide transition-colors
 					{canCheckout
 					? 'bg-[#262635] text-white hover:bg-black'
 					: 'cursor-not-allowed bg-gray-200 text-gray-400'}"
@@ -51,7 +51,7 @@
 
 			<button
 				onclick={onClearCart}
-				class="w-full py-2 font-['Jost',sans-serif] text-sm font-bold text-[#484848] transition-colors hover:underline"
+				class="w-full py-2 font-body text-sm font-bold text-[#484848] transition-colors hover:underline"
 			>
 				Limpiar Carrito
 			</button>

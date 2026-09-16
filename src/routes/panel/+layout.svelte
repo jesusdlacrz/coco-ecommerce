@@ -30,7 +30,7 @@
 					<a
 						href={link.href}
 						aria-current={page.url.pathname === link.href ? 'page' : undefined}
-						class="font-['Jost',sans-serif] text-sm whitespace-nowrap transition-colors
+						class="font-body text-sm whitespace-nowrap transition-colors
 							{page.url.pathname === link.href
 							? 'border-b-2 border-[#FCA120] text-[#262635]'
 							: 'text-[#767676] hover:text-[#262635]'}"
@@ -44,14 +44,14 @@
 					href="/v/{page.data.vendor?.slug}"
 					target="_blank"
 					rel="noopener"
-					class="font-['Jost',sans-serif] text-sm whitespace-nowrap text-[#262635] hover:underline"
+					class="font-body text-sm whitespace-nowrap text-[#262635] hover:underline"
 				>
 					Ver mi revista ↗
 				</a>
 				<form method="POST" action="/vendedores/salir">
 					<button
 						type="submit"
-						class="font-['Jost',sans-serif] text-sm font-medium whitespace-nowrap text-[#767676] hover:text-[#262635]"
+						class="font-body text-sm font-medium whitespace-nowrap text-[#767676] hover:text-[#262635]"
 					>
 						Salir
 					</button>

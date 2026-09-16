@@ -75,12 +75,12 @@
 			<div
 				class="mx-auto mb-6 h-10 w-10 animate-spin rounded-full border-4 border-[#d1d1d1] border-t-[#262635]"
 			></div>
-			<h1 class="font-['Volkhov',serif] text-2xl font-bold text-[#262635]">
+			<h1 class="font-display text-2xl font-bold text-[#262635]">
 				Confirmando tu pago...
 			</h1>
 			<p class="mt-2 text-sm text-[#6a6a6a]">No cierres esta ventana.</p>
 		{:else if status === 'approved'}
-			<h1 class="font-['Volkhov',serif] text-2xl font-bold text-[#262635]">¡Pago aprobado!</h1>
+			<h1 class="font-display text-2xl font-bold text-[#262635]">¡Pago aprobado!</h1>
 			<p class="mt-2 text-sm text-[#6a6a6a]">
 				{#if wooOrderId}Tu pedido #{wooOrderId} fue registrado correctamente.{:else}Tu pedido fue
 					registrado correctamente.{/if}
@@ -92,7 +92,7 @@
 				Volver a la tienda
 			</a>
 		{:else if status === 'declined'}
-			<h1 class="font-['Volkhov',serif] text-2xl font-bold text-[#262635]">
+			<h1 class="font-display text-2xl font-bold text-[#262635]">
 				El pago no fue aprobado
 			</h1>
 			<p class="mt-2 text-sm text-[#6a6a6a]">Tu carrito sigue intacto, puedes intentar de nuevo.</p>
@@ -103,14 +103,14 @@
 				Volver al carrito
 			</a>
 		{:else if status === 'timeout'}
-			<h1 class="font-['Volkhov',serif] text-2xl font-bold text-[#262635]">
+			<h1 class="font-display text-2xl font-bold text-[#262635]">
 				Confirmación pendiente
 			</h1>
 			<p class="mt-2 text-sm text-[#6a6a6a]">
 				Wompi está tardando en confirmar tu pago. Te avisaremos por correo apenas se procese.
 			</p>
 		{:else}
-			<h1 class="font-['Volkhov',serif] text-2xl font-bold text-[#262635]">
+			<h1 class="font-display text-2xl font-bold text-[#262635]">
 				No encontramos ese pago
 			</h1>
 			<p class="mt-2 text-sm text-[#6a6a6a]">Verifica el enlace o vuelve al carrito.</p>

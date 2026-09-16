@@ -12,7 +12,7 @@
 	let { categories, selected, counts, toggleCategory, currentStyle }: Props = $props();
 </script>
 
-<div class="flex flex-col gap-0.5 font-['Poppins',sans-serif]">
+<div class="flex flex-col gap-0.5 font-poppins">
 	{#each categories as category (category)}
 		{@const count = counts[category] ?? 0}
 		{@const isActive = selected[0] === category}

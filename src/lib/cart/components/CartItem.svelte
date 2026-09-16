@@ -56,7 +56,7 @@
 	<!-- Info -->
 	<div class="flex min-w-0 flex-1 flex-col gap-1">
 		<div class="flex items-start justify-between gap-2">
-			<h4 class="font-['Volkhov',serif] text-sm leading-snug font-semibold text-[#262635]">
+			<h4 class="font-display text-sm leading-snug font-semibold text-[#262635]">
 				{item.name}
 			</h4>
 			<!-- X sutil -->
@@ -72,10 +72,10 @@
 		</div>
 
 		{#if meta}
-			<p class="font-['Jost',sans-serif] text-xs text-gray-400">{meta}</p>
+			<p class="font-body text-xs text-gray-400">{meta}</p>
 		{/if}
 
-		<p class="font-['Jost',sans-serif] text-sm font-semibold text-[#262635]">
+		<p class="font-body text-sm font-semibold text-[#262635]">
 			{formatPrice(item.price)}
 		</p>
 
@@ -97,7 +97,7 @@
 				value={item.quantity}
 				onchange={(e) => commitQuantity(e.currentTarget)}
 				aria-label="Cantidad de {item.name}"
-				class="w-8 border-0 bg-transparent text-center font-['Jost',sans-serif] text-sm font-bold text-[#262635] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+				class="w-8 border-0 bg-transparent text-center font-body text-sm font-bold text-[#262635] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 			/>
 			<button
 				onclick={() => onUpdateQuantity(item.id, clamp(item.quantity + 1))}
@@ -108,7 +108,7 @@
 			</button>
 		</div>
 		{#if maxQuantity !== undefined && maxQuantity < item.quantity}
-			<p class="mt-1 font-['Jost',sans-serif] text-xs text-[#e05c5c]">
+			<p class="mt-1 font-body text-xs text-[#e05c5c]">
 				Solo quedan {maxQuantity} disponibles — ajusta la cantidad
 			</p>
 		{/if}

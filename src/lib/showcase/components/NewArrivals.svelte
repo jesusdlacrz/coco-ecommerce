@@ -10,7 +10,7 @@
 
 	const DEFAULT_TITLE = 'Lo Más Nuevo';
 	const DEFAULT_TEXT =
-		'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin';
+		'Las prendas que acaban de llegar a bodega. Precios por mayor desde 4 unidades, listas para despachar a todo el país.';
 
 	// Los productos más recientes de WooCommerce (los primeros que llegan del load).
 	let { products = [], copy = null }: { products?: Product[]; copy?: SiteCopy | null } = $props();
@@ -110,7 +110,7 @@
 		>
 			<!-- Col 1: Text — fluid, up to 460px -->
 			<div class="flex max-w-[460px] min-w-[220px] flex-[2] flex-col justify-center gap-5 pr-6">
-				<h2 class="font-['Volkhov',serif] text-4xl leading-tight text-[#262635] xl:text-5xl">
+				<h2 class="font-display text-4xl leading-tight text-[#262635] xl:text-5xl">
 					{title}
 				</h2>
 				<p class="leading-relaxed text-[#8a8a8a]">{text}</p>
@@ -222,7 +222,7 @@
 		<!-- ===================== TABLET (md → lg) ===================== -->
 		<div class="hidden flex-col py-14 md:flex lg:hidden">
 			<div class="space-y-4 px-8 text-center">
-				<h2 class="font-['Volkhov',serif] text-5xl leading-tight text-[#262635]">{title}</h2>
+				<h2 class="font-display text-5xl leading-tight text-[#262635]">{title}</h2>
 				<p class="mx-auto max-w-md leading-relaxed text-[#8a8a8a]">{text}</p>
 				<a
 					href="{store.basePath}/productos"
@@ -307,7 +307,7 @@
 		<!-- ===================== MÓVIL (< md) — Instagram style ===================== -->
 		<div class="flex flex-col py-12 md:hidden">
 			<div class="space-y-4 px-6 text-center">
-				<h2 class="font-['Volkhov',serif] text-4xl leading-tight text-[#262635]">{title}</h2>
+				<h2 class="font-display text-4xl leading-tight text-[#262635]">{title}</h2>
 				<p class="mx-auto max-w-xs leading-relaxed text-[#8a8a8a]">{text}</p>
 				<a
 					href="{store.basePath}/productos"

@@ -43,7 +43,7 @@
 
 {#if prefix}
 	<div
-		class="flex w-full items-stretch rounded-lg border font-['Jost',sans-serif] text-[#262635] transition-colors focus-within:ring-2 focus-within:ring-[#FCA120]/30 {borderClass}"
+		class="flex w-full items-stretch rounded-lg border font-body text-[#262635] transition-colors focus-within:ring-2 focus-within:ring-[#FCA120]/30 {borderClass}"
 	>
 		<span class="flex items-center border-r border-black/10 bg-black/5 pl-4 pr-2 text-[#767676] select-none">
 			{prefix}
@@ -73,7 +73,7 @@
 			bind:value
 			aria-invalid={error ? 'true' : undefined}
 			aria-describedby={describedBy}
-			class="w-full rounded-lg border px-4 py-3 pr-11 font-['Jost',sans-serif] text-[#262635] transition-colors outline-none focus:ring-2 focus:ring-[#FCA120]/30
+			class="w-full rounded-lg border px-4 py-3 pr-11 font-body text-[#262635] transition-colors outline-none focus:ring-2 focus:ring-[#FCA120]/30
 				{error ? 'border-red-400 focus:border-red-400' : 'border-black/15 focus:border-[#FCA120]'}"
 		/>
 		<button
@@ -100,7 +100,7 @@
 		bind:value
 		aria-invalid={error ? 'true' : undefined}
 		aria-describedby={describedBy}
-		class="w-full rounded-lg border px-4 py-3 font-['Jost',sans-serif] text-[#262635] transition-colors outline-none focus:ring-2 focus:ring-[#FCA120]/30
+		class="w-full rounded-lg border px-4 py-3 font-body text-[#262635] transition-colors outline-none focus:ring-2 focus:ring-[#FCA120]/30
 			{error ? 'border-red-400 focus:border-red-400' : 'border-black/15 focus:border-[#FCA120]'}"
 	/>
 {/if}

@@ -32,7 +32,7 @@
 	{type}
 	{onclick}
 	disabled={disabled || loading}
-	class="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-['Volkhov',serif] font-semibold transition-colors active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 {variantClass} {className}"
+	class="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-display font-semibold transition-colors active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 {variantClass} {className}"
 >
 	{#if loading}
 		<span

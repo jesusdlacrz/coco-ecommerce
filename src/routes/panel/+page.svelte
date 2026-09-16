@@ -25,13 +25,13 @@
 	<title>Panel - Coco's</title>
 </svelte:head>
 
-<h1 class="mb-6 font-['Volkhov',serif] text-2xl font-bold text-[#262635]">
+<h1 class="mb-6 font-display text-2xl font-bold text-[#262635]">
 	Hola, {vendor?.storeName}
 </h1>
 
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 	<div class="rounded-xl border border-black/10 bg-white p-5 shadow-sm sm:col-span-2">
-		<h2 class="font-['Poppins',sans-serif] text-sm font-medium text-[#767676]">Tu revista</h2>
+		<h2 class="font-poppins text-sm font-medium text-[#767676]">Tu revista</h2>
 		<div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
 			<input
 				readonly
@@ -66,42 +66,42 @@
 	</div>
 
 	<div class="rounded-xl border border-black/10 bg-white p-5 shadow-sm">
-		<h2 class="font-['Poppins',sans-serif] text-sm font-medium text-[#767676]">Comisión global</h2>
-		<p class="mt-2 font-['Volkhov',serif] text-4xl font-bold text-[#262635]">
+		<h2 class="font-poppins text-sm font-medium text-[#767676]">Comisión global</h2>
+		<p class="mt-2 font-display text-4xl font-bold text-[#262635]">
 			{vendor?.commissionPercent}%
 		</p>
-		<p class="mt-1 font-['Jost',sans-serif] text-sm text-[#a0a0a0]">
+		<p class="mt-1 font-body text-sm text-[#a0a0a0]">
 			Se aplica a todas las prendas sin comisión propia
 		</p>
 		<a
 			href="/panel/ajustes"
-			class="mt-3 inline-block font-['Jost',sans-serif] text-sm font-semibold text-[#262635] hover:underline"
+			class="mt-3 inline-block font-body text-sm font-semibold text-[#262635] hover:underline"
 		>
 			Cambiar →
 		</a>
 	</div>
 
 	<div class="rounded-xl border border-black/10 bg-white p-5 shadow-sm">
-		<h2 class="font-['Poppins',sans-serif] text-sm font-medium text-[#767676]">
+		<h2 class="font-poppins text-sm font-medium text-[#767676]">
 			Con comisión propia
 		</h2>
-		<p class="mt-2 font-['Volkhov',serif] text-4xl font-bold text-[#262635]">
+		<p class="mt-2 font-display text-4xl font-bold text-[#262635]">
 			{data.customCommissionCount} / {data.totalProducts}
 		</p>
 		<a
 			href="/panel/comisiones?filtro=propias"
-			class="mt-3 inline-block font-['Jost',sans-serif] text-sm font-semibold text-[#262635] hover:underline"
+			class="mt-3 inline-block font-body text-sm font-semibold text-[#262635] hover:underline"
 		>
 			Ver →
 		</a>
 	</div>
 
 	<div class="rounded-xl border border-black/10 bg-white p-5 shadow-sm">
-		<h2 class="font-['Poppins',sans-serif] text-sm font-medium text-[#767676]">Prendas ocultas</h2>
-		<p class="mt-2 font-['Volkhov',serif] text-4xl font-bold text-[#262635]">{data.hiddenCount}</p>
+		<h2 class="font-poppins text-sm font-medium text-[#767676]">Prendas ocultas</h2>
+		<p class="mt-2 font-display text-4xl font-bold text-[#262635]">{data.hiddenCount}</p>
 		<a
 			href="/panel/comisiones?filtro=ocultas"
-			class="mt-3 inline-block font-['Jost',sans-serif] text-sm font-semibold text-[#262635] hover:underline"
+			class="mt-3 inline-block font-body text-sm font-semibold text-[#262635] hover:underline"
 		>
 			Ver →
 		</a>

@@ -23,32 +23,64 @@
    no se ven afectados por esto. */
 html {
 	overflow-x: hidden;
+	/* El sitio es solo modo claro a propósito (no hay estilos de dark mode
+	   diseñados). Sin esto, un visitante con el navegador/SO en modo oscuro
+	   ve el lienzo por defecto en negro en cualquier sección sin fondo
+	   propio — no es un bug de esa sección, es la ausencia de esta línea. */
+	color-scheme: light;
 }
 
 body {
 	overflow-x: hidden;
-	font-family: 'Poppins', serif;
+	background: #ffffff;
+	font-family: 'Poppins', sans-serif;
 	font-weight: 400;
 	font-style: normal;
 }
 
 @theme {
-	--font-family: 'Volkhov', serif;
-	--font-weight: 400;
-	--font-style: normal;
-	--color-graybrand: #dedede;
-	--color-graybrand-light: #484848;
-	--color-main: rgba(252, 161, 32, 0.33);
+	/* Tipografía — generan las utilidades font-display / font-body /
+	   font-poppins. Antes se escribía la familia completa a mano en cada
+	   clase (font-display ×119), lo que hacía imposible cambiar
+	   una fuente sin tocar 43 archivos. */
+	--font-display: 'Volkhov', serif;
+	--font-body: 'Jost', sans-serif;
 	--font-poppins: 'Poppins', sans-serif;
-	--font-weight: 400;
 
-	/* Tokens para componentes nuevos (formularios, panel de vendedor) */
+	/* Marca */
 	--color-ink: #262635;
 	--color-accent: #fca120;
-	--color-muted: #767676;
-	--color-line: #e5e5e5;
+	--color-accent-hover: #e8931a;
+	--color-main: rgba(252, 161, 32, 0.33);
+
+	/* Grises de texto — la escala completa, de más oscuro a más claro. Antes
+	   convivían 7 grises casi idénticos (#484848, #767676, #6b6b6b, #6a6a6a,
+	   #8a8a8a, #a0a0a0...) usados indistintamente para "texto secundario". */
+	--color-muted: #484848;
+	--color-muted-soft: #767676;
+	--color-muted-faint: #a0a0a0;
+
+	/* Bordes y superficies */
+	--color-line: #d1d1d1;
+	--color-line-soft: #e5e5e5;
+	--color-graybrand: #dedede;
+	--color-graybrand-light: #484848;
 }
 
 button {
 	cursor: pointer;
+}
+
+/* Respeta la preferencia del sistema de reducir movimiento: cubre de una vez
+   las transiciones/animaciones de los 46 archivos que las usan, sin tener que
+   añadir la media query componente por componente. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
 }

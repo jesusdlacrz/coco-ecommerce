@@ -84,7 +84,7 @@
 <div class="space-y-6">
 	{#if sizes.length > 0}
 		<div>
-			<span class="block text-sm font-medium font-['Volkhov',serif] text-black mb-2">Talla:</span>
+			<span class="block text-sm font-medium font-display text-black mb-2">Talla:</span>
 			<div class="flex flex-wrap gap-3">
 				{#each sizes as size (size)}
 					{@const disabled = sizeDisabled(size)}
@@ -108,7 +108,7 @@
 
 	{#if colors.length > 0}
 		<div>
-			<span class="block text-sm font-medium font-['Volkhov',serif] text-black mb-3">Color:</span>
+			<span class="block text-sm font-medium font-display text-black mb-3">Color:</span>
 			<div class="flex flex-wrap gap-2">
 				{#each colors as color (color.name)}
 					{@const disabled = colorDisabled(color.name)}
@@ -128,7 +128,7 @@
 	{/if}
 
 	<div>
-		<span class="block text-sm font-medium font-['Volkhov',serif] text-black mb-2">Cantidad:</span>
+		<span class="block text-sm font-medium font-display text-black mb-2">Cantidad:</span>
 		<div class="flex items-center space-x-2 bg-white h-10 max-w-[115px] shadow rounded">
 			<button
 				onclick={decrementQuantity}
@@ -156,7 +156,7 @@
 			</button>
 		</div>
 		{#if maxQuantity() !== null}
-			<p class="mt-1 font-['Jost',sans-serif] text-xs text-gray-400">
+			<p class="mt-1 font-body text-xs text-gray-400">
 				{maxQuantity()} disponibles en esta combinación
 			</p>
 		{/if}

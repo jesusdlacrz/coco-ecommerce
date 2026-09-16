@@ -83,7 +83,7 @@
 					class="cursor-pointer transition-all hover:opacity-80"
 				>
 					{#if store.kind === 'vendor'}
-						<span class="font-['Volkhov',serif] text-xl font-bold text-[#262635]">{store.name}</span
+						<span class="font-display text-xl font-bold text-[#262635]">{store.name}</span
 						>
 					{:else}
 						<Logo />

@@ -155,7 +155,7 @@
 
 <div class="min-h-screen pt-2 pb-16">
 	<div class="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
-		<h1 class="text-center font-['Volkhov',serif] text-3xl font-bold text-black sm:text-4xl">
+		<h1 class="text-center font-display text-3xl font-bold text-black sm:text-4xl">
 			Pago
 		</h1>
 	</div>
@@ -167,7 +167,7 @@
 			>
 				<div class="space-y-8">
 					<div>
-						<h2 class="mb-5 font-['Volkhov',serif] text-2xl font-bold text-black">Contacto</h2>
+						<h2 class="mb-5 font-display text-2xl font-bold text-black">Contacto</h2>
 						<label class="block">
 							<span class="mb-2 block text-sm text-[#6b6b6b]">Correo electrónico</span>
 							<input
@@ -179,7 +179,7 @@
 					</div>
 
 					<div>
-						<h2 class="mb-5 font-['Volkhov',serif] text-2xl font-bold text-[#262635]">Envío</h2>
+						<h2 class="mb-5 font-display text-2xl font-bold text-[#262635]">Envío</h2>
 						<p class="mb-4 text-sm text-[#6b6b6b]">
 							Por ahora solo hacemos envíos dentro de Colombia.
 						</p>
@@ -295,7 +295,7 @@
 
 					<div class="pt-2">
 						<h2
-							class="mb-5 font-['Volkhov',serif] text-2xl font-bold tracking-tight text-[#262635]"
+							class="mb-5 font-display text-2xl font-bold tracking-tight text-[#262635]"
 						>
 							Método de pago
 						</h2>
@@ -340,7 +340,7 @@
 				{#if cartList.length === 0}
 					<div class="flex min-h-[240px] items-center justify-center text-center">
 						<div>
-							<p class="font-['Volkhov',serif] text-2xl text-[#262635]">Tu carrito está vacío</p>
+							<p class="font-display text-2xl text-[#262635]">Tu carrito está vacío</p>
 							<p class="mt-2 text-sm text-[#6a6a6a]">
 								Agrega productos para continuar con el pago.
 							</p>
@@ -367,7 +367,7 @@
 
 								<div class="flex w-full items-start justify-between gap-4">
 									<div>
-										<p class="font-['Volkhov',serif] text-lg font-semibold text-[#262635]">
+										<p class="font-display text-lg font-semibold text-[#262635]">
 											{item.name}
 										</p>
 										<p class="mt-1 text-sm text-[#6a6a6a]">

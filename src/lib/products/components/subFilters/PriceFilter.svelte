@@ -129,11 +129,11 @@
 </script>
 
 {#if singlePrice}
-	<p class="font-['Poppins',sans-serif] text-sm {currentStyle.textSecondary}">
+	<p class="font-poppins text-sm {currentStyle.textSecondary}">
 		{formatPriceCOP(minBound)}
 	</p>
 {:else}
-	<div class="font-['Poppins',sans-serif]">
+	<div class="font-poppins">
 		<!-- Custom dual-range slider — no native inputs -->
 		<div class="relative mt-4 mb-1 h-5 select-none" bind:this={trackEl}>
 			<!-- Track: clickable background -->

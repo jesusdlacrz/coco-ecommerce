@@ -104,7 +104,7 @@
 	<title>Comisiones - Coco's</title>
 </svelte:head>
 
-<h1 class="mb-6 font-['Volkhov',serif] text-2xl font-bold text-[#262635]">Comisiones por prenda</h1>
+<h1 class="mb-6 font-display text-2xl font-bold text-[#262635]">Comisiones por prenda</h1>
 
 <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 	<div class="flex flex-1 flex-wrap gap-2">
@@ -242,7 +242,7 @@
 	>
 		<input type="hidden" name="cambios" value={changesPayload} />
 		<div class="mx-auto flex max-w-6xl items-center justify-between">
-			<p class="font-['Jost',sans-serif] text-sm text-[#262635]">
+			<p class="font-body text-sm text-[#262635]">
 				{changes.size}
 				{changes.size === 1 ? 'cambio' : 'cambios'} sin guardar
 			</p>

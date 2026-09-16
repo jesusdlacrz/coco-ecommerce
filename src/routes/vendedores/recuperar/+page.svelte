@@ -28,7 +28,7 @@
 	{/if}
 
 	{#if !form?.success}
-		<p class="mb-4 font-['Jost',sans-serif] text-sm text-[#767676]">
+		<p class="mb-4 font-body text-sm text-[#767676]">
 			Escribe el correo con el que creaste tu tienda — te enviamos un link para elegir una
 			contraseña nueva.
 		</p>

@@ -49,14 +49,14 @@
 
 <section class="py-20">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<h2 class="mb-16 text-center font-['Volkhov',serif] text-4xl text-[#262635]">Nosotros</h2>
+		<h2 class="mb-16 text-center font-display text-4xl text-[#262635]">Nosotros</h2>
 
 		<div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
 			<!-- Left: text with vertical accent line -->
 			<div class="border-l border-[#a0a0a0] pl-8">
 				{#key current}
 					<div in:fade={{ duration: 300 }}>
-						<h3 class="mb-5 font-['Volkhov',serif] text-2xl text-[#262635]">
+						<h3 class="mb-5 font-display text-2xl text-[#262635]">
 							{slides[current].heading}
 						</h3>
 						{#each slides[current].body as paragraph, pi (pi)}

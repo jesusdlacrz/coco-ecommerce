@@ -67,18 +67,18 @@
 	<div class="space-y-2 px-2 pt-1 pb-4">
 		<!-- Name -->
 		<h3
-			class="product-name line-clamp-2 font-['Volkhov',serif] text-sm font-medium text-[#262635] transition-colors group-hover:text-gray-500"
+			class="product-name line-clamp-2 font-display text-sm font-medium text-[#262635] transition-colors group-hover:text-gray-500"
 		>
 			{product.name}
 		</h3>
 
 		<!-- Price -->
 		<div class="flex items-baseline gap-2">
-			<span class="font-['Jost',sans-serif] text-base font-semibold text-[#262635]">
+			<span class="font-body text-base font-semibold text-[#262635]">
 				{formatPrice(displayPrice)}
 			</span>
 			{#if originalPrice}
-				<span class="font-['Jost',sans-serif] text-sm text-[#a0a0a0] line-through">
+				<span class="font-body text-sm text-[#a0a0a0] line-through">
 					{formatPrice(originalPrice)}
 				</span>
 			{/if}

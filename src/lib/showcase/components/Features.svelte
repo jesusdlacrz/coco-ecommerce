@@ -25,7 +25,7 @@
 						/>
 					</div>
 					<div>
-						<p class="font-['Poppins',sans-serif] font-medium text-[#484848]">{feature.title}</p>
+						<p class="font-poppins font-medium text-[#484848]">{feature.title}</p>
 						<p class="text-sm text-[#484848]">{feature.subtitle}</p>
 					</div>
 				</div>

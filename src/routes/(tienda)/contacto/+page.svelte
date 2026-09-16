@@ -48,15 +48,15 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-	<h1 class="font-['Volkhov',serif] text-3xl font-bold text-[#262635] sm:text-4xl">Contacto</h1>
-	<p class="mt-2 font-['Jost',sans-serif] text-[#767676]">
+	<h1 class="font-display text-3xl font-bold text-[#262635] sm:text-4xl">Contacto</h1>
+	<p class="mt-2 font-body text-[#767676]">
 		¿Tienes preguntas sobre algún producto o tu pedido? Escríbenos y te respondemos pronto.
 	</p>
 
 	<form onsubmit={handleSubmit} class="mt-10 grid gap-10 rounded-2xl bg-[#E0E0E0] p-8 sm:p-14 lg:grid-cols-2">
 		<div class="space-y-5">
 			<label class="block">
-				<span class="mb-2 block text-sm font-medium font-['Volkhov',serif] text-[#262635]">Nombre</span>
+				<span class="mb-2 block text-sm font-medium font-display text-[#262635]">Nombre</span>
 				<input
 					bind:value={name}
 					required
@@ -66,7 +66,7 @@
 			</label>
 
 			<label class="block">
-				<span class="mb-2 block text-sm font-medium font-['Volkhov',serif] text-[#262635]">Correo</span>
+				<span class="mb-2 block text-sm font-medium font-display text-[#262635]">Correo</span>
 				<input
 					bind:value={email}
 					type="email"
@@ -77,7 +77,7 @@
 			</label>
 
 			<label class="block">
-				<span class="mb-2 block text-sm font-medium font-['Volkhov',serif] text-[#262635]">Tema</span>
+				<span class="mb-2 block text-sm font-medium font-display text-[#262635]">Tema</span>
 				<input
 					bind:value={topic}
 					required
@@ -89,7 +89,7 @@
 
 		<div class="flex flex-col">
 			<label class="flex flex-1 flex-col">
-				<span class="mb-2 block text-sm font-medium font-['Volkhov',serif] text-[#262635]">Mensaje</span>
+				<span class="mb-2 block text-sm font-medium font-display text-[#262635]">Mensaje</span>
 				<textarea
 					bind:value={message}
 					required
@@ -101,7 +101,7 @@
 			<button
 				type="submit"
 				disabled={isSubmitting}
-				class="mt-5 w-full rounded-xl bg-[#FCA120] px-6 py-3 font-['Volkhov',serif] font-semibold text-[#262635] transition-colors hover:bg-[#e8931a] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+				class="mt-5 w-full rounded-xl bg-[#FCA120] px-6 py-3 font-display font-semibold text-[#262635] transition-colors hover:bg-[#e8931a] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
 			>
 				{isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
 			</button>

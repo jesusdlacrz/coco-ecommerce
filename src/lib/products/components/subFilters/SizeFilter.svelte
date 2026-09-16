@@ -30,7 +30,7 @@
 	);
 </script>
 
-<div class="grid grid-cols-4 gap-2 font-['Poppins',sans-serif]">
+<div class="grid grid-cols-4 gap-2 font-poppins">
 	{#each sortedSizes as size (size)}
 		<button
 			onclick={() => toggleSize(size)}

@@ -17,11 +17,11 @@
 	{/if}
 
 	<div class="relative mx-auto max-w-3xl px-4 py-24 text-center sm:px-6 lg:px-8">
-		<h1 class="font-['Volkhov',serif] text-4xl font-bold text-[#262635] sm:text-5xl">
+		<h1 class="font-display text-4xl font-bold text-[#262635] sm:text-5xl">
 			{store.name}
 		</h1>
 		{#if store.bio}
-			<p class="mx-auto mt-5 max-w-xl font-['Jost',sans-serif] leading-relaxed text-[#484848]">
+			<p class="mx-auto mt-5 max-w-xl font-body leading-relaxed text-[#484848]">
 				{store.bio}
 			</p>
 		{/if}

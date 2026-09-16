@@ -16,7 +16,7 @@
 
 <div
 	role="alert"
-	class="rounded-lg border px-4 py-3 font-['Jost',sans-serif] text-sm {variantClass}"
+	class="rounded-lg border px-4 py-3 font-body text-sm {variantClass}"
 >
 	{@render children()}
 </div>

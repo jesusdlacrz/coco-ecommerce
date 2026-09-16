@@ -8,5 +8,5 @@
 </script>
 
 {#if message}
-	<p {id} role="alert" class="font-['Jost',sans-serif] text-sm text-red-600">{message}</p>
+	<p {id} role="alert" class="font-body text-sm text-red-600">{message}</p>
 {/if}

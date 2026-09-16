@@ -95,7 +95,7 @@
 					{describedBy}
 				/>
 				<p
-					class="mt-2 flex items-center gap-1.5 font-['Jost',sans-serif] text-xs transition-colors {hasMinLength
+					class="mt-2 flex items-center gap-1.5 font-body text-xs transition-colors {hasMinLength
 						? 'text-[#1f8a55]'
 						: 'text-[#767676]'}"
 				>

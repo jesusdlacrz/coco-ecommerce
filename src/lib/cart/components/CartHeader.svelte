@@ -13,8 +13,8 @@
 
 <div class="flex items-start justify-between border-b border-gray-100 px-6 pt-6 pb-4">
 	<div>
-		<h2 class="font-['Volkhov',serif] text-xl font-bold text-[#262635]">Carro De Compras</h2>
-		<p class="mt-1 font-['Jost',sans-serif] text-sm text-gray-500">
+		<h2 class="font-display text-xl font-bold text-[#262635]">Carro De Compras</h2>
+		<p class="mt-1 font-body text-sm text-gray-500">
 			{totalItems}
 			{totalItems === 1 ? 'producto' : 'productos'} — {formatPrice(total)}
 		</p>

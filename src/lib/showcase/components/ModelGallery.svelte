@@ -57,7 +57,7 @@
 		<div class="flex flex-col items-center" style="grid-column: 2; grid-row: 1;">
 			<!-- Texto + botón: order-1 en móvil (va primero), luego imagen -->
 			<div
-				class="order-1 flex flex-col items-center gap-5 py-6 text-center font-['Poppins',sans-serif] lg:order-2 lg:mt-8 lg:py-0"
+				class="order-1 flex flex-col items-center gap-5 py-6 text-center font-poppins lg:order-2 lg:mt-8 lg:py-0"
 			>
 				<div>
 					<h1
