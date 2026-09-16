@@ -80,6 +80,16 @@ button {
 	cursor: pointer;
 }
 
+/* Hoja inferior de filtros en móvil. */
+@keyframes sheetUp {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
 /* Respeta la preferencia del sistema de reducir movimiento: cubre de una vez
    las transiciones/animaciones de los 46 archivos que las usan, sin tener que
    añadir la media query componente por componente. */

@@ -8,6 +8,7 @@
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
+	import EmptyState from '$lib/shared/components/EmptyState.svelte';
 
 	interface Props {
 		products: Product[];
@@ -31,11 +32,6 @@
 	activeCategory.set(initialCategory);
 
 	let activeTab = $state<Category>(initialCategory);
-	// No puede ser un $derived puro: currentProducts lo inicializa al cambiar de
-	// categoría, pero ProductFilters también lo sobreescribe vía
-	// handleFiltersChange — tiene dos fuentes de escritura.
-	// eslint-disable-next-line svelte/prefer-writable-derived
-	let filteredProducts = $state<Product[]>([]);
 
 	// =================== DERIVED DATA ===================
 	const menProducts = $derived(products.filter((p) => p.gender === 'men'));
@@ -51,6 +47,17 @@
 				: activeTab === 'boys'
 					? boysProducts
 					: girlsProducts
+	);
+
+	// No puede ser un $derived puro: currentProducts lo reinicia al cambiar de
+	// categoría, pero ProductFilters también lo sobreescribe vía
+	// handleFiltersChange — tiene dos fuentes de escritura. Arranca con el
+	// catálogo completo (y no con []) porque en SSR los efectos no corren: con
+	// [] el servidor pintaba "Sin resultados" y la grilla solo aparecía al
+	// hidratar.
+	// eslint-disable-next-line svelte/prefer-writable-derived
+	let filteredProducts = $state<Product[]>(
+		products.filter((p) => p.gender === initialCategory)
 	);
 
 	// =================== LIFECYCLE ===================
@@ -101,9 +108,9 @@
 
 			<!-- Products Grid -->
 			<div class="mt-6 lg:col-span-3 lg:mt-0">
-				<div class="mb-4 text-sm text-gray-600">
+				<p class="mb-4 font-poppins text-sm text-muted-soft">
 					Mostrando {filteredProducts.length} de {currentProducts.length} productos
-				</div>
+				</p>
 
 				<div class="space-y-6">
 					<!-- Grid de productos con tarjetas especializadas -->
@@ -114,9 +121,11 @@
 					</div>
 
 					{#if filteredProducts.length === 0}
-						<div class="py-12 text-center">
-							<p class="text-gray-500">No se encontraron productos con los filtros seleccionados</p>
-						</div>
+						<EmptyState
+							size="page"
+							title="Sin resultados"
+							description="Ningún producto coincide con los filtros seleccionados. Prueba quitando alguno."
+						/>
 					{/if}
 				</div>
 			</div>

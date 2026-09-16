@@ -14,6 +14,7 @@
 		maxBound: number;
 		priceRange: PriceRange;
 		onRangeChange: (range: PriceRange) => void;
+		touch?: boolean;
 	}
 
 	let {
@@ -25,8 +26,13 @@
 		minBound,
 		maxBound,
 		priceRange,
-		onRangeChange
+		onRangeChange,
+		touch = false
 	}: Props = $props();
+
+	// Arrastrar un punto de 18px con el dedo es incómodo; en móvil crece a 26px.
+	const thumbSize = $derived(touch ? 'h-[26px] w-[26px]' : 'h-[18px] w-[18px]');
+	const presetRow = $derived(touch ? 'min-h-11 px-3' : 'min-h-9 px-2');
 
 	let localMin = $state(priceRange.min);
 	let localMax = $state(priceRange.max);
@@ -140,7 +146,7 @@
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div
-				class="absolute top-1/2 right-0 left-0 h-[3px] -translate-y-1/2 cursor-pointer rounded-full bg-gray-200"
+				class="absolute top-1/2 right-0 left-0 h-[3px] -translate-y-1/2 cursor-pointer rounded-full bg-line"
 				onclick={onTrackClick}
 			>
 				<!-- Colored fill between thumbs -->
@@ -159,7 +165,7 @@
 				aria-valuemin={minBound}
 				aria-valuemax={maxBound}
 				aria-valuenow={localMin}
-				class="absolute top-1/2 h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full bg-white
+				class="absolute top-1/2 {thumbSize} -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full bg-white
 					shadow-[0_1px_3px_rgba(0,0,0,0.16),0_0_0_1px_rgba(0,0,0,0.06)]
 					transition-transform outline-none hover:scale-110
 					focus-visible:ring-2 focus-visible:ring-offset-1
@@ -183,7 +189,7 @@
 				aria-valuemin={minBound}
 				aria-valuemax={maxBound}
 				aria-valuenow={localMax}
-				class="absolute top-1/2 h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full bg-white
+				class="absolute top-1/2 {thumbSize} -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full bg-white
 					shadow-[0_1px_3px_rgba(0,0,0,0.16),0_0_0_1px_rgba(0,0,0,0.06)]
 					transition-transform outline-none hover:scale-110
 					focus-visible:ring-2 focus-visible:ring-offset-1
@@ -208,18 +214,19 @@
 
 		<!-- Preset quick-picks -->
 		{#if presets.length > 0}
-			<div class="mt-4 flex flex-col gap-1 border-t border-gray-100 pt-3">
+			<div class="mt-4 flex flex-col gap-0.5 border-t border-line-soft pt-3">
 				{#each presets as preset (preset.id)}
+					{@const isActive = activePreset === preset.id}
 					<button
 						onclick={() => selectPreset(preset.id)}
-						aria-pressed={activePreset === preset.id}
-						class="w-full rounded py-1 text-left text-sm transition-colors
-							{activePreset === preset.id
+						aria-pressed={isActive}
+						class="flex {presetRow} w-full items-center justify-between rounded-lg text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
+							{isActive
 							? `${currentStyle.textAccent} font-semibold`
-							: currentStyle.textSecondary}"
+							: `${currentStyle.textSecondary} hover:bg-graybrand/40`}"
 					>
-						{preset.label}
-						<span class="ml-1 opacity-60">({counts[preset.id] ?? 0})</span>
+						<span>{preset.label}</span>
+						<span class="tabular-nums text-muted-faint">({counts[preset.id] ?? 0})</span>
 					</button>
 				{/each}
 			</div>

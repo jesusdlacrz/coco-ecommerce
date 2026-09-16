@@ -6,9 +6,12 @@
 		selectedSizes: string[];
 		toggleSize: (s: string) => void;
 		currentStyle: CategoryStyle;
+		touch?: boolean;
 	}
 
-	let { sizes, selectedSizes, toggleSize, currentStyle }: Props = $props();
+	let { sizes, selectedSizes, toggleSize, currentStyle, touch = false }: Props = $props();
+
+	const cellClass = $derived(touch ? 'h-11' : 'h-9');
 
 	// Standard letter sizes in correct S→XL order
 	const LETTER_ORDER: Record<string, number> = {
@@ -32,12 +35,14 @@
 
 <div class="grid grid-cols-4 gap-2 font-poppins">
 	{#each sortedSizes as size (size)}
+		{@const isSelected = selectedSizes.includes(size)}
 		<button
 			onclick={() => toggleSize(size)}
-			class="rounded-md border px-2 py-2 text-sm transition-all
-				{selectedSizes.includes(size)
-					? currentStyle.accent
-					: `${currentStyle.borderColor} text-muted-soft ${currentStyle.accentHover} ${currentStyle.hoverBorderColor}`}"
+			aria-pressed={isSelected}
+			class="flex {cellClass} items-center justify-center rounded-lg border text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
+				{isSelected
+				? currentStyle.accent
+				: `border-line text-muted-soft ${currentStyle.hoverBorderColor} hover:text-ink`}"
 		>
 			{size}
 		</button>

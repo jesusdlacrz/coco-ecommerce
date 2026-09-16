@@ -23,10 +23,8 @@
 		buildCategoryCounts
 	} from '$lib/products/filters/logic';
 	import Portal from '$lib/shared/components/Portal.svelte';
-	import CategoryFilter from './subFilters/CategoryFilter.svelte';
-	import SizeFilter from './subFilters/SizeFilter.svelte';
-	import ColorFilter from './subFilters/ColorFilter.svelte';
-	import PriceFilter from './subFilters/PriceFilter.svelte';
+	import Button from '$lib/shared/components/form/Button.svelte';
+	import FilterSections from './subFilters/FilterSections.svelte';
 	import ActiveFiltersChips from './subFilters/ActiveFiltersChips.svelte';
 
 	interface Props {
@@ -45,13 +43,28 @@
 	let showMobileFilters = $state(false);
 
 	let pricePreset = $state<string | null>(null);
-	// Dataset sin filtro de precio (sirve para: generar presets dinámicos y contar productos por preset)
+
+	// Derived data (expressions directly for Svelte 5 $derived values)
+	const allCategories = $derived(getAllCategories(products));
+	const minPrice = $derived(getMinPrice(products));
+	const maxPrice = $derived(getMaxPrice(products));
+
+	// `priceRange` arranca en {0,0} y un $effect lo sincroniza con los límites
+	// reales del catálogo. Mientras tanto filtraría todo hacia fuera, así que un
+	// rango sin inicializar se trata como "sin filtro de precio" en vez de
+	// depender del orden en que corran los efectos.
+	const effectiveRange = $derived(
+		priceRange.max > 0 ? priceRange : { min: minPrice, max: maxPrice }
+	);
+
+	// Dataset sin filtro de precio: sirve para generar los presets dinámicos y
+	// para contar cuántos productos caen en cada uno.
 	const filteredForCounts = $derived(
 		applyNonPriceFilters(products, {
 			selectedCategories,
 			selectedSizes,
 			selectedColors,
-			priceRange,
+			priceRange: effectiveRange,
 			pricePreset
 		})
 	);
@@ -62,10 +75,6 @@
 		)
 	);
 
-	// Derived data (expressions directly for Svelte 5 $derived values)
-	const allCategories = $derived(getAllCategories(products));
-	const minPrice = $derived(getMinPrice(products));
-	const maxPrice = $derived(getMaxPrice(products));
 	const availableSizes = $derived(getAvailableSizes(products, selectedCategories));
 	const availableColors = $derived(getAvailableColors(products, selectedCategories, selectedSizes));
 	const currentStyle = $derived(getCategoryStyle(activeCategory));
@@ -85,15 +94,19 @@
 		}
 	});
 
-	// Apply filters
-	$effect(() => {
-		const filtered = applyAllFilters(products, {
+	// Los filtros se aplican en vivo; el resultado se deriva para poder mostrar
+	// el conteo en el botón del panel móvil, donde la grilla queda tapada.
+	const filteredProducts = $derived(
+		applyAllFilters(products, {
 			selectedCategories,
 			selectedSizes,
 			selectedColors,
-			priceRange
-		});
-		onFiltersChange(filtered);
+			priceRange: effectiveRange
+		})
+	);
+
+	$effect(() => {
+		onFiltersChange(filteredProducts);
 	});
 
 	// Scroll lock when mobile drawer open
@@ -170,7 +183,7 @@
 			selectedCategories,
 			selectedSizes,
 			selectedColors,
-			priceRange,
+			priceRange: effectiveRange,
 			pricePreset
 		})
 	);
@@ -204,6 +217,8 @@
 		}
 	});
 
+	const resultCount = $derived(filteredProducts.length);
+
 	let triggerBtn: HTMLButtonElement | null = null;
 	function openMobile() {
 		showMobileFilters = true;
@@ -219,25 +234,32 @@
 	}
 </script>
 
-<!-- Mobile Trigger + Drawer (Portal) -->
+<!-- Disparador móvil + hoja inferior (bottom sheet).
+     Antes era un cajón lateral de 320px de alto completo: el contenido ocupaba
+     un tercio y dejaba dos tercios de blanco muerto. La hoja inferior se ajusta
+     al contenido, queda al alcance del pulgar y deja ver la grilla detrás. -->
 <div class="mb-4 lg:hidden">
 	<button
 		bind:this={triggerBtn}
 		onclick={openMobile}
-		class="flex w-full items-center justify-center gap-2 rounded-md bg-white px-4 py-3 text-lg font-medium shadow transition active:scale-[.98]"
+		class="flex w-full items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-3 font-display text-sm font-semibold text-ink shadow-sm transition active:scale-[.99]"
 	>
-		<span class={currentStyle.textAccent}>Filtros</span>
+		<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+			<path stroke-linecap="round" d="M4 6h16M7 12h10M10 18h4" />
+		</svg>
+		Filtros
 		{#if activeFiltersCount > 0}
 			<span
-				class="inline-flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs {currentStyle.accent}"
+				class="inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold {currentStyle.accent}"
 				>{activeFiltersCount}</span
 			>
 		{/if}
 	</button>
+
 	{#if showMobileFilters}
 		<Portal>
 			<div
-				class="fixed inset-0 z-[10000] flex"
+				class="fixed inset-0 z-[10000] flex flex-col justify-end"
 				aria-modal="true"
 				role="dialog"
 				tabindex="-1"
@@ -249,85 +271,80 @@
 				<button
 					type="button"
 					aria-label="Cerrar filtros"
-					class="flex-1 bg-black/40 backdrop-blur-[2px]"
+					class="flex-1 bg-ink/40 backdrop-blur-[2px]"
 					onclick={closeMobile}
 				></button>
+
 				<div
 					id="drawer-filtros"
 					tabindex="-1"
-					class="flex h-full w-80 max-w-full animate-[slideIn_.25s_cubic-bezier(.4,0,.2,1)] flex-col overflow-hidden bg-white shadow-2xl outline-none focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2"
+					class="flex max-h-[85vh] animate-[sheetUp_.28s_cubic-bezier(.32,.72,0,1)] flex-col overflow-hidden rounded-t-3xl bg-white shadow-[0_-8px_40px_rgba(38,38,53,0.22)] outline-none"
 				>
-					<div class="flex items-center justify-between border-b px-4 py-3">
-						<h3 class="font-display text-base font-semibold">Filtros</h3>
-						<div class="flex gap-2">
-							{#if activeFiltersCount > 0}
-								<button
-									onclick={clearAllFilters}
-									class="text-xs underline {currentStyle.textAccent}">Limpiar</button
-								>
-							{/if}
-							<button
-								onclick={closeMobile}
-								class="rounded p-2 hover:bg-gray-100"
-								aria-label="Cerrar">✕</button
-							>
-						</div>
+					<div class="flex justify-center pt-3 pb-1">
+						<span class="h-1 w-10 rounded-full bg-line" aria-hidden="true"></span>
 					</div>
-					<div class="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-						<div class="rounded-md border p-3">
-							<h4 class="mb-3 text-sm font-medium text-gray-900">Categorías</h4>
-							<CategoryFilter
-								{currentStyle}
-								categories={allCategories}
-								selected={selectedCategories}
-								counts={categoryCounts}
-								{toggleCategory}
-							/>
-						</div>
-						{#if selectedCategories.length > 0 && availableSizes.length > 0}
-							<div class="rounded-md border p-3">
-								<h4 class="mb-3 text-sm font-medium text-gray-900">Tallas</h4>
-								<SizeFilter {currentStyle} sizes={availableSizes} {selectedSizes} {toggleSize} />
-							</div>
-						{/if}
-						{#if availableColors.length > 0}
-							<div class="rounded-md border p-3">
-								<h4 class="mb-3 text-sm font-medium text-gray-900">Color</h4>
-								<ColorFilter
-									{currentStyle}
-									colors={availableColors}
-									{selectedColors}
-									{toggleColor}
-									containerClass="grid grid-cols-6 gap-1"
-								/>
-							</div>
-						{/if}
-						<div class="rounded-md border p-3">
-							<h4 class="mb-3 text-sm font-medium text-gray-900">Precio</h4>
-							<PriceFilter
-								{currentStyle}
-								presets={dynamicPricePresets}
-								counts={pricePresetCounts}
-								activePreset={pricePreset}
-								selectPreset={selectPricePreset}
-								minBound={minPrice}
-								maxBound={maxPrice}
-								{priceRange}
-								onRangeChange={handleRangeChange}
-							/>
-						</div>
-					</div>
-					<div class="flex gap-2 border-t px-4 py-3">
-						<button
-							onclick={clearAllFilters}
-							class="flex-1 rounded-md border px-3 py-2 text-sm {currentStyle.borderColor} bg-white"
-							>Limpiar</button
-						>
+
+					<div class="flex items-center justify-between px-5 pt-1 pb-4">
+						<h3 class="font-display text-xl font-semibold text-ink">Filtros</h3>
 						<button
 							onclick={closeMobile}
-							class="flex-1 rounded-md px-3 py-2 text-sm {currentStyle.accent} {currentStyle.accentHover}"
-							>Aplicar</button
+							class="-mr-2 flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-graybrand/40 hover:text-ink"
+							aria-label="Cerrar filtros"
 						>
+							<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+								<path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+							</svg>
+						</button>
+					</div>
+
+					{#if chips.length > 0}
+						<div class="px-5 pb-4">
+							<ActiveFiltersChips {currentStyle} {chips} clearAll={clearAllFilters} compact />
+						</div>
+					{/if}
+
+					<div class="flex-1 overflow-y-auto px-5 pb-6">
+						<FilterSections
+							density="touch"
+							{currentStyle}
+							categories={allCategories}
+							{categoryCounts}
+							{selectedCategories}
+							{toggleCategory}
+							sizes={availableSizes}
+							{selectedSizes}
+							{toggleSize}
+							colors={availableColors}
+							{selectedColors}
+							{toggleColor}
+							pricePresets={dynamicPricePresets}
+							{pricePresetCounts}
+							activePreset={pricePreset}
+							selectPreset={selectPricePreset}
+							{minPrice}
+							{maxPrice}
+							{priceRange}
+							onRangeChange={handleRangeChange}
+						/>
+					</div>
+
+					<div
+						class="flex gap-3 border-t border-line-soft bg-white px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+					>
+						<Button
+							variant="text"
+							onclick={clearAllFilters}
+							disabled={activeFiltersCount === 0}
+							class="flex-1 border border-line"
+						>
+							Limpiar
+						</Button>
+						<!-- Los filtros ya se aplicaron en vivo: este botón cierra y, sobre
+						     todo, dice cuántos productos quedaron sin tener que adivinar. -->
+						<Button variant="secondary" onclick={closeMobile} class="flex-[1.6]">
+							Ver {resultCount}
+							{resultCount === 1 ? 'producto' : 'productos'}
+						</Button>
 					</div>
 				</div>
 			</div>
@@ -335,58 +352,43 @@
 	{/if}
 </div>
 
-<!-- Desktop Filters -->
-<div class="hidden lg:block">
-	<!-- Desktop Heading -->
-	<div class="mb-6 flex items-center justify-between">
-		<h3 class="font-display text-2xl font-semibold {currentStyle.textAccent}">Filtros</h3>
+<!-- Sidebar de escritorio -->
+<aside class="hidden lg:block">
+	<div class="mb-5 flex items-baseline justify-between border-b border-line pb-4">
+		<h3 class="font-display text-xl font-semibold text-ink">Filtros</h3>
+		{#if activeFiltersCount > 0}
+			<button
+				onclick={clearAllFilters}
+				class="font-poppins text-xs text-muted-faint underline-offset-2 transition-colors hover:text-ink hover:underline"
+			>
+				Limpiar todo
+			</button>
+		{/if}
 	</div>
-	<!-- Categories -->
-	<div class="mb-6">
-		<h4 class="text-md mb-3 font-display font-medium text-gray-900">Categorías</h4>
-		<CategoryFilter
-			{currentStyle}
-			categories={allCategories}
-			selected={selectedCategories}
-			counts={categoryCounts}
-			{toggleCategory}
-		/>
+
+	<FilterSections
+		{currentStyle}
+		categories={allCategories}
+		{categoryCounts}
+		{selectedCategories}
+		{toggleCategory}
+		sizes={availableSizes}
+		{selectedSizes}
+		{toggleSize}
+		colors={availableColors}
+		{selectedColors}
+		{toggleColor}
+		pricePresets={dynamicPricePresets}
+		{pricePresetCounts}
+		activePreset={pricePreset}
+		selectPreset={selectPricePreset}
+		{minPrice}
+		{maxPrice}
+		{priceRange}
+		onRangeChange={handleRangeChange}
+	/>
+
+	<div class="mt-5">
+		<ActiveFiltersChips {currentStyle} {chips} clearAll={clearAllFilters} />
 	</div>
-	<!-- Sizes -->
-	{#if selectedCategories.length > 0 && availableSizes.length > 0}
-		<div class="mb-6">
-			<h4 class="text-md mb-3 font-display font-medium text-gray-900">Tallas</h4>
-			<SizeFilter {currentStyle} sizes={availableSizes} {selectedSizes} {toggleSize} />
-		</div>
-	{/if}
-	<!-- Colors -->
-	{#if availableColors.length > 0}
-		<div class="mb-6">
-			<h4 class="text-md mb-3 font-display font-medium text-gray-900">Colores</h4>
-			<ColorFilter
-				{currentStyle}
-				colors={availableColors}
-				{selectedColors}
-				{toggleColor}
-				containerClass="grid grid-cols-8 gap-1"
-			/>
-		</div>
-	{/if}
-	<!-- Price -->
-	<div class="mb-6">
-		<h4 class="text-md mb-3 font-display font-medium text-gray-900">Precio</h4>
-		<PriceFilter
-			{currentStyle}
-			presets={dynamicPricePresets}
-			counts={pricePresetCounts}
-			activePreset={pricePreset}
-			selectPreset={selectPricePreset}
-			minBound={minPrice}
-			maxBound={maxPrice}
-			{priceRange}
-			onRangeChange={handleRangeChange}
-		/>
-	</div>
-	<!-- Active Filters Summary -->
-	<ActiveFiltersChips {currentStyle} {chips} clearAll={clearAllFilters} />
-</div>
+</aside>

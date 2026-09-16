@@ -7,9 +7,13 @@
 		counts: Record<string, number>;
 		toggleCategory: (c: string) => void;
 		currentStyle: CategoryStyle;
+		touch?: boolean;
 	}
 
-	let { categories, selected, counts, toggleCategory, currentStyle }: Props = $props();
+	let { categories, selected, counts, toggleCategory, currentStyle, touch = false }: Props =
+		$props();
+
+	const rowClass = $derived(touch ? 'min-h-11 px-3' : 'min-h-9 px-2');
 </script>
 
 <div class="flex flex-col gap-0.5 font-poppins">
@@ -20,12 +24,16 @@
 		<button
 			onclick={() => !isEmpty && toggleCategory(category)}
 			disabled={isEmpty}
-			aria-disabled={isEmpty}
-			class="flex items-center justify-between rounded px-1 py-1.5 text-left text-sm transition-colors
-				{isActive ? `${currentStyle.textAccent} font-semibold` : isEmpty ? 'cursor-not-allowed text-line' : `${currentStyle.textSecondary} hover:bg-gray-50`}"
+			aria-pressed={isActive}
+			class="flex {rowClass} items-center justify-between rounded-lg text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
+				{isActive
+				? `${currentStyle.textAccent} font-semibold`
+				: isEmpty
+					? 'cursor-not-allowed text-line'
+					: `${currentStyle.textSecondary} hover:bg-graybrand/40`}"
 		>
 			<span>{category}</span>
-			<span class="tabular-nums {isEmpty ? 'text-[#d0d0d0]' : 'opacity-60'}">({count})</span>
+			<span class="tabular-nums {isEmpty ? 'text-line' : 'text-muted-faint'}">({count})</span>
 		</button>
 	{/each}
 </div>
