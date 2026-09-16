@@ -1,32 +1,43 @@
 import { writable } from 'svelte/store';
+import { categoryStyles, type CategoryKey } from '$lib/products/filters/categoryStyles';
 
-export type Category = 'women' | 'men' | 'girls' | 'boys';
+export type Category = CategoryKey;
 
 export const activeCategory = writable<Category>('women');
 
-export const categoryColors = {
+export interface CategoryColors {
+	primary: string;
+	primaryHover: string;
+	border: string;
+	text: string;
+}
+
+// Vista reducida de `categoryStyles` para los consumidores que solo necesitan
+// fondo/borde/texto (header, tarjeta de producto, pestañas del catálogo). No
+// redefine ningún color: los toma de la fuente única.
+export const categoryColors: Record<Category, CategoryColors> = {
 	women: {
 		primary: 'bg-[#7C00F4]',
-		primaryHover: 'hover:bg-[#7C00F490]',
-		border: 'border-[#7C00F4]',
-		text: 'text-[#7C00F4]'
+		primaryHover: categoryStyles.women.softHover,
+		border: categoryStyles.women.borderColor,
+		text: categoryStyles.women.textAccent
 	},
 	men: {
 		primary: 'bg-[#16167F]',
-		primaryHover: 'hover:bg-[#16167F90]',
-		border: 'border-[#16167F]',
-		text: 'text-[#16167F]'
+		primaryHover: categoryStyles.men.softHover,
+		border: categoryStyles.men.borderColor,
+		text: categoryStyles.men.textAccent
 	},
 	girls: {
-		primary: 'bg-[#FF91C0]',
-		primaryHover: 'hover:bg-[#FF91C090]',
-		border: 'border-[#FF91C0]',
-		text: 'text-[#FF91C0]'
+		primary: 'bg-[#FF91C1]',
+		primaryHover: categoryStyles.girls.softHover,
+		border: categoryStyles.girls.borderColor,
+		text: categoryStyles.girls.textAccent
 	},
 	boys: {
-		primary: 'bg-[#6296DB]',
-		primaryHover: 'hover:bg-[#6296DB90]',
-		border: 'border-[#6296DB]',
-		text: 'text-[#6296DB]'
+		primary: 'bg-[#2C71CC]',
+		primaryHover: categoryStyles.boys.softHover,
+		border: categoryStyles.boys.borderColor,
+		text: categoryStyles.boys.textAccent
 	}
 };

@@ -14,6 +14,7 @@
 	import { HOUSE_STORE } from '$lib/storefront/model';
 	import Button from '$lib/shared/components/form/Button.svelte';
 	import EmptyState from '$lib/shared/components/EmptyState.svelte';
+	import { productHrefForCartItem } from '$lib/cart/utils/productHref';
 	import toast from 'svelte-5-french-toast';
 
 	const PAYMENT_METHODS = ['Tarjeta', 'PSE', 'Nequi'];
@@ -348,29 +349,33 @@
 						actionHref="{store.basePath}/productos"
 					/>
 				{:else}
-					<div class="space-y-5">
+					<ul class="space-y-5">
 						{#each cartList as item (item.id)}
-							<div
+							{@const href = productHrefForCartItem(item)}
+							<li
 								class="flex items-start gap-4 border-b border-[#d3c9b8] pb-4 last:border-b-0 last:pb-0"
 							>
-								<div class="relative h-24 w-20 flex-shrink-0 bg-[#ece4d6]">
+								<a {href} tabindex="-1" aria-hidden="true" class="relative h-24 w-20 flex-shrink-0">
 									<img
 										src={item.image}
-										alt={item.name}
-										class="h-full w-full rounded-md object-cover"
+										alt=""
+										class="h-full w-full rounded-lg bg-[#ece4d6] object-cover transition-transform duration-300 hover:scale-105"
 									/>
 									<span
-										class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white"
+										class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[10px] font-bold text-white"
 									>
 										{item.quantity}
 									</span>
-								</div>
+								</a>
 
 								<div class="flex w-full items-start justify-between gap-4">
 									<div>
-										<p class="font-display text-lg font-semibold text-ink">
+										<a
+											{href}
+											class="font-display text-lg font-semibold text-ink underline-offset-2 hover:underline"
+										>
 											{item.name}
-										</p>
+										</a>
 										<p class="mt-1 text-sm text-muted-soft">
 											{item.color ?? 'General'}{item.size ? ` / ${item.size}` : ''}
 										</p>
@@ -379,9 +384,9 @@
 										{formatPrice(item.price * item.quantity)}
 									</p>
 								</div>
-							</div>
+							</li>
 						{/each}
-					</div>
+					</ul>
 				{/if}
 
 				<div class="mt-8 space-y-4 text-[#454545]">

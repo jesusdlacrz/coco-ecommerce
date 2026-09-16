@@ -6,6 +6,7 @@
 	import type { SiteCopy } from '$lib/shared/services/siteContent.server';
 	import { formatPrice } from '$lib/shared/utils/price';
 	import IconButton from '$lib/shared/components/form/IconButton.svelte';
+	import CarouselDots from '$lib/shared/components/CarouselDots.svelte';
 	import Button from '$lib/shared/components/form/Button.svelte';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
@@ -196,26 +197,20 @@
 							/>
 						{/key}
 					</button>
-					<div class="flex justify-center gap-2">
-						{#each slides as slide, i (slide.label)}
-							<button
-								onclick={() => {
-									direction = i > current ? 1 : -1;
-									current = i;
-								}}
-								class="rounded-full transition-all duration-300 {i === current
-									? 'h-3 w-8 bg-ink'
-									: 'h-3 w-3 bg-line'}"
-								aria-label="Slide {i + 1}"
-							></button>
-						{/each}
-					</div>
+					<CarouselDots
+						count={slides.length}
+						active={current}
+						onSelect={(i) => {
+							direction = i > current ? 1 : -1;
+							current = i;
+						}}
+					/>
 				</div>
 			</div>
 		</div>
 
 		<!-- ===================== TABLET (md → lg) ===================== -->
-		<div class="hidden flex-col py-14 md:flex lg:hidden">
+		<div class="hidden flex-col py-14 md:flex lg:hidden xl:py-20">
 			<div class="space-y-4 px-8 text-center">
 				<h2 class="font-display text-5xl leading-tight text-ink">{title}</h2>
 				<p class="mx-auto max-w-md leading-relaxed text-muted-soft">{text}</p>
@@ -249,55 +244,37 @@
 
 			<!-- Arrows + Dots: functional, below carousel -->
 			<div class="mt-8 flex items-center justify-center gap-4">
-				<button
+				<IconButton
+					label="Anterior"
 					onclick={() =>
 						tabletCarousel &&
 						scrollToSlide(tabletCarousel, (tabletActive - 1 + slides.length) % slides.length)}
-					class="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-muted shadow-sm transition-all hover:border-ink hover:bg-ink hover:text-white"
-					aria-label="Anterior"
 				>
-					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-						><path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M15 19l-7-7 7-7"
-						/></svg
-					>
-				</button>
+					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+					</svg>
+				</IconButton>
 
-				<div class="flex gap-2">
-					{#each slides as slide, i (slide.label)}
-						<button
-							onclick={() => tabletCarousel && scrollToSlide(tabletCarousel, i)}
-							class="rounded-full transition-all duration-300 {i === tabletActive
-								? 'h-3 w-8 bg-ink'
-								: 'h-3 w-3 bg-line'}"
-							aria-label="Slide {i + 1}"
-						></button>
-					{/each}
-				</div>
+				<CarouselDots
+					count={slides.length}
+					active={tabletActive}
+					onSelect={(i) => tabletCarousel && scrollToSlide(tabletCarousel, i)}
+				/>
 
-				<button
+				<IconButton
+					label="Siguiente"
 					onclick={() =>
 						tabletCarousel && scrollToSlide(tabletCarousel, (tabletActive + 1) % slides.length)}
-					class="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-muted shadow-sm transition-all hover:border-ink hover:bg-ink hover:text-white"
-					aria-label="Siguiente"
 				>
-					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-						><path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M9 5l7 7-7 7"
-						/></svg
-					>
-				</button>
+					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+					</svg>
+				</IconButton>
 			</div>
 		</div>
 
 		<!-- ===================== MÓVIL (< md) — Instagram style ===================== -->
-		<div class="flex flex-col py-12 md:hidden">
+		<div class="flex flex-col py-14 md:hidden">
 			<div class="space-y-4 px-6 text-center">
 				<h2 class="font-display text-4xl leading-tight text-ink">{title}</h2>
 				<p class="mx-auto max-w-xs leading-relaxed text-muted-soft">{text}</p>
@@ -327,16 +304,12 @@
 			</div>
 
 			<!-- Dots only — no arrows on mobile -->
-			<div class="mt-4 flex justify-center gap-2">
-				{#each slides as slide, i (slide.label)}
-					<button
-						onclick={() => mobileCarousel && scrollToSlide(mobileCarousel, i)}
-						class="rounded-full transition-all duration-300 {i === mobileActive
-							? 'h-3 w-8 bg-ink'
-							: 'h-3 w-3 bg-line'}"
-						aria-label="Slide {i + 1}"
-					></button>
-				{/each}
+			<div class="mt-4">
+				<CarouselDots
+					count={slides.length}
+					active={mobileActive}
+					onSelect={(i) => mobileCarousel && scrollToSlide(mobileCarousel, i)}
+				/>
 			</div>
 		</div>
 	{/if}

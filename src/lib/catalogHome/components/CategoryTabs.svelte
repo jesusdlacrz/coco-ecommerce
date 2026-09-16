@@ -1,5 +1,5 @@
 <script lang="ts">
-	type Gender = 'men' | 'women' | 'boys' | 'girls';
+	import { categoryColors, type Category as Gender } from '$lib/shared/stores/categoryStore';
 
 	interface Props {
 		activeTab: Gender;
@@ -25,35 +25,35 @@
 			id: 'women' as Gender,
 			label: 'Mujeres',
 			count: womenProductsCount,
-			activeColor: 'bg-[#7C00F4]',
-			hoverColor: 'hover:bg-[#b19ade36]'
+			activeColor: categoryColors.women.primary,
+			hoverColor: categoryColors.women.primaryHover
 		},
 		{
 			id: 'men' as Gender,
 			label: 'Hombres',
 			count: menProductsCount,
-			activeColor: 'bg-[#16167F]',
-			hoverColor: 'hover:bg-[#2c71cc41]'
+			activeColor: categoryColors.men.primary,
+			hoverColor: categoryColors.men.primaryHover
 		},
 		{
 			id: 'girls' as Gender,
 			label: 'Niñas',
 			count: girlsProductsCount,
-			activeColor: 'bg-[#FF91C0]',
-			hoverColor: 'hover:bg-[#ff91c136]'
+			activeColor: categoryColors.girls.primary,
+			hoverColor: categoryColors.girls.primaryHover
 		},
 		{
 			id: 'boys' as Gender,
 			label: 'Niños',
 			count: boysProductsCount,
-			activeColor: 'bg-[#6296DB]',
-			hoverColor: 'hover:bg-[#6296db38]'
+			activeColor: categoryColors.boys.primary,
+			hoverColor: categoryColors.boys.primaryHover
 		}
 	] as const;
 
 	const baseButtonClass =
 		'flex flex-col items-center justify-center shadow-xl inset-shadow-2xs font-light space-y-1 text-sm rounded-lg px-4 py-3 transition-all duration-200 cursor-pointer';
-	const inactiveClass = 'text-gray-700 hover:text-gray-900';
+	const inactiveClass = 'text-muted hover:text-ink';
 	const activeClass = 'text-white shadow-md';
 </script>
 

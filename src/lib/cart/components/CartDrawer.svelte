@@ -96,17 +96,6 @@
 	// Usamos el spread operator para forzar la reactividad
 	const total = $derived([...cartItems].reduce((sum, item) => sum + item.price * item.quantity, 0));
 	const totalItems = $derived([...cartItems].reduce((sum, item) => sum + item.quantity, 0));
-	const menItems = $derived([...cartItems].filter((item) => item.gender === 'men'));
-	const womenItems = $derived([...cartItems].filter((item) => item.gender === 'women'));
-	const boysItems = $derived([...cartItems].filter((item) => item.gender === 'boys'));
-	const girlsItems = $derived([...cartItems].filter((item) => item.gender === 'girls'));
-
-	// Valores derivados adicionales para mejorar la reactividad
-	const menItemsCount = $derived(menItems.reduce((sum, item) => sum + item.quantity, 0));
-	const womenItemsCount = $derived(womenItems.reduce((sum, item) => sum + item.quantity, 0));
-	const boysItemsCount = $derived(boysItems.reduce((sum, item) => sum + item.quantity, 0));
-	const girlsItemsCount = $derived(girlsItems.reduce((sum, item) => sum + item.quantity, 0));
-
 	const canCheckout = $derived(totalItems >= MIN_PAYMENT_UNITS);
 	const missingUnits = $derived(Math.max(0, MIN_PAYMENT_UNITS - totalItems));
 </script>
@@ -122,17 +111,10 @@
 
 		<CartContent
 			{cartItems}
-			{menItems}
-			{womenItems}
-			{boysItems}
-			{girlsItems}
-			{menItemsCount}
-			{womenItemsCount}
-			{boysItemsCount}
-			{girlsItemsCount}
 			{stockByItemId}
 			{onUpdateQuantity}
 			{onRemoveItem}
+			onNavigate={onClose}
 		/>
 
 		<CartFooter

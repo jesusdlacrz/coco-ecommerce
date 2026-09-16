@@ -96,14 +96,6 @@
 		selectedImageIndex = index;
 	}
 
-	// Fondo dinámico según categoría (igual que en catálogo completo)
-	const categoryBackgrounds: Record<Category, string> = {
-		men: 'bg-[#2C71CC33]',
-		women: 'bg-[#B19ADE40]',
-		boys: 'bg-[#f0f4fc]',
-		girls: 'bg-[#ffecf4]'
-	};
-
 	const validCategories: Category[] = ['men', 'women', 'boys', 'girls'];
 	let effectiveCategory = $state<Category>('women');
 
@@ -118,8 +110,10 @@
 			fromProduct && validCategories.includes(fromProduct) ? fromProduct : 'women';
 	});
 
-	const currentBackground = $derived(categoryBackgrounds[effectiveCategory]);
 	const currentStyle = $derived(getCategoryStyle(effectiveCategory));
+	// El fondo sale de la misma fuente que el catálogo: antes la ficha de
+	// Hombres se pintaba con el azul de Niños (#2C71CC33).
+	const currentBackground = $derived(currentStyle.tint);
 
 	// Funciones de validación y carrito
 	function validateSelections(): boolean {

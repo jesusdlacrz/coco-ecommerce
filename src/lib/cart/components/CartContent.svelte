@@ -5,79 +5,26 @@
 
 	type Props = {
 		cartItems: CartItem[];
-		menItems: CartItem[];
-		womenItems: CartItem[];
-		boysItems: CartItem[];
-		girlsItems: CartItem[];
-		menItemsCount: number;
-		womenItemsCount: number;
-		boysItemsCount: number;
-		girlsItemsCount: number;
 		stockByItemId: Record<string, number>;
 		onUpdateQuantity: (itemId: string, quantity: number) => void;
 		onRemoveItem: (itemId: string) => void;
+		onNavigate?: () => void;
 	};
 
-	let {
-		cartItems,
-		menItems,
-		womenItems,
-		boysItems,
-		girlsItems,
-		menItemsCount,
-		womenItemsCount,
-		boysItemsCount,
-		girlsItemsCount,
-		stockByItemId,
-		onUpdateQuantity,
-		onRemoveItem
-	}: Props = $props();
-
+	let { cartItems, stockByItemId, onUpdateQuantity, onRemoveItem, onNavigate }: Props = $props();
 </script>
 
-<div class="flex-1 overflow-y-auto p-6">
+<div class="flex-1 overflow-y-auto">
 	{#if cartItems.length === 0}
 		<EmptyState
 			title="Tu carrito está vacío"
 			description="Agrega productos desde el catálogo para empezar tu pedido."
 		/>
 	{:else}
-		<div class="space-y-6">
-			<CartSection
-				items={menItems}
-
-				itemsCount={menItemsCount}
-				{stockByItemId}
-				{onUpdateQuantity}
-				{onRemoveItem}
-			/>
-
-			<CartSection
-				items={womenItems}
-
-				itemsCount={womenItemsCount}
-				{stockByItemId}
-				{onUpdateQuantity}
-				{onRemoveItem}
-			/>
-
-			<CartSection
-				items={boysItems}
-
-				itemsCount={boysItemsCount}
-				{stockByItemId}
-				{onUpdateQuantity}
-				{onRemoveItem}
-			/>
-
-			<CartSection
-				items={girlsItems}
-
-				itemsCount={girlsItemsCount}
-				{stockByItemId}
-				{onUpdateQuantity}
-				{onRemoveItem}
-			/>
-		</div>
+		<!-- Una sola lista. Antes se partía en cuatro por género y se
+		     concatenaban sin título ni separación visual: la partición no
+		     aportaba nada y, peor, una prenda cuyo `gender` no fuera uno de los
+		     cuatro desaparecía del carrito aunque siguiera sumando al total. -->
+		<CartSection items={cartItems} {stockByItemId} {onUpdateQuantity} {onRemoveItem} {onNavigate} />
 	{/if}
 </div>

@@ -11,13 +11,48 @@ const LEGACY_KEY = 'cart';
 // rechazar un intento de pago que no lo cumpla.
 export const MIN_PAYMENT_UNITS = 4;
 
+// La identidad de una línea del carrito es producto + talla + color + vendedor:
+// es exactamente el criterio con el que `addItem` decide si suma cantidad o crea
+// una línea nueva. Derivar el `id` de esa identidad —en vez de usar un
+// timestamp— hace imposible que dos líneas compartan `id`.
+//
+// Antes el id era `${productId}-${Date.now()}`, que colisiona si dos añadidos
+// caen en el mismo milisegundo. Con ids repetidos, el `{#each ... (item.id)}`
+// del checkout solo pintaba una de las líneas mientras el subtotal seguía
+// sumándolas todas: el carrito decía 10 unidades y el resumen mostraba 4.
+export function cartItemId(
+	productId: string,
+	size: string | null,
+	color: string | null,
+	vendorSlug: string | null
+): string {
+	return [productId, size ?? '', color ?? '', vendorSlug ?? ''].join('::');
+}
+
+// Normaliza lo que haya en localStorage: reasigna ids deterministas y fusiona
+// cualquier línea duplicada que venga de una versión anterior.
+function normalizeItems(items: CartItem[]): CartItem[] {
+	const byId = new Map<string, CartItem>();
+	for (const item of items) {
+		const id = cartItemId(item.productId, item.size, item.color, item.vendorSlug ?? null);
+		const existing = byId.get(id);
+		if (existing) {
+			existing.quantity += item.quantity;
+			existing.updatedAt = new Date().toISOString();
+		} else {
+			byId.set(id, { ...item, id });
+		}
+	}
+	return [...byId.values()];
+}
+
 function readFromStorage(key: string): CartItem[] {
 	if (!browser) return [];
 	try {
 		const stored = localStorage.getItem(key);
 		if (!stored) return [];
 		const parsed = JSON.parse(stored);
-		return Array.isArray(parsed) ? parsed : [];
+		return Array.isArray(parsed) ? normalizeItems(parsed as CartItem[]) : [];
 	} catch (error) {
 		console.warn('Error loading cart from localStorage:', error);
 		return [];
@@ -64,16 +99,16 @@ function createCartStore() {
 			vendorSlug: string | null = null
 		) => {
 			update((items) => {
-				const existingIndex = items.findIndex(
-					(item) => item.productId === product.id && item.size === size && item.color === color
-				);
+				const id = cartItemId(product.id, size, color, vendorSlug);
+				const existingIndex = items.findIndex((item) => item.id === id);
 
 				if (existingIndex !== -1) {
 					items[existingIndex].quantity += quantity;
+					items[existingIndex].updatedAt = new Date().toISOString();
 				} else {
 					const now = new Date().toISOString();
 					const newItem: CartItem = {
-						id: `${product.id}-${Date.now()}`,
+						id,
 						productId: product.id,
 						name: product.name,
 						price: displayPrice(product),

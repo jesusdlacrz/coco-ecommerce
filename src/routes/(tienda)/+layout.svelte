@@ -8,6 +8,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { HOUSE_STORE } from '$lib/storefront/model';
+	import { categoryStyles } from '$lib/products/filters/categoryStyles';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -32,14 +33,9 @@
 	const isHomePage = $derived(path === '');
 
 	// Get background color for productos page
-	const categoryBackgrounds = {
-		women: 'bg-[#f8f4fc]',
-		men: 'bg-[#f0fcfc]',
-		girls: 'bg-[#ffecf4]',
-		boys: 'bg-[#f0f4fc]'
-	};
-
-	const currentBackground = $derived(isProductsPage ? categoryBackgrounds[currentCategory] : '');
+	const currentBackground = $derived(
+		isProductsPage ? categoryStyles[currentCategory].tint : ''
+	);
 
 	// Update category from URL params more responsively
 	$effect(() => {
