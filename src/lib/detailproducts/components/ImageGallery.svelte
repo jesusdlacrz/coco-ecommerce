@@ -49,7 +49,7 @@
 			style="view-transition-name: image-{id};"
 		/>
 		<span
-			class="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#262635] opacity-0 shadow transition-opacity group-hover:opacity-100"
+			class="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ink opacity-0 shadow transition-opacity group-hover:opacity-100"
 		>
 			<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
 				<circle cx="11" cy="11" r="7" />

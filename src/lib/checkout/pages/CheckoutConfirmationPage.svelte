@@ -73,50 +73,50 @@
 	<div class="max-w-md text-center">
 		{#if status === 'pending'}
 			<div
-				class="mx-auto mb-6 h-10 w-10 animate-spin rounded-full border-4 border-[#d1d1d1] border-t-[#262635]"
+				class="mx-auto mb-6 h-10 w-10 animate-spin rounded-full border-4 border-line border-t-ink"
 			></div>
-			<h1 class="font-display text-2xl font-bold text-[#262635]">
+			<h1 class="font-display text-2xl font-bold text-ink">
 				Confirmando tu pago...
 			</h1>
-			<p class="mt-2 text-sm text-[#6a6a6a]">No cierres esta ventana.</p>
+			<p class="mt-2 text-sm text-muted-soft">No cierres esta ventana.</p>
 		{:else if status === 'approved'}
-			<h1 class="font-display text-2xl font-bold text-[#262635]">¡Pago aprobado!</h1>
-			<p class="mt-2 text-sm text-[#6a6a6a]">
+			<h1 class="font-display text-2xl font-bold text-ink">¡Pago aprobado!</h1>
+			<p class="mt-2 text-sm text-muted-soft">
 				{#if wooOrderId}Tu pedido #{wooOrderId} fue registrado correctamente.{:else}Tu pedido fue
 					registrado correctamente.{/if}
 			</p>
 			<a
 				href={store.basePath || '/'}
-				class="mt-6 inline-block rounded-xl bg-[#2f3c4f] px-6 py-3 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#253243]"
+				class="mt-6 inline-block rounded-xl bg-ink px-6 py-3 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-ink-hover"
 			>
 				Volver a la tienda
 			</a>
 		{:else if status === 'declined'}
-			<h1 class="font-display text-2xl font-bold text-[#262635]">
+			<h1 class="font-display text-2xl font-bold text-ink">
 				El pago no fue aprobado
 			</h1>
-			<p class="mt-2 text-sm text-[#6a6a6a]">Tu carrito sigue intacto, puedes intentar de nuevo.</p>
+			<p class="mt-2 text-sm text-muted-soft">Tu carrito sigue intacto, puedes intentar de nuevo.</p>
 			<a
 				href={`${store.basePath}/carrito`}
-				class="mt-6 inline-block rounded-xl bg-[#2f3c4f] px-6 py-3 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#253243]"
+				class="mt-6 inline-block rounded-xl bg-ink px-6 py-3 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-ink-hover"
 			>
 				Volver al carrito
 			</a>
 		{:else if status === 'timeout'}
-			<h1 class="font-display text-2xl font-bold text-[#262635]">
+			<h1 class="font-display text-2xl font-bold text-ink">
 				Confirmación pendiente
 			</h1>
-			<p class="mt-2 text-sm text-[#6a6a6a]">
+			<p class="mt-2 text-sm text-muted-soft">
 				Wompi está tardando en confirmar tu pago. Te avisaremos por correo apenas se procese.
 			</p>
 		{:else}
-			<h1 class="font-display text-2xl font-bold text-[#262635]">
+			<h1 class="font-display text-2xl font-bold text-ink">
 				No encontramos ese pago
 			</h1>
-			<p class="mt-2 text-sm text-[#6a6a6a]">Verifica el enlace o vuelve al carrito.</p>
+			<p class="mt-2 text-sm text-muted-soft">Verifica el enlace o vuelve al carrito.</p>
 			<a
 				href={`${store.basePath}/carrito`}
-				class="mt-6 inline-block rounded-xl bg-[#2f3c4f] px-6 py-3 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-[#253243]"
+				class="mt-6 inline-block rounded-xl bg-ink px-6 py-3 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-ink-hover"
 			>
 				Volver al carrito
 			</a>

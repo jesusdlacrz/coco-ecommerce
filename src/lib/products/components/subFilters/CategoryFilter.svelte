@@ -22,7 +22,7 @@
 			disabled={isEmpty}
 			aria-disabled={isEmpty}
 			class="flex items-center justify-between rounded px-1 py-1.5 text-left text-sm transition-colors
-				{isActive ? `${currentStyle.textAccent} font-semibold` : isEmpty ? 'cursor-not-allowed text-[#c0c0c0]' : `${currentStyle.textSecondary} hover:bg-gray-50`}"
+				{isActive ? `${currentStyle.textAccent} font-semibold` : isEmpty ? 'cursor-not-allowed text-line' : `${currentStyle.textSecondary} hover:bg-gray-50`}"
 		>
 			<span>{category}</span>
 			<span class="tabular-nums {isEmpty ? 'text-[#d0d0d0]' : 'opacity-60'}">({count})</span>

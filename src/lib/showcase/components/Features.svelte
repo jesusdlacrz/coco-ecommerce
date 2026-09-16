@@ -25,8 +25,8 @@
 						/>
 					</div>
 					<div>
-						<p class="font-poppins font-medium text-[#484848]">{feature.title}</p>
-						<p class="text-sm text-[#484848]">{feature.subtitle}</p>
+						<p class="font-poppins font-medium text-muted">{feature.title}</p>
+						<p class="text-sm text-muted">{feature.subtitle}</p>
 					</div>
 				</div>
 			{/each}

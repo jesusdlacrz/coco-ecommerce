@@ -21,7 +21,7 @@
 		>
 			<a href="/panel" class="flex items-center gap-3" aria-label="Ir al panel">
 				<Logo />
-				<span class="rounded-full bg-[#262635]/5 px-2 py-0.5 text-xs font-medium text-[#262635]"
+				<span class="rounded-full bg-ink/5 px-2 py-0.5 text-xs font-medium text-ink"
 					>Panel</span
 				>
 			</a>
@@ -32,8 +32,8 @@
 						aria-current={page.url.pathname === link.href ? 'page' : undefined}
 						class="font-body text-sm whitespace-nowrap transition-colors
 							{page.url.pathname === link.href
-							? 'border-b-2 border-[#FCA120] text-[#262635]'
-							: 'text-[#767676] hover:text-[#262635]'}"
+							? 'border-b-2 border-accent text-ink'
+							: 'text-muted-soft hover:text-ink'}"
 					>
 						{link.label}
 					</a>
@@ -44,14 +44,14 @@
 					href="/v/{page.data.vendor?.slug}"
 					target="_blank"
 					rel="noopener"
-					class="font-body text-sm whitespace-nowrap text-[#262635] hover:underline"
+					class="font-body text-sm whitespace-nowrap text-ink hover:underline"
 				>
 					Ver mi revista ↗
 				</a>
 				<form method="POST" action="/vendedores/salir">
 					<button
 						type="submit"
-						class="font-body text-sm font-medium whitespace-nowrap text-[#767676] hover:text-[#262635]"
+						class="font-body text-sm font-medium whitespace-nowrap text-muted-soft hover:text-ink"
 					>
 						Salir
 					</button>

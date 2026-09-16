@@ -37,7 +37,7 @@
 			class="rounded-md border px-2 py-2 text-sm transition-all
 				{selectedSizes.includes(size)
 					? currentStyle.accent
-					: `${currentStyle.borderColor} text-[#8A8A8A] ${currentStyle.accentHover} ${currentStyle.hoverBorderColor}`}"
+					: `${currentStyle.borderColor} text-muted-soft ${currentStyle.accentHover} ${currentStyle.hoverBorderColor}`}"
 		>
 			{size}
 		</button>

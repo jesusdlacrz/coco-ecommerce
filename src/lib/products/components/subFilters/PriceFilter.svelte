@@ -201,7 +201,7 @@
 		</div>
 
 		<!-- Price labels below slider -->
-		<div class="mt-2 flex justify-between text-xs font-medium text-[#484848]">
+		<div class="mt-2 flex justify-between text-xs font-medium text-muted">
 			<span>{formatPriceCOP(localMin)}</span>
 			<span>{formatPriceCOP(localMax)}</span>
 		</div>

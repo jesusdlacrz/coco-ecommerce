@@ -17,17 +17,17 @@
 	{/if}
 
 	<div class="relative mx-auto max-w-3xl px-4 py-24 text-center sm:px-6 lg:px-8">
-		<h1 class="font-display text-4xl font-bold text-[#262635] sm:text-5xl">
+		<h1 class="font-display text-4xl font-bold text-ink sm:text-5xl">
 			{store.name}
 		</h1>
 		{#if store.bio}
-			<p class="mx-auto mt-5 max-w-xl font-body leading-relaxed text-[#484848]">
+			<p class="mx-auto mt-5 max-w-xl font-body leading-relaxed text-muted">
 				{store.bio}
 			</p>
 		{/if}
 		<TransitionLink
 			href="{store.basePath}/productos"
-			class="mt-8 inline-block rounded-xl bg-[#262635] px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-[#3a3a4d]"
+			class="mt-8 inline-block rounded-xl bg-ink px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-ink-hover"
 		>
 			Ver catálogo
 		</TransitionLink>

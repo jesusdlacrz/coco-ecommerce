@@ -17,8 +17,8 @@
 
 <!-- Título con serif premium -->
 <div>
-	<h1 class="font-display text-3xl font-bold text-[#262635]">{product.name}</h1>
-	<div class="prose-description mt-1 font-body text-[#767676]">
+	<h1 class="font-display text-3xl font-bold text-ink">{product.name}</h1>
+	<div class="prose-description mt-1 font-body text-muted-soft">
 		{@html product.description}
 	</div>
 </div>
@@ -26,21 +26,21 @@
 <!-- Precios -->
 <div class="space-y-1">
 	<div class="flex flex-wrap items-center gap-3">
-		<span class="font-display text-3xl font-bold text-[#262635]"
+		<span class="font-display text-3xl font-bold text-ink"
 			>{formatPrice(displayPrice)}</span
 		>
 		{#if originalPrice}
-			<span class="font-body text-lg text-[#a0a0a0] line-through"
+			<span class="font-body text-lg text-muted-faint line-through"
 				>{formatPrice(originalPrice)}</span
 			>
 			<span
-				class="rounded-full bg-[#FCA120] px-2.5 py-0.5 font-poppins text-xs font-semibold text-white"
+				class="rounded-full bg-accent px-2.5 py-0.5 font-poppins text-xs font-semibold text-white"
 			>
 				AHORRAS {savingsPct}%
 			</span>
 		{/if}
 	</div>
-	<p class="font-body text-sm text-[#767676]">
+	<p class="font-body text-sm text-muted-soft">
 		SKU: {product.sku} • Stock: {product.stockQuantity}
 	</p>
 </div>

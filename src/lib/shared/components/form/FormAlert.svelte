@@ -10,7 +10,7 @@
 
 	const variantClass = {
 		error: 'border-red-200 bg-red-50 text-red-700',
-		success: 'border-[#1f8a55]/20 bg-[#1f8a55]/10 text-[#1f8a55]'
+		success: 'border-success/20 bg-success/10 text-success'
 	}[variant];
 </script>
 

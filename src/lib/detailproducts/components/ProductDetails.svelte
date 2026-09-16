@@ -14,12 +14,12 @@
 <!-- Urgencia de stock -->
 {#if showUrgency}
 	<div class="border-t border-white/60 pt-5">
-		<p class="mb-1.5 font-poppins text-sm font-medium text-[#e05c5c]">
+		<p class="mb-1.5 font-poppins text-sm font-medium text-danger">
 			⚡ Solo quedan {pacasDisplay} pacas en stock
 		</p>
 		<div class="h-1.5 overflow-hidden rounded-full bg-gray-200">
 			<div
-				class="h-full rounded-full bg-[#FCA120] transition-all"
+				class="h-full rounded-full bg-accent transition-all"
 				style="width: {stockPct}%"
 			></div>
 		</div>

@@ -56,14 +56,14 @@
 	<!-- Info -->
 	<div class="flex min-w-0 flex-1 flex-col gap-1">
 		<div class="flex items-start justify-between gap-2">
-			<h4 class="font-display text-sm leading-snug font-semibold text-[#262635]">
+			<h4 class="font-display text-sm leading-snug font-semibold text-ink">
 				{item.name}
 			</h4>
 			<!-- X sutil -->
 			<button
 				onclick={() => onRemoveItem(item.id)}
 				aria-label="Eliminar {item.name}"
-				class="flex-shrink-0 text-gray-300 transition-colors hover:text-[#262635]"
+				class="flex-shrink-0 text-gray-300 transition-colors hover:text-ink"
 			>
 				<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -75,7 +75,7 @@
 			<p class="font-body text-xs text-gray-400">{meta}</p>
 		{/if}
 
-		<p class="font-body text-sm font-semibold text-[#262635]">
+		<p class="font-body text-sm font-semibold text-ink">
 			{formatPrice(item.price)}
 		</p>
 
@@ -84,7 +84,7 @@
 			<button
 				onclick={() => onUpdateQuantity(item.id, item.quantity - 1)}
 				disabled={item.quantity <= 1}
-				class="flex h-8 w-8 items-center justify-center rounded-l text-[#262635] transition-colors hover:bg-gray-200 disabled:opacity-30"
+				class="flex h-8 w-8 items-center justify-center rounded-l text-ink transition-colors hover:bg-gray-200 disabled:opacity-30"
 			>
 				<Minus size={11} />
 			</button>
@@ -97,18 +97,18 @@
 				value={item.quantity}
 				onchange={(e) => commitQuantity(e.currentTarget)}
 				aria-label="Cantidad de {item.name}"
-				class="w-8 border-0 bg-transparent text-center font-body text-sm font-bold text-[#262635] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+				class="w-8 border-0 bg-transparent text-center font-body text-sm font-bold text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 			/>
 			<button
 				onclick={() => onUpdateQuantity(item.id, clamp(item.quantity + 1))}
 				disabled={maxQuantity !== undefined && item.quantity >= maxQuantity}
-				class="flex h-8 w-8 items-center justify-center rounded-r text-[#262635] transition-colors hover:bg-gray-200 disabled:opacity-30"
+				class="flex h-8 w-8 items-center justify-center rounded-r text-ink transition-colors hover:bg-gray-200 disabled:opacity-30"
 			>
 				<Plus size={11} />
 			</button>
 		</div>
 		{#if maxQuantity !== undefined && maxQuantity < item.quantity}
-			<p class="mt-1 font-body text-xs text-[#e05c5c]">
+			<p class="mt-1 font-body text-xs text-danger">
 				Solo quedan {maxQuantity} disponibles — ajusta la cantidad
 			</p>
 		{/if}

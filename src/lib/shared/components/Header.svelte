@@ -76,14 +76,14 @@
 
 <header class="{backgroundColor} transition-colors duration-700">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="flex h-20 items-center justify-between text-[#484848]">
+		<div class="flex h-20 items-center justify-between text-muted">
 			<div class="flex items-center space-x-4">
 				<TransitionLink
 					href={store.basePath || '/'}
 					class="cursor-pointer transition-all hover:opacity-80"
 				>
 					{#if store.kind === 'vendor'}
-						<span class="font-display text-xl font-bold text-[#262635]">{store.name}</span
+						<span class="font-display text-xl font-bold text-ink">{store.name}</span
 						>
 					{:else}
 						<Logo />
@@ -113,7 +113,7 @@
 					{#if store.kind === 'house'}
 						<TransitionLink
 							href="/vendedores/registro"
-							class="cursor-pointer rounded-full border border-[#262635] px-4 py-1.5 text-sm font-medium text-[#262635] transition-all duration-200 hover:bg-[#262635] hover:text-white"
+							class="cursor-pointer rounded-full border border-ink px-4 py-1.5 text-sm font-medium text-ink transition-all duration-200 hover:bg-ink hover:text-white"
 							style="font-family: 'Poppins', sans-serif;"
 						>
 							Vende con nosotros
@@ -125,7 +125,7 @@
 				<div class="flex items-center space-x-2">
 					<button
 						onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
-						class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-[#484848] transition-colors hover:bg-black/5 md:hidden"
+						class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-black/5 md:hidden"
 						aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
 						aria-expanded={isMobileMenuOpen}
 					>
@@ -178,7 +178,7 @@
 				{#if store.kind === 'house'}
 					<TransitionLink
 						href="/vendedores/registro"
-						class="mt-1 rounded-lg border border-[#262635] px-3 py-2.5 text-center text-sm font-medium text-[#262635] transition-colors hover:bg-[#262635] hover:text-white"
+						class="mt-1 rounded-lg border border-ink px-3 py-2.5 text-center text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-white"
 						style="font-family: 'Poppins', sans-serif;"
 					>
 						Vende con nosotros

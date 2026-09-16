@@ -169,78 +169,78 @@
 					<div>
 						<h2 class="mb-5 font-display text-2xl font-bold text-black">Contacto</h2>
 						<label class="block">
-							<span class="mb-2 block text-sm text-[#6b6b6b]">Correo electrónico</span>
+							<span class="mb-2 block text-sm text-muted-soft">Correo electrónico</span>
 							<input
 								bind:value={email}
-								class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
+								class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
 								placeholder="Correo electrónico"
 							/>
 						</label>
 					</div>
 
 					<div>
-						<h2 class="mb-5 font-display text-2xl font-bold text-[#262635]">Envío</h2>
-						<p class="mb-4 text-sm text-[#6b6b6b]">
+						<h2 class="mb-5 font-display text-2xl font-bold text-ink">Envío</h2>
+						<p class="mb-4 text-sm text-muted-soft">
 							Por ahora solo hacemos envíos dentro de Colombia.
 						</p>
 
 						<div class="grid gap-4 sm:grid-cols-2">
 							<label class="block">
-								<span class="mb-2 block text-sm text-[#6b6b6b]">Nombre</span>
+								<span class="mb-2 block text-sm text-muted-soft">Nombre</span>
 								<input
 									bind:value={firstName}
-									class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
+									class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
 									placeholder="Nombre"
 								/>
 							</label>
 
 							<label class="block">
-								<span class="mb-2 block text-sm text-[#6b6b6b]">Apellido</span>
+								<span class="mb-2 block text-sm text-muted-soft">Apellido</span>
 								<input
 									bind:value={lastName}
-									class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
+									class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
 									placeholder="Apellido"
 								/>
 							</label>
 						</div>
 
 						<label class="mt-4 block">
-							<span class="mb-2 block text-sm text-[#6b6b6b]">Teléfono</span>
+							<span class="mb-2 block text-sm text-muted-soft">Teléfono</span>
 							<input
 								bind:value={phone}
 								type="tel"
-								class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
+								class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
 								placeholder="Ej: 300 123 4567"
 							/>
 						</label>
 
 						<label class="mt-4 block">
-							<span class="mb-2 block text-sm text-[#6b6b6b]">Dirección</span>
+							<span class="mb-2 block text-sm text-muted-soft">Dirección</span>
 							<input
 								bind:value={address}
-								class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
+								class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
 								placeholder="Ej: Calle 45 # 20-30"
 							/>
 						</label>
 
 						<label class="mt-4 block">
-							<span class="mb-2 block text-sm text-[#6b6b6b]"
+							<span class="mb-2 block text-sm text-muted-soft"
 								>Complemento (apto, torre, interior, bloque)</span
 							>
 							<input
 								bind:value={addressComplement}
-								class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
+								class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
 								placeholder="Ej: Apto 302, Torre 4, Conjunto Los Robles"
 							/>
 						</label>
 
 						<div class="mt-4 grid gap-4 sm:grid-cols-2">
 							<label class="block">
-								<span class="mb-2 block text-sm text-[#6b6b6b]">Tipo de vivienda</span>
+								<span class="mb-2 block text-sm text-muted-soft">Tipo de vivienda</span>
 								<div class="relative">
 									<select
 										bind:value={dwellingType}
-										class="w-full appearance-none border border-[#d1d1d1] bg-white px-4 py-3 pr-10 text-base text-[#262635] transition-all outline-none focus:border-[#262635]"
+										class="w-full appearance-none border border-line bg-white px-4 py-3 pr-10 text-base text-ink transition-all outline-none focus:border-ink"
 									>
 										<option value="">Selecciona una opción</option>
 										<option value="Casa">Casa</option>
@@ -248,16 +248,16 @@
 										<option value="Otro">Otro</option>
 									</select>
 									<ChevronDown
-										class="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-[#6b6b6b]"
+										class="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-muted-soft"
 									/>
 								</div>
 							</label>
 
 							<label class="block">
-								<span class="mb-2 block text-sm text-[#6b6b6b]">Ciudad</span>
+								<span class="mb-2 block text-sm text-muted-soft">Ciudad</span>
 								<input
 									bind:value={city}
-									class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
+									class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
 									placeholder="Ciudad"
 								/>
 							</label>
@@ -265,11 +265,11 @@
 
 						<div class="mt-4 grid gap-4 sm:grid-cols-2">
 							<label class="block">
-								<span class="mb-2 block text-sm text-[#6b6b6b]">Departamento</span>
+								<span class="mb-2 block text-sm text-muted-soft">Departamento</span>
 								<div class="relative">
 									<select
 										bind:value={department}
-										class="w-full appearance-none border border-[#d1d1d1] bg-white px-4 py-3 pr-10 text-base text-[#262635] transition-all outline-none focus:border-[#262635]"
+										class="w-full appearance-none border border-line bg-white px-4 py-3 pr-10 text-base text-ink transition-all outline-none focus:border-ink"
 									>
 										<option value="">Selecciona una opción</option>
 										{#each COLOMBIA_DEPARTMENTS as department (department.code)}
@@ -277,16 +277,16 @@
 										{/each}
 									</select>
 									<ChevronDown
-										class="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-[#6b6b6b]"
+										class="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-muted-soft"
 									/>
 								</div>
 							</label>
 
 							<label class="block">
-								<span class="mb-2 block text-sm text-[#6b6b6b]">Código Postal (opcional)</span>
+								<span class="mb-2 block text-sm text-muted-soft">Código Postal (opcional)</span>
 								<input
 									bind:value={postalCode}
-									class="w-full border border-[#d1d1d1] bg-white px-4 py-3 text-base text-[#262635] transition-all outline-none placeholder:text-[#8a8a8a] focus:border-[#262635]"
+									class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
 									placeholder="Código Postal"
 								/>
 							</label>
@@ -295,22 +295,22 @@
 
 					<div class="pt-2">
 						<h2
-							class="mb-5 font-display text-2xl font-bold tracking-tight text-[#262635]"
+							class="mb-5 font-display text-2xl font-bold tracking-tight text-ink"
 						>
 							Método de pago
 						</h2>
 
-						<div class="rounded-xl border border-[#d1d1d1] bg-white p-4">
+						<div class="rounded-2xl border border-line bg-white p-4">
 							<div class="flex flex-wrap gap-2">
 								{#each PAYMENT_METHODS as method (method)}
 									<span
-										class="rounded-full border border-[#d1d1d1] px-3 py-1 text-xs font-semibold text-[#262635]"
+										class="rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink"
 									>
 										{method}
 									</span>
 								{/each}
 							</div>
-							<div class="mt-3 flex items-center gap-2 text-xs text-[#6b6b6b]">
+							<div class="mt-3 flex items-center gap-2 text-xs text-muted-soft">
 								<Lock size={14} class="flex-shrink-0" />
 								<span
 									>Pago seguro procesado por <strong>Wompi</strong> — nunca vemos tu tarjeta.</span
@@ -329,7 +329,7 @@
 						type="button"
 						onclick={handlePay}
 						disabled={isSubmitting || cartList.length === 0 || !$canProceedToPayment}
-						class="mt-8 w-full rounded-xl bg-[#2f3c4f] px-6 py-4 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-transform hover:bg-[#253243] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
+						class="mt-8 w-full rounded-xl bg-ink px-6 py-4 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-transform hover:bg-ink-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{isSubmitting ? 'Procesando...' : 'Pagar ahora'}
 					</button>
@@ -340,8 +340,8 @@
 				{#if cartList.length === 0}
 					<div class="flex min-h-[240px] items-center justify-center text-center">
 						<div>
-							<p class="font-display text-2xl text-[#262635]">Tu carrito está vacío</p>
-							<p class="mt-2 text-sm text-[#6a6a6a]">
+							<p class="font-display text-2xl text-ink">Tu carrito está vacío</p>
+							<p class="mt-2 text-sm text-muted-soft">
 								Agrega productos para continuar con el pago.
 							</p>
 						</div>
@@ -367,14 +367,14 @@
 
 								<div class="flex w-full items-start justify-between gap-4">
 									<div>
-										<p class="font-display text-lg font-semibold text-[#262635]">
+										<p class="font-display text-lg font-semibold text-ink">
 											{item.name}
 										</p>
-										<p class="mt-1 text-sm text-[#6a6a6a]">
+										<p class="mt-1 text-sm text-muted-soft">
 											{item.color ?? 'General'}{item.size ? ` / ${item.size}` : ''}
 										</p>
 									</div>
-									<p class="text-right text-base font-medium text-[#262635]">
+									<p class="text-right text-base font-medium text-ink">
 										{formatPrice(item.price * item.quantity)}
 									</p>
 								</div>
@@ -393,7 +393,7 @@
 						<span>{formatPrice(shipping)}</span>
 					</div>
 					<div
-						class="flex items-center justify-between border-t border-[#d3c9b8] pt-4 text-lg font-semibold text-[#262635]"
+						class="flex items-center justify-between border-t border-[#d3c9b8] pt-4 text-lg font-semibold text-ink"
 					>
 						<span>Total</span>
 						<span>{formatPrice(total)}</span>

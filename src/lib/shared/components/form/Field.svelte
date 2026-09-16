@@ -16,7 +16,7 @@
 </script>
 
 <div class="space-y-1.5">
-	<label for={inputId} class="block font-poppins text-sm text-[#484848]">
+	<label for={inputId} class="block font-poppins text-sm text-muted">
 		{label}
 	</label>
 	{@render children({ id: inputId, describedBy: error ? errorId : undefined })}

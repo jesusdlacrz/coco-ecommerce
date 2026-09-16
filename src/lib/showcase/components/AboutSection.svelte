@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import IconButton from '$lib/shared/components/form/IconButton.svelte';
 	import type { SiteAboutSlide } from '$lib/shared/services/siteContent.server';
 
 	// Contenido de respaldo mientras no haya slides cargados en WordPress.
@@ -49,29 +50,25 @@
 
 <section class="py-20">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<h2 class="mb-16 text-center font-display text-4xl text-[#262635]">Nosotros</h2>
+		<h2 class="mb-16 text-center font-display text-4xl text-ink">Nosotros</h2>
 
 		<div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
 			<!-- Left: text with vertical accent line -->
-			<div class="border-l border-[#a0a0a0] pl-8">
+			<div class="border-l border-muted-faint pl-8">
 				{#key current}
 					<div in:fade={{ duration: 300 }}>
-						<h3 class="mb-5 font-display text-2xl text-[#262635]">
+						<h3 class="mb-5 font-display text-2xl text-ink">
 							{slides[current].heading}
 						</h3>
 						{#each slides[current].body as paragraph, pi (pi)}
-							<p class="mb-4 leading-relaxed text-[#767676]">{paragraph}</p>
+							<p class="mb-4 leading-relaxed text-muted-soft">{paragraph}</p>
 						{/each}
 					</div>
 				{/key}
 
 				<!-- Nav arrows -->
 				<div class="mt-6 flex gap-3">
-					<button
-						onclick={goPrev}
-						class="flex h-9 w-9 items-center justify-center rounded-full border border-[#c0c0c0] text-[#484848] transition-all hover:border-[#262635] hover:bg-[#262635] hover:text-white"
-						aria-label="Anterior"
-					>
+					<IconButton label="Anterior" size="sm" onclick={goPrev}>
 						<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								stroke-linecap="round"
@@ -80,12 +77,8 @@
 								d="M15 19l-7-7 7-7"
 							/>
 						</svg>
-					</button>
-					<button
-						onclick={goNext}
-						class="flex h-9 w-9 items-center justify-center rounded-full border border-[#c0c0c0] text-[#484848] transition-all hover:border-[#262635] hover:bg-[#262635] hover:text-white"
-						aria-label="Siguiente"
-					>
+					</IconButton>
+					<IconButton label="Siguiente" size="sm" onclick={goNext}>
 						<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								stroke-linecap="round"
@@ -94,7 +87,7 @@
 								d="M9 5l7 7-7 7"
 							/>
 						</svg>
-					</button>
+					</IconButton>
 				</div>
 			</div>
 

@@ -104,7 +104,7 @@
 	<title>Comisiones - Coco's</title>
 </svelte:head>
 
-<h1 class="mb-6 font-display text-2xl font-bold text-[#262635]">Comisiones por prenda</h1>
+<h1 class="mb-6 font-display text-2xl font-bold text-ink">Comisiones por prenda</h1>
 
 <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 	<div class="flex flex-1 flex-wrap gap-2">
@@ -112,7 +112,7 @@
 			type="search"
 			placeholder="Buscar por nombre o SKU..."
 			bind:value={search}
-			class="w-full max-w-xs rounded-lg border border-black/15 px-3 py-2 text-sm focus:border-[#FCA120] focus:outline-none"
+			class="w-full max-w-xs rounded-lg border border-black/15 px-3 py-2 text-sm focus:border-accent focus:outline-none"
 		/>
 		<select bind:value={filter} class="rounded-lg border border-black/15 px-3 py-2 text-sm">
 			<option value="todas">Todas</option>
@@ -131,16 +131,16 @@
 		/>
 		<button
 			onclick={applyBulk}
-			class="rounded-lg border border-black/15 px-3 py-2 text-sm font-medium whitespace-nowrap text-[#262635] hover:bg-gray-50"
+			class="rounded-lg border border-black/15 px-3 py-2 text-sm font-medium whitespace-nowrap text-ink hover:bg-gray-50"
 		>
 			Aplicar a {visibleRows.length} visibles
 		</button>
 	</div>
 </div>
 
-<div class="overflow-x-auto rounded-xl border border-black/10 bg-white shadow-sm">
+<div class="overflow-x-auto rounded-2xl border border-black/10 bg-white shadow-sm">
 	<table class="w-full text-left text-sm">
-		<thead class="border-b border-black/10 text-xs text-[#a0a0a0] uppercase">
+		<thead class="border-b border-black/10 text-xs text-muted-faint uppercase">
 			<tr>
 				<th class="px-4 py-3">Producto</th>
 				<th class="px-4 py-3">Precio base</th>
@@ -157,18 +157,18 @@
 				<tr
 					class="border-b border-black/5 last:border-0 {edited ? 'bg-amber-50' : ''} {usesGlobal
 						? ''
-						: 'border-l-2 border-l-[#FCA120]'}"
+						: 'border-l-2 border-l-accent'}"
 				>
 					<td class="px-4 py-3">
 						<div class="flex items-center gap-3">
 							<img src={row.image} alt={row.name} class="h-10 w-10 rounded-md object-cover" />
 							<div>
-								<p class="font-medium text-[#262635]">{row.name}</p>
-								<p class="text-xs text-[#a0a0a0]">{row.sku}</p>
+								<p class="font-medium text-ink">{row.name}</p>
+								<p class="text-xs text-muted-faint">{row.sku}</p>
 							</div>
 						</div>
 					</td>
-					<td class="px-4 py-3 text-[#767676]">{formatPrice(row.basePrice)}</td>
+					<td class="px-4 py-3 text-muted-soft">{formatPrice(row.basePrice)}</td>
 					<td class="px-4 py-3">
 						<div class="flex items-center gap-2">
 							<input
@@ -177,28 +177,28 @@
 								value={cur.commissionPercent}
 								oninput={(e) => setPercent(row, e.currentTarget.value)}
 								class="w-20 rounded-lg border px-2 py-1.5 text-sm {usesGlobal
-									? 'border-black/15 text-[#a0a0a0]'
-									: 'border-[#FCA120]'}"
+									? 'border-black/15 text-muted-faint'
+									: 'border-accent'}"
 							/>
 							{#if usesGlobal}
 								<span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
 									>Global</span
 								>
 							{:else}
-								<span class="rounded-full bg-[#FCA120]/20 px-2 py-0.5 text-xs text-[#262635]"
+								<span class="rounded-full bg-accent/20 px-2 py-0.5 text-xs text-ink"
 									>Propia</span
 								>
 								<button
 									onclick={() => resetToGlobal(row)}
 									aria-label="Volver a la comisión global"
-									class="text-[#a0a0a0] hover:text-[#262635]"
+									class="text-muted-faint hover:text-ink"
 								>
 									×
 								</button>
 							{/if}
 						</div>
 					</td>
-					<td class="px-4 py-3 font-medium text-[#262635]">{formatPrice(livePrice(row))}</td>
+					<td class="px-4 py-3 font-medium text-ink">{formatPrice(livePrice(row))}</td>
 					<td class="px-4 py-3">
 						<button
 							onclick={() => toggleHidden(row)}
@@ -214,7 +214,7 @@
 			{/each}
 			{#if visibleRows.length === 0}
 				<tr>
-					<td colspan="5" class="px-4 py-8 text-center text-[#a0a0a0]"
+					<td colspan="5" class="px-4 py-8 text-center text-muted-faint"
 						>No hay productos que coincidan</td
 					>
 				</tr>
@@ -242,7 +242,7 @@
 	>
 		<input type="hidden" name="cambios" value={changesPayload} />
 		<div class="mx-auto flex max-w-6xl items-center justify-between">
-			<p class="font-body text-sm text-[#262635]">
+			<p class="font-body text-sm text-ink">
 				{changes.size}
 				{changes.size === 1 ? 'cambio' : 'cambios'} sin guardar
 			</p>
@@ -250,14 +250,14 @@
 				<button
 					type="button"
 					onclick={discardChanges}
-					class="rounded-lg px-4 py-2 text-sm font-medium text-[#767676] hover:bg-gray-100"
+					class="rounded-lg px-4 py-2 text-sm font-medium text-muted-soft hover:bg-gray-100"
 				>
 					Descartar
 				</button>
 				<button
 					type="submit"
 					disabled={saving}
-					class="rounded-lg bg-[#FCA120] px-5 py-2 text-sm font-semibold text-[#262635] hover:bg-[#e8931a] disabled:opacity-50"
+					class="rounded-lg bg-accent px-5 py-2 text-sm font-semibold text-ink hover:bg-accent-hover disabled:opacity-50"
 				>
 					{saving ? 'Guardando...' : 'Guardar cambios'}
 				</button>

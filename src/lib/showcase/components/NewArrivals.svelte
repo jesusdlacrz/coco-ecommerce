@@ -5,6 +5,7 @@
 	import type { Product } from '$lib/shared/model/products';
 	import type { SiteCopy } from '$lib/shared/services/siteContent.server';
 	import { formatPrice } from '$lib/shared/utils/price';
+	import IconButton from '$lib/shared/components/form/IconButton.svelte';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
 
@@ -110,13 +111,13 @@
 		>
 			<!-- Col 1: Text — fluid, up to 460px -->
 			<div class="flex max-w-[460px] min-w-[220px] flex-[2] flex-col justify-center gap-5 pr-6">
-				<h2 class="font-display text-4xl leading-tight text-[#262635] xl:text-5xl">
+				<h2 class="font-display text-4xl leading-tight text-ink xl:text-5xl">
 					{title}
 				</h2>
-				<p class="leading-relaxed text-[#8a8a8a]">{text}</p>
+				<p class="leading-relaxed text-muted-soft">{text}</p>
 				<a
 					href="{store.basePath}/productos"
-					class="inline-block w-fit rounded-xl bg-[#262635] px-8 py-3 text-sm font-medium text-white shadow-[0px_20px_35px_0px_rgba(0,0,0,0.15)] transition-all hover:bg-[#3a3a4d] xl:px-10 xl:py-4"
+					class="inline-block w-fit rounded-xl bg-ink px-8 py-3 text-sm font-medium text-white shadow-[0px_20px_35px_0px_rgba(0,0,0,0.15)] transition-all hover:bg-ink-hover xl:px-10 xl:py-4"
 				>
 					Comprar
 				</a>
@@ -124,11 +125,7 @@
 
 			<!-- Col 2: Arrows — fixed narrow -->
 			<div class="mr-6 flex w-20 shrink-0 flex-row items-end justify-center gap-2 pb-[60px]">
-				<button
-					onclick={goPrev}
-					class="flex h-10 w-10 items-center justify-center rounded-full border border-[#c8c8c8] bg-white text-[#484848] shadow-sm transition-all hover:border-[#262635] hover:bg-[#262635] hover:text-white"
-					aria-label="Anterior"
-				>
+				<IconButton label="Anterior" onclick={goPrev}>
 					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
 						><path
 							stroke-linecap="round"
@@ -137,12 +134,8 @@
 							d="M15 19l-7-7 7-7"
 						/></svg
 					>
-				</button>
-				<button
-					onclick={goNext}
-					class="flex h-10 w-10 items-center justify-center rounded-full border border-[#c8c8c8] bg-white text-[#484848] shadow-sm transition-all hover:border-[#262635] hover:bg-[#262635] hover:text-white"
-					aria-label="Siguiente"
-				>
+				</IconButton>
+				<IconButton label="Siguiente" onclick={goNext}>
 					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
 						><path
 							stroke-linecap="round"
@@ -151,7 +144,7 @@
 							d="M9 5l7 7-7 7"
 						/></svg
 					>
-				</button>
+				</IconButton>
 			</div>
 
 			<!-- Col 3: Cards — fluid, fills remaining space -->
@@ -176,10 +169,10 @@
 					<div class="absolute bottom-0 left-0 w-52 bg-white/90 px-5 py-4 backdrop-blur-sm">
 						{#key current}
 							<div in:fade={{ duration: 250, delay: 100 }}>
-								<p class="text-sm text-[#484848]">
+								<p class="text-sm text-muted">
 									{slides[current].label} — {slides[current].sale}
 								</p>
-								<p class="mt-1 text-2xl font-medium text-[#484848]">{slides[current].discount}</p>
+								<p class="mt-1 text-2xl font-medium text-muted">{slides[current].discount}</p>
 							</div>
 						{/key}
 					</div>
@@ -209,8 +202,8 @@
 									current = i;
 								}}
 								class="rounded-full transition-all duration-300 {i === current
-									? 'h-3 w-8 bg-[#262635]'
-									: 'h-3 w-3 bg-[#c8c8c8]'}"
+									? 'h-3 w-8 bg-ink'
+									: 'h-3 w-3 bg-line'}"
 								aria-label="Slide {i + 1}"
 							></button>
 						{/each}
@@ -222,11 +215,11 @@
 		<!-- ===================== TABLET (md → lg) ===================== -->
 		<div class="hidden flex-col py-14 md:flex lg:hidden">
 			<div class="space-y-4 px-8 text-center">
-				<h2 class="font-display text-5xl leading-tight text-[#262635]">{title}</h2>
-				<p class="mx-auto max-w-md leading-relaxed text-[#8a8a8a]">{text}</p>
+				<h2 class="font-display text-5xl leading-tight text-ink">{title}</h2>
+				<p class="mx-auto max-w-md leading-relaxed text-muted-soft">{text}</p>
 				<a
 					href="{store.basePath}/productos"
-					class="inline-block rounded-xl bg-[#262635] px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-[#3a3a4d]"
+					class="inline-block rounded-xl bg-ink px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-ink-hover"
 				>
 					Comprar
 				</a>
@@ -247,8 +240,8 @@
 						>
 							<img src={slide.image} alt={slide.alt} class="h-full w-full object-cover" />
 							<div class="absolute bottom-0 left-0 w-52 bg-white/90 px-5 py-4 backdrop-blur-sm">
-								<p class="text-sm text-[#484848]">{slide.label} — {slide.sale}</p>
-								<p class="mt-1 text-2xl font-medium text-[#484848]">{slide.discount}</p>
+								<p class="text-sm text-muted">{slide.label} — {slide.sale}</p>
+								<p class="mt-1 text-2xl font-medium text-muted">{slide.discount}</p>
 							</div>
 						</div>
 					{/each}
@@ -261,7 +254,7 @@
 					onclick={() =>
 						tabletCarousel &&
 						scrollToSlide(tabletCarousel, (tabletActive - 1 + slides.length) % slides.length)}
-					class="flex h-10 w-10 items-center justify-center rounded-full border border-[#c8c8c8] bg-white text-[#484848] shadow-sm transition-all hover:border-[#262635] hover:bg-[#262635] hover:text-white"
+					class="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-muted shadow-sm transition-all hover:border-ink hover:bg-ink hover:text-white"
 					aria-label="Anterior"
 				>
 					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -279,8 +272,8 @@
 						<button
 							onclick={() => tabletCarousel && scrollToSlide(tabletCarousel, i)}
 							class="rounded-full transition-all duration-300 {i === tabletActive
-								? 'h-3 w-8 bg-[#262635]'
-								: 'h-3 w-3 bg-[#c8c8c8]'}"
+								? 'h-3 w-8 bg-ink'
+								: 'h-3 w-3 bg-line'}"
 							aria-label="Slide {i + 1}"
 						></button>
 					{/each}
@@ -289,7 +282,7 @@
 				<button
 					onclick={() =>
 						tabletCarousel && scrollToSlide(tabletCarousel, (tabletActive + 1) % slides.length)}
-					class="flex h-10 w-10 items-center justify-center rounded-full border border-[#c8c8c8] bg-white text-[#484848] shadow-sm transition-all hover:border-[#262635] hover:bg-[#262635] hover:text-white"
+					class="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-muted shadow-sm transition-all hover:border-ink hover:bg-ink hover:text-white"
 					aria-label="Siguiente"
 				>
 					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -307,11 +300,11 @@
 		<!-- ===================== MÓVIL (< md) — Instagram style ===================== -->
 		<div class="flex flex-col py-12 md:hidden">
 			<div class="space-y-4 px-6 text-center">
-				<h2 class="font-display text-4xl leading-tight text-[#262635]">{title}</h2>
-				<p class="mx-auto max-w-xs leading-relaxed text-[#8a8a8a]">{text}</p>
+				<h2 class="font-display text-4xl leading-tight text-ink">{title}</h2>
+				<p class="mx-auto max-w-xs leading-relaxed text-muted-soft">{text}</p>
 				<a
 					href="{store.basePath}/productos"
-					class="inline-block rounded-xl bg-[#262635] px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-[#3a3a4d]"
+					class="inline-block rounded-xl bg-ink px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-ink-hover"
 				>
 					Comprar
 				</a>
@@ -330,8 +323,8 @@
 					>
 						<img src={slide.image} alt={slide.alt} class="h-full w-full object-cover" />
 						<div class="absolute bottom-0 left-0 w-48 bg-white/90 px-4 py-3 backdrop-blur-sm">
-							<p class="text-xs text-[#484848]">{slide.label} — {slide.sale}</p>
-							<p class="mt-1 text-xl font-medium text-[#484848]">{slide.discount}</p>
+							<p class="text-xs text-muted">{slide.label} — {slide.sale}</p>
+							<p class="mt-1 text-xl font-medium text-muted">{slide.discount}</p>
 						</div>
 					</div>
 				{/each}
@@ -343,8 +336,8 @@
 					<button
 						onclick={() => mobileCarousel && scrollToSlide(mobileCarousel, i)}
 						class="rounded-full transition-all duration-300 {i === mobileActive
-							? 'h-3 w-8 bg-[#262635]'
-							: 'h-3 w-3 bg-[#c8c8c8]'}"
+							? 'h-3 w-8 bg-ink'
+							: 'h-3 w-3 bg-line'}"
 						aria-label="Slide {i + 1}"
 					></button>
 				{/each}

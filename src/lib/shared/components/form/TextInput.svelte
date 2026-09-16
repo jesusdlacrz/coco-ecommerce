@@ -31,7 +31,7 @@
 		prefix
 	}: Props = $props();
 
-	const borderClass = error ? 'border-red-400 focus-within:border-red-400' : 'border-black/15 focus-within:border-[#FCA120]';
+	const borderClass = error ? 'border-red-400 focus-within:border-red-400' : 'border-black/15 focus-within:border-accent';
 
 	// Un campo de contraseña sin forma de ver lo que se escribió es la causa
 	// número uno de "no puedo entrar" en soporte — se puede alternar a texto
@@ -43,9 +43,9 @@
 
 {#if prefix}
 	<div
-		class="flex w-full items-stretch rounded-lg border font-body text-[#262635] transition-colors focus-within:ring-2 focus-within:ring-[#FCA120]/30 {borderClass}"
+		class="flex w-full items-stretch rounded-lg border font-body text-ink transition-colors focus-within:ring-2 focus-within:ring-accent/30 {borderClass}"
 	>
-		<span class="flex items-center border-r border-black/10 bg-black/5 pl-4 pr-2 text-[#767676] select-none">
+		<span class="flex items-center border-r border-black/10 bg-black/5 pl-4 pr-2 text-muted-soft select-none">
 			{prefix}
 		</span>
 		<input
@@ -73,14 +73,14 @@
 			bind:value
 			aria-invalid={error ? 'true' : undefined}
 			aria-describedby={describedBy}
-			class="w-full rounded-lg border px-4 py-3 pr-11 font-body text-[#262635] transition-colors outline-none focus:ring-2 focus:ring-[#FCA120]/30
-				{error ? 'border-red-400 focus:border-red-400' : 'border-black/15 focus:border-[#FCA120]'}"
+			class="w-full rounded-lg border px-4 py-3 pr-11 font-body text-ink transition-colors outline-none focus:ring-2 focus:ring-accent/30
+				{error ? 'border-red-400 focus:border-red-400' : 'border-black/15 focus:border-accent'}"
 		/>
 		<button
 			type="button"
 			onclick={() => (revealed = !revealed)}
 			aria-label={revealed ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-			class="absolute top-1/2 right-3 -translate-y-1/2 text-[#8a8a8a] transition-colors hover:text-[#262635]"
+			class="absolute top-1/2 right-3 -translate-y-1/2 text-muted-soft transition-colors hover:text-ink"
 		>
 			{#if revealed}
 				<EyeOff size={19} />
@@ -100,7 +100,7 @@
 		bind:value
 		aria-invalid={error ? 'true' : undefined}
 		aria-describedby={describedBy}
-		class="w-full rounded-lg border px-4 py-3 font-body text-[#262635] transition-colors outline-none focus:ring-2 focus:ring-[#FCA120]/30
-			{error ? 'border-red-400 focus:border-red-400' : 'border-black/15 focus:border-[#FCA120]'}"
+		class="w-full rounded-lg border px-4 py-3 font-body text-ink transition-colors outline-none focus:ring-2 focus:ring-accent/30
+			{error ? 'border-red-400 focus:border-red-400' : 'border-black/15 focus:border-accent'}"
 	/>
 {/if}

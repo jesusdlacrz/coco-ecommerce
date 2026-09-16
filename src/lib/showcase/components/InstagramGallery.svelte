@@ -64,9 +64,9 @@
 					/>
 				</svg>
 			</div>
-			<h2 class="font-display text-3xl text-[#262635] sm:text-4xl">Síguenos en Instagram</h2>
+			<h2 class="font-display text-3xl text-ink sm:text-4xl">Síguenos en Instagram</h2>
 		</a>
-		<p class="mt-3 text-sm leading-relaxed text-[#8a8a8a]">
+		<p class="mt-3 text-sm leading-relaxed text-muted-soft">
 			Mira las últimas prendas, looks y novedades directamente en nuestra cuenta.
 		</p>
 	</div>

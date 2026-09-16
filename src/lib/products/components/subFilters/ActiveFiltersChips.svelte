@@ -16,13 +16,13 @@
 	<div class="border-t pt-4 font-poppins" style="border-color:{currentStyle.accentColor}20">
 		<!-- Header: title + clear all -->
 		<div class="mb-2.5 flex items-center justify-between">
-			<h4 class="text-xs font-semibold uppercase tracking-wide text-[#484848]">
+			<h4 class="text-xs font-semibold uppercase tracking-wide text-muted">
 				Filtros activos <span class="ml-1 {currentStyle.textAccent}">({chips.length})</span>
 			</h4>
 			{#if clearAll && chips.length > 1}
 				<button
 					onclick={clearAll}
-					class="text-xs text-[#a0a0a0] underline-offset-2 transition-colors hover:text-[#484848] hover:underline"
+					class="text-xs text-muted-faint underline-offset-2 transition-colors hover:text-muted hover:underline"
 				>
 					Limpiar todos
 				</button>

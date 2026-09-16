@@ -96,12 +96,12 @@
 				/>
 				<p
 					class="mt-2 flex items-center gap-1.5 font-body text-xs transition-colors {hasMinLength
-						? 'text-[#1f8a55]'
-						: 'text-[#767676]'}"
+						? 'text-success'
+						: 'text-muted-soft'}"
 				>
 					<span
 						class="flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full border transition-colors {hasMinLength
-							? 'border-[#1f8a55] bg-[#1f8a55] text-white'
+							? 'border-success bg-success text-white'
 							: 'border-black/20'}"
 					>
 						{#if hasMinLength}

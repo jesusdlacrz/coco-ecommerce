@@ -22,17 +22,21 @@
 	}: Props = $props();
 
 	const variantClass = {
-		primary: 'bg-[#FCA120] text-[#262635] hover:bg-[#e8931a] disabled:hover:bg-[#FCA120]',
-		secondary: 'bg-[#262635] text-white hover:bg-black disabled:hover:bg-[#262635]',
-		text: 'bg-transparent text-[#262635] hover:underline disabled:hover:no-underline'
+		primary: 'bg-accent text-ink hover:bg-accent-hover disabled:hover:bg-accent',
+		secondary: 'bg-ink text-white hover:bg-ink-hover disabled:hover:bg-ink',
+		text: 'bg-transparent text-ink hover:underline disabled:hover:no-underline'
 	}[variant];
 </script>
 
+<!-- rounded-xl: mismo radio que los CTA principales de producto y checkout
+	 ("Agregar al carrito", "Pagar ahora"). Antes este componente usaba
+	 rounded-lg y los CTA sueltos rounded-xl, así que dos botones con el mismo
+	 peso jerárquico se veían distintos según qué pantalla los renderizaba. -->
 <button
 	{type}
 	{onclick}
 	disabled={disabled || loading}
-	class="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-display font-semibold transition-colors active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 {variantClass} {className}"
+	class="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-display font-semibold transition-colors active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 {variantClass} {className}"
 >
 	{#if loading}
 		<span

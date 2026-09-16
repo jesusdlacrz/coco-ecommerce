@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import IconButton from '$lib/shared/components/form/IconButton.svelte';
 	import type { SiteTestimonial } from '$lib/shared/services/siteContent.server';
 
 	// Contenido de respaldo mientras no haya testimonios cargados en WordPress.
@@ -69,8 +70,8 @@
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<!-- Title -->
 		<div class="mb-16 text-center">
-			<h2 class="font-display text-4xl text-[#262635]">Opiniones</h2>
-			<p class="mt-3 text-sm text-[#8a8a8a]">
+			<h2 class="font-display text-4xl text-ink">Opiniones</h2>
+			<p class="mt-3 text-sm text-muted-soft">
 				Historias reales de negocios que confían en nuestro catálogo mayorista.
 			</p>
 		</div>
@@ -90,15 +91,15 @@
 								{#if t.photo}
 									<img src={t.photo} alt={t.name} class="h-full w-full object-cover" />
 								{:else}
-									<div class="flex h-full w-full items-center justify-center text-lg font-semibold text-[#8a8a8a]">
+									<div class="flex h-full w-full items-center justify-center text-lg font-semibold text-muted-soft">
 										{initials(t.name)}
 									</div>
 								{/if}
 							</div>
 						</div>
 						<div>
-							<p class="font-display text-lg font-semibold text-[#262635]">{t.name}</p>
-							<p class="text-sm text-[#8a8a8a]">{t.role}</p>
+							<p class="font-display text-lg font-semibold text-ink">{t.name}</p>
+							<p class="text-sm text-muted-soft">{t.role}</p>
 						</div>
 					</div>
 					<div class="mb-3 flex gap-1">
@@ -108,7 +109,7 @@
 							</svg>
 						{/each}
 					</div>
-					<p class="text-sm leading-relaxed text-[#484848]">{t.quote}</p>
+					<p class="text-sm leading-relaxed text-muted">{t.quote}</p>
 				</div>
 			{/key}
 		</div>
@@ -144,7 +145,7 @@
 										{#if t.photo}
 											<img src={t.photo} alt={t.name} class="h-full w-full object-cover" />
 										{:else}
-											<div class="flex h-full w-full items-center justify-center text-3xl font-semibold text-[#8a8a8a]">
+											<div class="flex h-full w-full items-center justify-center text-3xl font-semibold text-muted-soft">
 												{initials(t.name)}
 											</div>
 										{/if}
@@ -159,10 +160,10 @@
 										</svg>
 									{/each}
 								</div>
-								<p class="text-sm leading-relaxed text-[#484848]">{t.quote}</p>
-								<div class="border-t border-[#c8c8c8] pt-3">
-									<p class="font-display text-lg font-semibold text-[#262635]">{t.name}</p>
-									<p class="text-sm text-[#8a8a8a]">{t.role}</p>
+								<p class="text-sm leading-relaxed text-muted">{t.quote}</p>
+								<div class="border-t border-line pt-3">
+									<p class="font-display text-lg font-semibold text-ink">{t.name}</p>
+									<p class="text-sm text-muted-soft">{t.role}</p>
 								</div>
 							</div>
 						</div>
@@ -175,7 +176,7 @@
 										{#if t.photo}
 											<img src={t.photo} alt={t.name} class="h-full w-full object-cover" />
 										{:else}
-											<div class="flex h-full w-full items-center justify-center text-xs font-semibold text-[#8a8a8a]">
+											<div class="flex h-full w-full items-center justify-center text-xs font-semibold text-muted-soft">
 												{initials(t.name)}
 											</div>
 										{/if}
@@ -190,10 +191,10 @@
 										</svg>
 									{/each}
 								</div>
-								<p class="line-clamp-3 text-xs leading-relaxed text-[#484848]">{t.quote}</p>
-								<div class="border-t border-[#c8c8c8] pt-2">
-									<p class="font-display text-base text-[#262635]">{t.name}</p>
-									<p class="text-xs text-[#8a8a8a]">{t.role}</p>
+								<p class="line-clamp-3 text-xs leading-relaxed text-muted">{t.quote}</p>
+								<div class="border-t border-line pt-2">
+									<p class="font-display text-base text-ink">{t.name}</p>
+									<p class="text-xs text-muted-soft">{t.role}</p>
 								</div>
 							</div>
 						</div>
@@ -204,24 +205,16 @@
 
 		<!-- Arrows -->
 		<div class="mt-10 flex justify-center gap-3">
-			<button
-				onclick={goPrev}
-				class="flex h-10 w-10 items-center justify-center rounded-full border border-[#262635] text-[#262635] transition-all hover:bg-[#262635] hover:text-white"
-				aria-label="Anterior"
-			>
+			<IconButton label="Anterior" onclick={goPrev}>
 				<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
 				</svg>
-			</button>
-			<button
-				onclick={goNext}
-				class="flex h-10 w-10 items-center justify-center rounded-full border border-[#262635] text-[#262635] transition-all hover:bg-[#262635] hover:text-white"
-				aria-label="Siguiente"
-			>
+			</IconButton>
+			<IconButton label="Siguiente" onclick={goNext}>
 				<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 				</svg>
-			</button>
+			</IconButton>
 		</div>
 	</div>
 </section>

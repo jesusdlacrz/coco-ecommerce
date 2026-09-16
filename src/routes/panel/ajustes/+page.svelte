@@ -21,7 +21,7 @@
 	<title>Ajustes - Coco's</title>
 </svelte:head>
 
-<h1 class="mb-6 font-display text-2xl font-bold text-[#262635]">Ajustes de tu tienda</h1>
+<h1 class="mb-6 font-display text-2xl font-bold text-ink">Ajustes de tu tienda</h1>
 
 <div class="max-w-xl rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
 	<form
@@ -63,7 +63,7 @@
 				/>
 			{/snippet}
 		</Field>
-		<p class="-mt-2 font-body text-xs text-[#a0a0a0]">
+		<p class="-mt-2 font-body text-xs text-muted-faint">
 			Si cambias esto, los links que ya compartiste dejarán de funcionar.
 		</p>
 

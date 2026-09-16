@@ -58,9 +58,9 @@
 
 	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 		<!-- Page Header -->
-		<div class="mb-8 text-center text-[#484848]">
+		<div class="mb-8 text-center text-muted">
 			<h2 class="mb-4 text-3xl font-display">Explora Nuestro Catálogo</h2>
-			<p class="text-sm text-[#8A8A8A]">
+			<p class="text-sm text-muted-soft">
 				Vista previa de nuestros productos. Haz clic en cualquier producto para ver detalles
 				completos.
 			</p>

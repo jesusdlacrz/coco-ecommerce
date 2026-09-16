@@ -61,7 +61,7 @@
 			>
 				<div>
 					<h1
-						class="font-bold tracking-tight text-[#484848]"
+						class="font-bold tracking-tight text-muted"
 						style="font-size: clamp(2rem, 5vw, 4rem); line-height: 1.1;"
 					>
 						{line1}
@@ -72,7 +72,7 @@
 					>
 						{line2}
 					</h2>
-					<p class="mt-3 text-sm font-medium tracking-[3px] text-[#484848] uppercase lg:text-base">
+					<p class="mt-3 text-sm font-medium tracking-[3px] text-muted uppercase lg:text-base">
 						{subtitle}
 					</p>
 				</div>

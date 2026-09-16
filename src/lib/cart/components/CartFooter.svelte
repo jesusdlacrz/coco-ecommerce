@@ -30,8 +30,8 @@
 
 		<!-- Total -->
 		<div class="flex items-center justify-between">
-			<span class="font-display text-base font-bold text-[#262635]">Total</span>
-			<span class="font-body text-base font-bold text-[#262635]"
+			<span class="font-display text-base font-bold text-ink">Total</span>
+			<span class="font-body text-base font-bold text-ink"
 				>{formatPrice(total)}</span
 			>
 		</div>
@@ -43,7 +43,7 @@
 				onclick={onCheckout}
 				class="w-full rounded-md px-4 py-3 font-body text-sm font-semibold tracking-wide transition-colors
 					{canCheckout
-					? 'bg-[#262635] text-white hover:bg-black'
+					? 'bg-ink text-white hover:bg-black'
 					: 'cursor-not-allowed bg-gray-200 text-gray-400'}"
 			>
 				{canCheckout ? 'Proceder al Checkout' : `Faltan ${missingUnits} unidades`}
@@ -51,7 +51,7 @@
 
 			<button
 				onclick={onClearCart}
-				class="w-full py-2 font-body text-sm font-bold text-[#484848] transition-colors hover:underline"
+				class="w-full py-2 font-body text-sm font-bold text-muted transition-colors hover:underline"
 			>
 				Limpiar Carrito
 			</button>

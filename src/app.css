@@ -49,9 +49,14 @@ body {
 
 	/* Marca */
 	--color-ink: #262635;
+	--color-ink-hover: #3a3a4d;
 	--color-accent: #fca120;
 	--color-accent-hover: #e8931a;
 	--color-main: rgba(252, 161, 32, 0.33);
+
+	/* Semánticos */
+	--color-success: #1f8a55;
+	--color-danger: #e05c5c;
 
 	/* Grises de texto — la escala completa, de más oscuro a más claro. Antes
 	   convivían 7 grises casi idénticos (#484848, #767676, #6b6b6b, #6a6a6a,
