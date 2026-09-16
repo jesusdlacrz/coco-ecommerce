@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { CartItem } from '$lib/shared/model/products';
 	import CartSection from './CartSection.svelte';
+	import EmptyState from '$lib/shared/components/EmptyState.svelte';
 
 	type Props = {
 		cartItems: CartItem[];
@@ -36,9 +37,10 @@
 
 <div class="flex-1 overflow-y-auto p-6">
 	{#if cartItems.length === 0}
-		<div class="py-8 text-center">
-			<p class="text-gray-500">Tu carrito está vacío</p>
-		</div>
+		<EmptyState
+			title="Tu carrito está vacío"
+			description="Agrega productos desde el catálogo para empezar tu pedido."
+		/>
 	{:else}
 		<div class="space-y-6">
 			<CartSection

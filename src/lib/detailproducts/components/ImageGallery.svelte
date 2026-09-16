@@ -15,16 +15,19 @@
 	let isLightboxOpen = $state(false);
 </script>
 
-<!-- Galería: thumbnails verticales izquierda + imagen principal derecha -->
-<div class="flex gap-3">
+<!-- Galería: thumbnails verticales izquierda + imagen principal derecha.
+     `items-start` evita que el grid estire la imagen: así la relación 3/4 manda
+     y todas las fichas de producto muestran la foto al mismo tamaño, sin
+     importar cuánto texto tenga la columna de información al lado. -->
+<div class="flex items-start gap-3">
 	<!-- Columna de miniaturas (solo si hay más de 1 imagen) -->
 	{#if images.length > 1}
 		<div class="flex w-[72px] flex-shrink-0 flex-col gap-2">
 			{#each images as image, index (`img-${index}`)}
 				<button
 					onclick={() => onImageSelect(index)}
-					class="aspect-square w-full overflow-hidden rounded-md border-2 bg-white transition-all
-						{selectedImageIndex === index ? '' : 'border-gray-200 hover:border-gray-300'}"
+					class="aspect-[3/4] w-full overflow-hidden rounded-lg border-2 bg-white transition-all
+						{selectedImageIndex === index ? '' : 'border-line-soft hover:border-line'}"
 					style={selectedImageIndex === index
 						? `border-color: ${accentColor}; box-shadow: 0 0 0 2px ${accentColor}30;`
 						: ''}
@@ -40,7 +43,7 @@
 		type="button"
 		onclick={() => (isLightboxOpen = true)}
 		aria-label="Ampliar imagen de {productName}"
-		class="group relative min-h-[340px] flex-1 cursor-zoom-in overflow-hidden rounded-lg bg-white shadow-md sm:min-h-[420px]"
+		class="group relative aspect-[3/4] flex-1 cursor-zoom-in overflow-hidden rounded-2xl bg-white shadow-md"
 	>
 		<img
 			src={images[selectedImageIndex] || '/placeholder.svg'}

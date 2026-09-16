@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import toast from 'svelte-5-french-toast';
 	import type { PageData } from './$types';
+	import Button from '$lib/shared/components/form/Button.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -39,28 +40,27 @@
 				class="w-full flex-1 rounded-lg border border-black/10 bg-[#FAFAFA] px-3 py-2 font-mono text-sm text-ink"
 			/>
 			<div class="flex gap-2">
-				<button
-					onclick={copyLink}
-					class="rounded-lg bg-ink px-4 py-2 text-sm font-medium whitespace-nowrap text-white hover:bg-black"
-				>
+				<Button variant="secondary" size="sm" onclick={copyLink} class="whitespace-nowrap">
 					Copiar
-				</button>
+				</Button>
 				<a
 					href="/v/{vendor?.slug}"
 					target="_blank"
 					rel="noopener"
-					class="rounded-lg border border-black/10 px-4 py-2 text-sm font-medium whitespace-nowrap text-ink hover:bg-gray-50"
+					class="inline-flex items-center justify-center rounded-xl border border-line px-4 py-2 font-display text-sm font-semibold whitespace-nowrap text-ink transition-colors hover:bg-graybrand/40"
 				>
 					Abrir ↗
 				</a>
-				<a
+				<Button
+					variant="whatsapp"
+					size="sm"
 					href={whatsappShareHref}
 					target="_blank"
 					rel="noopener"
-					class="rounded-lg bg-[#25D366] px-4 py-2 text-sm font-medium whitespace-nowrap text-white hover:opacity-90"
+					class="whitespace-nowrap"
 				>
 					Compartir
-				</a>
+				</Button>
 			</div>
 		</div>
 	</div>

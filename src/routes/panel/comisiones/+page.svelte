@@ -7,6 +7,7 @@
 	import { priceWithCommission } from '$lib/pricing/commission';
 	import { formatPrice } from '$lib/shared/utils/price';
 	import type { PageData, ActionData } from './$types';
+	import Button from '$lib/shared/components/form/Button.svelte';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -247,20 +248,12 @@
 				{changes.size === 1 ? 'cambio' : 'cambios'} sin guardar
 			</p>
 			<div class="flex gap-2">
-				<button
-					type="button"
-					onclick={discardChanges}
-					class="rounded-lg px-4 py-2 text-sm font-medium text-muted-soft hover:bg-gray-100"
-				>
+				<Button variant="text" size="sm" onclick={discardChanges} class="text-muted-soft">
 					Descartar
-				</button>
-				<button
-					type="submit"
-					disabled={saving}
-					class="rounded-lg bg-accent px-5 py-2 text-sm font-semibold text-ink hover:bg-accent-hover disabled:opacity-50"
-				>
+				</Button>
+				<Button type="submit" size="sm" loading={saving}>
 					{saving ? 'Guardando...' : 'Guardar cambios'}
-				</button>
+				</Button>
 			</div>
 		</div>
 	</form>

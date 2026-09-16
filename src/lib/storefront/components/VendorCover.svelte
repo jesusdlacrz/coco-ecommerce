@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Storefront } from '$lib/storefront/model';
 	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
+	import { buttonClass } from '$lib/shared/components/form/buttonStyles';
 
 	interface Props {
 		store: Storefront;
@@ -27,7 +28,7 @@
 		{/if}
 		<TransitionLink
 			href="{store.basePath}/productos"
-			class="mt-8 inline-block rounded-xl bg-ink px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-ink-hover"
+			class={buttonClass('secondary', 'md', 'mt-8 shadow-lg')}
 		>
 			Ver catálogo
 		</TransitionLink>

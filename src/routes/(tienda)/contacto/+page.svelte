@@ -1,5 +1,6 @@
 <script lang="ts">
 	import toast from 'svelte-5-french-toast';
+	import Button from '$lib/shared/components/form/Button.svelte';
 
 	let name = $state('');
 	let email = $state('');
@@ -98,13 +99,9 @@
 				></textarea>
 			</label>
 
-			<button
-				type="submit"
-				disabled={isSubmitting}
-				class="mt-5 w-full rounded-xl bg-accent px-6 py-3 font-display font-semibold text-ink transition-colors hover:bg-accent-hover active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
-			>
+			<Button type="submit" loading={isSubmitting} class="mt-5 w-full">
 				{isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
-			</button>
+			</Button>
 		</div>
 	</form>
 </div>

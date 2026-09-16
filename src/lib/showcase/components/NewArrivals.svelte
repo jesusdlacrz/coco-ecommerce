@@ -6,6 +6,7 @@
 	import type { SiteCopy } from '$lib/shared/services/siteContent.server';
 	import { formatPrice } from '$lib/shared/utils/price';
 	import IconButton from '$lib/shared/components/form/IconButton.svelte';
+	import Button from '$lib/shared/components/form/Button.svelte';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
 
@@ -115,12 +116,13 @@
 					{title}
 				</h2>
 				<p class="leading-relaxed text-muted-soft">{text}</p>
-				<a
+				<Button
+					variant="secondary"
 					href="{store.basePath}/productos"
-					class="inline-block w-fit rounded-xl bg-ink px-8 py-3 text-sm font-medium text-white shadow-[0px_20px_35px_0px_rgba(0,0,0,0.15)] transition-all hover:bg-ink-hover xl:px-10 xl:py-4"
+					class="w-fit shadow-[0px_20px_35px_0px_rgba(0,0,0,0.15)]"
 				>
 					Comprar
-				</a>
+				</Button>
 			</div>
 
 			<!-- Col 2: Arrows — fixed narrow -->
@@ -217,12 +219,9 @@
 			<div class="space-y-4 px-8 text-center">
 				<h2 class="font-display text-5xl leading-tight text-ink">{title}</h2>
 				<p class="mx-auto max-w-md leading-relaxed text-muted-soft">{text}</p>
-				<a
-					href="{store.basePath}/productos"
-					class="inline-block rounded-xl bg-ink px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-ink-hover"
-				>
+				<Button variant="secondary" href="{store.basePath}/productos" class="shadow-lg">
 					Comprar
-				</a>
+				</Button>
 			</div>
 
 			<!-- Carousel: capped width so cards keep portrait proportions -->
@@ -302,12 +301,9 @@
 			<div class="space-y-4 px-6 text-center">
 				<h2 class="font-display text-4xl leading-tight text-ink">{title}</h2>
 				<p class="mx-auto max-w-xs leading-relaxed text-muted-soft">{text}</p>
-				<a
-					href="{store.basePath}/productos"
-					class="inline-block rounded-xl bg-ink px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:bg-ink-hover"
-				>
+				<Button variant="secondary" href="{store.basePath}/productos" class="shadow-lg">
 					Comprar
-				</a>
+				</Button>
 			</div>
 
 			<!-- 100% width snap carousel — no arrows -->

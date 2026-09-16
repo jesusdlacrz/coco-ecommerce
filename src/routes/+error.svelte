@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import Button from '$lib/shared/components/form/Button.svelte';
 </script>
 
 <svelte:head>
@@ -11,10 +12,5 @@
 	<p class="font-body text-muted-soft">
 		{page.error?.message ?? 'Ocurrió un error inesperado'}
 	</p>
-	<a
-		href="/"
-		class="mt-2 rounded-lg bg-ink px-6 py-3 font-display font-semibold text-white transition-colors hover:bg-black"
-	>
-		Volver al inicio
-	</a>
+	<Button variant="secondary" href="/" class="mt-2">Volver al inicio</Button>
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
+	import Button from '$lib/shared/components/form/Button.svelte';
 
 	const store = $derived(page.data.storefront ?? HOUSE_STORE);
 	const whatsappHref = $derived(
@@ -18,14 +19,15 @@
 		¿Tienes preguntas sobre algún producto? Escríbenos directamente.
 	</p>
 	{#if whatsappHref}
-		<a
+		<Button
+			variant="whatsapp"
 			href={whatsappHref}
 			target="_blank"
 			rel="noopener"
-			class="mt-8 inline-block rounded-xl bg-[#25D366] px-10 py-4 text-sm font-medium text-white shadow-lg transition-all hover:opacity-90"
+			class="mt-8 shadow-lg"
 		>
 			Escribir por WhatsApp
-		</a>
+		</Button>
 	{:else}
 		<p class="mt-8 font-body text-sm text-muted-faint">
 			Esta tienda todavía no configuró un WhatsApp de contacto.

@@ -70,6 +70,10 @@ body {
 	--color-line-soft: #e5e5e5;
 	--color-graybrand: #dedede;
 	--color-graybrand-light: #484848;
+	/* Verde oficial de WhatsApp — no es color de marca, pero los CTA que abren
+	   un chat deben usar el color que la gente ya reconoce. */
+	--color-whatsapp: #25d366;
+	--color-whatsapp-hover: #1fb855;
 }
 
 button {

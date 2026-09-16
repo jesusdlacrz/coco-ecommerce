@@ -11,10 +11,12 @@
 	import ChevronDown from '$lib/shared/icons/ChevronDown.svelte';
 	import Lock from '$lib/shared/icons/Lock.svelte';
 	import { COLOMBIA_DEPARTMENTS } from '$lib/shared/utils/colombiaDepartments';
+	import { HOUSE_STORE } from '$lib/storefront/model';
+	import Button from '$lib/shared/components/form/Button.svelte';
+	import EmptyState from '$lib/shared/components/EmptyState.svelte';
+	import toast from 'svelte-5-french-toast';
 
 	const PAYMENT_METHODS = ['Tarjeta', 'PSE', 'Nequi'];
-	import { HOUSE_STORE } from '$lib/storefront/model';
-	import toast from 'svelte-5-french-toast';
 
 	const WOMPI_CHECKOUT_URL = 'https://checkout.wompi.co/p/';
 
@@ -325,27 +327,26 @@
 						{/if}
 					</div>
 
-					<button
-						type="button"
+					<Button
+						variant="secondary"
 						onclick={handlePay}
-						disabled={isSubmitting || cartList.length === 0 || !$canProceedToPayment}
-						class="mt-8 w-full rounded-xl bg-ink px-6 py-4 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-transform hover:bg-ink-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
+						loading={isSubmitting}
+						disabled={cartList.length === 0 || !$canProceedToPayment}
+						class="mt-8 w-full"
 					>
 						{isSubmitting ? 'Procesando...' : 'Pagar ahora'}
-					</button>
+					</Button>
 				</div>
 			</section>
 
 			<aside class="order-1 rounded-none bg-[#FCA1201C] p-4 sm:p-6 lg:order-2 lg:p-10">
 				{#if cartList.length === 0}
-					<div class="flex min-h-[240px] items-center justify-center text-center">
-						<div>
-							<p class="font-display text-2xl text-ink">Tu carrito está vacío</p>
-							<p class="mt-2 text-sm text-muted-soft">
-								Agrega productos para continuar con el pago.
-							</p>
-						</div>
-					</div>
+					<EmptyState
+						title="Tu carrito está vacío"
+						description="Agrega productos para continuar con el pago."
+						actionLabel="Ver catálogo"
+						actionHref="{store.basePath}/productos"
+					/>
 				{:else}
 					<div class="space-y-5">
 						{#each cartList as item (item.id)}
