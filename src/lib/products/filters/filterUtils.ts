@@ -1,6 +1,5 @@
 import type { Product } from '$lib/shared/model/products';
-
-export interface PriceRange { min: number; max: number }
+import { priceInPreset, type DynamicPricePreset } from './dynamicPrice';
 
 export function getAllCategories(products: Product[]): string[] {
   return [...new Set(products.map(p => p.category))].sort();
@@ -54,11 +53,12 @@ export interface FilterCriteria {
   selectedCategories: string[];
   selectedSizes: string[];
   selectedColors: string[];
-  priceRange: PriceRange;
+  /** `null` = sin filtro de precio. */
+  pricePreset: DynamicPricePreset | null;
 }
 
 export function applyAllFilters(products: Product[], criteria: FilterCriteria): Product[] {
-  const { selectedCategories, selectedSizes, selectedColors } = criteria; // priceRange accessed via criteria
+  const { selectedCategories, selectedSizes, selectedColors, pricePreset } = criteria;
   return products.filter(product => {
     // Category filter
     const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category);
@@ -66,8 +66,10 @@ export function applyAllFilters(products: Product[], criteria: FilterCriteria): 
     const sizeMatch = selectedCategories.length === 0 || selectedSizes.length === 0 || product.sizes.some(size => selectedSizes.includes(size));
     // Color filter
     const colorMatch = selectedColors.length === 0 || product.colors.some(color => selectedColors.includes(color.name));
-    // Price filter
-    const priceMatch = product.price >= criteria.priceRange.min && product.price <= criteria.priceRange.max;
+    // Precio: se pregunta al propio tramo. Comparar contra min/max sueltos
+    // metería en dos tramos a la prenda que cae justo en la frontera, y el
+    // conteo dejaría de cuadrar con lo que muestra la rejilla.
+    const priceMatch = pricePreset === null || priceInPreset(product.price, pricePreset);
     return categoryMatch && sizeMatch && colorMatch && priceMatch;
   });
 }

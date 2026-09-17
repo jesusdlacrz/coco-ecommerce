@@ -1,21 +1,16 @@
 <script lang="ts">
 	import type { Product } from '$lib/shared/model/products';
-	import type { PriceRange } from '$lib/products/filters/filterUtils';
 	import {
 		getAllCategories,
 		getAvailableSizes,
 		getAvailableColors,
-		getMinPrice,
-		getMaxPrice,
 		applyAllFilters
 	} from '$lib/products/filters/filterUtils';
 	import { formatPrice as formatPriceCOP } from '$lib/shared/utils/price';
 	import { getCategoryStyle } from '$lib/products/filters/categoryStyles';
-	// Dynamic price presets
 	import {
 		generateDynamicPricePresets,
-		priceInPreset,
-		applyDynamicPreset
+		priceInPreset
 	} from '$lib/products/filters/dynamicPrice';
 	import {
 		applyNonPriceFilters,
@@ -40,40 +35,45 @@
 	let selectedCategories = $state<string[]>([]);
 	let selectedSizes = $state<string[]>([]);
 	let selectedColors = $state<string[]>([]);
-	let priceRange = $state<PriceRange>({ min: 0, max: 0 });
 	let showMobileFilters = $state(false);
 
 	let pricePreset = $state<string | null>(null);
 
 	// Derived data (expressions directly for Svelte 5 $derived values)
 	const allCategories = $derived(getAllCategories(products));
-	const minPrice = $derived(getMinPrice(products));
-	const maxPrice = $derived(getMaxPrice(products));
 
-	// `priceRange` arranca en {0,0} y un $effect lo sincroniza con los límites
-	// reales del catálogo. Mientras tanto filtraría todo hacia fuera, así que un
-	// rango sin inicializar se trata como "sin filtro de precio" en vez de
-	// depender del orden en que corran los efectos.
-	const effectiveRange = $derived(
-		priceRange.max > 0 ? priceRange : { min: minPrice, max: maxPrice }
+	// Los tramos se calculan sobre la categoría elegida, no sobre el resultado
+	// ya filtrado. Antes salían de lo filtrado y se derrumbaban: con una sola
+	// prenda a la vista el único tramo era «$44.500 a $44.500», que no
+	// descartaba nada. Además el deslizador usaba los límites del catálogo
+	// entero mientras la lista usaba otros: las dos mitades del mismo filtro
+	// hablaban de conjuntos distintos. Ahora hay uno solo.
+	const productsInCategory = $derived(
+		selectedCategories.length === 0
+			? products
+			: products.filter((p) => selectedCategories.includes(p.category))
+	);
+	const dynamicPricePresets = $derived(
+		generateDynamicPricePresets(
+			productsInCategory.map((p) => p.price),
+			formatPriceCOP
+		)
 	);
 
-	// Dataset sin filtro de precio: sirve para generar los presets dinámicos y
-	// para contar cuántos productos caen en cada uno.
+	const activePricePreset = $derived(
+		dynamicPricePresets.find((preset) => preset.id === pricePreset) ?? null
+	);
+
+	// Conjunto sin el filtro de precio: sobre él se cuenta cuántas prendas
+	// quedarían en cada tramo, de modo que los conteos sí reflejan talla y
+	// color pero la lista de tramos no cambia de forma al tocarlos.
 	const filteredForCounts = $derived(
 		applyNonPriceFilters(products, {
 			selectedCategories,
 			selectedSizes,
 			selectedColors,
-			priceRange: effectiveRange,
-			pricePreset
+			pricePreset: null
 		})
-	);
-	const dynamicPricePresets = $derived(
-		generateDynamicPricePresets(
-			filteredForCounts.map((p) => p.price),
-			formatPriceCOP
-		)
 	);
 
 	const availableSizes = $derived(getAvailableSizes(products, selectedCategories));
@@ -83,18 +83,6 @@
 		selectedCategories.length + selectedSizes.length + selectedColors.length + (pricePreset ? 1 : 0)
 	);
 
-	// Initialize / sync price range when bounds change
-	$effect(() => {
-		// If uninitialized (0,0) or dataset changed shrinking range
-		if (
-			(priceRange.min === 0 && priceRange.max === 0) ||
-			priceRange.min < minPrice ||
-			priceRange.max > maxPrice
-		) {
-			priceRange = { min: minPrice, max: maxPrice };
-		}
-	});
-
 	// Los filtros se aplican en vivo; el resultado se deriva para poder mostrar
 	// el conteo en el botón del panel móvil, donde la grilla queda tapada.
 	const filteredProducts = $derived(
@@ -102,7 +90,7 @@
 			selectedCategories,
 			selectedSizes,
 			selectedColors,
-			priceRange: effectiveRange
+			pricePreset: activePricePreset
 		})
 	);
 
@@ -142,26 +130,11 @@
 		selectedSizes = [];
 		selectedColors = [];
 		pricePreset = null;
-		priceRange = { min: minPrice, max: maxPrice };
 	}
 
+	// Segundo toque sobre el tramo activo lo quita, igual que las tallas.
 	function selectPricePreset(id: string) {
-		if (pricePreset === id) {
-			pricePreset = null;
-			priceRange = { min: minPrice, max: maxPrice };
-			return;
-		}
-		pricePreset = id;
-		const preset = dynamicPricePresets.find((p) => p.id === id);
-		if (preset) {
-			const r = applyDynamicPreset(preset);
-			priceRange = { min: r.min, max: r.max };
-		}
-	}
-
-	function handleRangeChange(range: { min: number; max: number }) {
-		pricePreset = null;
-		priceRange = range;
+		pricePreset = pricePreset === id ? null : id;
 	}
 
 	// Counts using pure helpers
@@ -179,8 +152,7 @@
 			selectedCategories,
 			selectedSizes,
 			selectedColors,
-			priceRange: effectiveRange,
-			pricePreset
+			pricePreset: activePricePreset
 		})
 	);
 	const categoryCounts = $derived(buildCategoryCounts(allCategories, filteredExceptCategory));
@@ -196,11 +168,11 @@
 			: [])
 	]);
 
-	// ensure active preset still valid when dynamic presets regenerate
+	// Al cambiar de categoría los tramos se recalculan y los ids anteriores
+	// dejan de existir: sin esto quedaría marcado un tramo fantasma.
 	$effect(() => {
 		if (pricePreset && !dynamicPricePresets.some((p) => p.id === pricePreset)) {
 			pricePreset = null;
-			priceRange = { min: minPrice, max: maxPrice };
 		}
 	});
 
@@ -322,10 +294,6 @@
 							{pricePresetCounts}
 							activePreset={pricePreset}
 							selectPreset={selectPricePreset}
-							{minPrice}
-							{maxPrice}
-							{priceRange}
-							onRangeChange={handleRangeChange}
 						/>
 					</div>
 
@@ -383,10 +351,6 @@
 		{pricePresetCounts}
 		activePreset={pricePreset}
 		selectPreset={selectPricePreset}
-		{minPrice}
-		{maxPrice}
-		{priceRange}
-		onRangeChange={handleRangeChange}
 	/>
 
 	<div class="mt-5">

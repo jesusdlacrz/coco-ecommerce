@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { CategoryStyle } from '$lib/products/filters/categoryStyles';
 	import type { DynamicPricePreset } from '$lib/products/filters/dynamicPrice';
-	import type { PriceRange } from '$lib/products/filters/filterUtils';
 	import CategoryFilter from './CategoryFilter.svelte';
 	import SizeFilter from './SizeFilter.svelte';
 	import ColorFilter from './ColorFilter.svelte';
@@ -23,10 +22,6 @@
 		pricePresetCounts: Record<string, number>;
 		activePreset: string | null;
 		selectPreset: (id: string) => void;
-		minPrice: number;
-		maxPrice: number;
-		priceRange: PriceRange;
-		onRangeChange: (range: PriceRange) => void;
 		/** `touch` agranda los objetivos táctiles del panel móvil. */
 		density?: 'compact' | 'touch';
 	}
@@ -47,10 +42,6 @@
 		pricePresetCounts,
 		activePreset,
 		selectPreset,
-		minPrice,
-		maxPrice,
-		priceRange,
-		onRangeChange,
 		density = 'compact'
 	}: Props = $props();
 
@@ -105,19 +96,17 @@
 		{@render section('Colores', colorsBody)}
 	{/if}
 
-	{#snippet priceBody()}
-		<PriceFilter
-			{currentStyle}
-			presets={pricePresets}
-			counts={pricePresetCounts}
-			{activePreset}
-			{selectPreset}
-			minBound={minPrice}
-			maxBound={maxPrice}
-			{priceRange}
-			{onRangeChange}
-			{touch}
-		/>
-	{/snippet}
-	{@render section('Precio', priceBody)}
+	{#if pricePresets.length > 0}
+		{#snippet priceBody()}
+			<PriceFilter
+				{currentStyle}
+				presets={pricePresets}
+				counts={pricePresetCounts}
+				{activePreset}
+				{selectPreset}
+				{touch}
+			/>
+		{/snippet}
+		{@render section('Precio', priceBody)}
+	{/if}
 </div>

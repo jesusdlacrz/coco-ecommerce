@@ -1,12 +1,12 @@
 import type { Product } from '$lib/shared/model/products';
-import type { PriceRange } from './filterUtils';
+import { priceInPreset, type DynamicPricePreset } from './dynamicPrice';
 
 export interface FilterState {
   selectedCategories: string[];
   selectedSizes: string[];
   selectedColors: string[];
-  priceRange: PriceRange;
-  pricePreset: string | null;
+  /** `null` = sin filtro de precio. */
+  pricePreset: DynamicPricePreset | null;
 }
 
 export function applyNonPriceFilters(products: Product[], state: FilterState) {
@@ -23,7 +23,7 @@ export function productsExceptCategory(products: Product[], state: FilterState) 
   return products.filter(p => {
     const sizeMatch = state.selectedSizes.length === 0 || p.sizes.some(s => state.selectedSizes.includes(s));
     const colorMatch = state.selectedColors.length === 0 || p.colors.some(c => state.selectedColors.includes(c.name));
-    const priceMatch = p.price >= state.priceRange.min && p.price <= state.priceRange.max;
+    const priceMatch = state.pricePreset === null || priceInPreset(p.price, state.pricePreset);
     return sizeMatch && colorMatch && priceMatch; // deliberately ignore category selection
   });
 }
