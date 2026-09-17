@@ -11,6 +11,7 @@
 	import ChevronDown from '$lib/shared/icons/ChevronDown.svelte';
 	import Lock from '$lib/shared/icons/Lock.svelte';
 	import { COLOMBIA_DEPARTMENTS } from '$lib/shared/utils/colombiaDepartments';
+	import Select from '$lib/shared/components/form/Select.svelte';
 	import { HOUSE_STORE } from '$lib/storefront/model';
 	import Button from '$lib/shared/components/form/Button.svelte';
 	import EmptyState from '$lib/shared/components/EmptyState.svelte';
@@ -19,6 +20,24 @@
 	import toast from 'svelte-5-french-toast';
 
 	const PAYMENT_METHODS = ['Tarjeta', 'PSE', 'Nequi'];
+
+	const DWELLING_OPTIONS = [
+		{ value: 'Casa', label: 'Casa' },
+		{ value: 'Apartamento', label: 'Apartamento' },
+		{ value: 'Otro', label: 'Otro' }
+	];
+
+	const DEPARTMENT_OPTIONS = COLOMBIA_DEPARTMENTS.map((d) => ({ value: d.code, label: d.name }));
+
+	// Aspecto único de los campos del checkout. Antes esta cadena estaba escrita
+	// a mano en cada uno de ellos, y sin radio: los únicos controles cuadrados
+	// del sitio.
+	const FIELD =
+		'w-full rounded-lg border border-line bg-white px-4 py-3 text-base text-ink transition-colors outline-none placeholder:text-muted-soft focus:border-ink focus:ring-2 focus:ring-accent/30';
+
+	// En móvil el resumen ocupaba una pantalla entera antes de poder escribir
+	// nada. Se pliega, dejando el total siempre a la vista.
+	let summaryOpen = $state(false);
 
 	const WOMPI_CHECKOUT_URL = 'https://checkout.wompi.co/p/';
 
@@ -159,24 +178,24 @@
 
 <div class="min-h-screen pt-2 pb-16">
 	<div class="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
-		<h1 class="text-center font-display text-3xl font-bold text-black sm:text-4xl">
+		<h1 class="text-center font-display text-3xl font-bold text-ink sm:text-4xl">
 			Pago
 		</h1>
 	</div>
 
-	<div class="mt-8 border-t border-[#d9d9d6]">
+	<div class="mt-8 border-t border-line-soft">
 		<div class="mx-auto grid max-w-[1200px] px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
 			<section
-				class="order-2 rounded-none bg-transparent px-12 py-10 lg:order-1 lg:border-r lg:border-[#d9d9d6]"
+				class="order-2 py-8 lg:order-1 lg:border-r lg:border-line-soft lg:py-10 lg:pr-12"
 			>
 				<div class="space-y-8">
 					<div>
-						<h2 class="mb-5 font-display text-2xl font-bold text-black">Contacto</h2>
+						<h2 class="mb-5 font-display text-2xl font-bold text-ink">Contacto</h2>
 						<label class="block">
 							<span class="mb-2 block text-sm text-muted-soft">Correo electrónico</span>
 							<input
 								bind:value={email}
-								class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
+								class={FIELD}
 								placeholder="Correo electrónico"
 							/>
 						</label>
@@ -193,7 +212,7 @@
 								<span class="mb-2 block text-sm text-muted-soft">Nombre</span>
 								<input
 									bind:value={firstName}
-									class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
+									class={FIELD}
 									placeholder="Nombre"
 								/>
 							</label>
@@ -202,7 +221,7 @@
 								<span class="mb-2 block text-sm text-muted-soft">Apellido</span>
 								<input
 									bind:value={lastName}
-									class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
+									class={FIELD}
 									placeholder="Apellido"
 								/>
 							</label>
@@ -213,7 +232,7 @@
 							<input
 								bind:value={phone}
 								type="tel"
-								class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
+								class={FIELD}
 								placeholder="Ej: 300 123 4567"
 							/>
 						</label>
@@ -222,7 +241,7 @@
 							<span class="mb-2 block text-sm text-muted-soft">Dirección</span>
 							<input
 								bind:value={address}
-								class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
+								class={FIELD}
 								placeholder="Ej: Calle 45 # 20-30"
 							/>
 						</label>
@@ -233,7 +252,7 @@
 							>
 							<input
 								bind:value={addressComplement}
-								class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
+								class={FIELD}
 								placeholder="Ej: Apto 302, Torre 4, Conjunto Los Robles"
 							/>
 						</label>
@@ -241,27 +260,19 @@
 						<div class="mt-4 grid gap-4 sm:grid-cols-2">
 							<label class="block">
 								<span class="mb-2 block text-sm text-muted-soft">Tipo de vivienda</span>
-								<div class="relative">
-									<select
-										bind:value={dwellingType}
-										class="w-full appearance-none border border-line bg-white px-4 py-3 pr-10 text-base text-ink transition-all outline-none focus:border-ink"
-									>
-										<option value="">Selecciona una opción</option>
-										<option value="Casa">Casa</option>
-										<option value="Apartamento">Apartamento</option>
-										<option value="Otro">Otro</option>
-									</select>
-									<ChevronDown
-										class="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-muted-soft"
-									/>
-								</div>
+								<Select
+									id="tipo-vivienda"
+									bind:value={dwellingType}
+									options={DWELLING_OPTIONS}
+									class={FIELD}
+								/>
 							</label>
 
 							<label class="block">
 								<span class="mb-2 block text-sm text-muted-soft">Ciudad</span>
 								<input
 									bind:value={city}
-									class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
+									class={FIELD}
 									placeholder="Ciudad"
 								/>
 							</label>
@@ -270,27 +281,19 @@
 						<div class="mt-4 grid gap-4 sm:grid-cols-2">
 							<label class="block">
 								<span class="mb-2 block text-sm text-muted-soft">Departamento</span>
-								<div class="relative">
-									<select
-										bind:value={department}
-										class="w-full appearance-none border border-line bg-white px-4 py-3 pr-10 text-base text-ink transition-all outline-none focus:border-ink"
-									>
-										<option value="">Selecciona una opción</option>
-										{#each COLOMBIA_DEPARTMENTS as department (department.code)}
-											<option value={department.code}>{department.name}</option>
-										{/each}
-									</select>
-									<ChevronDown
-										class="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-muted-soft"
-									/>
-								</div>
+								<Select
+									id="departamento"
+									bind:value={department}
+									options={DEPARTMENT_OPTIONS}
+									class={FIELD}
+								/>
 							</label>
 
 							<label class="block">
 								<span class="mb-2 block text-sm text-muted-soft">Código Postal (opcional)</span>
 								<input
 									bind:value={postalCode}
-									class="w-full border border-line bg-white px-4 py-3 text-base text-ink transition-all outline-none placeholder:text-muted-soft focus:border-ink"
+									class={FIELD}
 									placeholder="Código Postal"
 								/>
 							</label>
@@ -341,74 +344,97 @@
 				</div>
 			</section>
 
-			<aside class="order-1 rounded-none bg-[#FCA1201C] p-4 sm:p-6 lg:order-2 lg:p-10">
-				{#if cartList.length === 0}
-					<EmptyState
-						title="Tu carrito está vacío"
-						description="Agrega productos para continuar con el pago."
-						actionLabel="Ver catálogo"
-						actionHref="{store.basePath}/productos"
-					/>
-				{:else}
-					<ul class="space-y-5">
-						{#each cartList as item (item.id)}
-							{@const href = productHrefForCartItem(item)}
-							<li
-								class="flex items-start gap-4 border-b border-[#d3c9b8] pb-4 last:border-b-0 last:pb-0"
-							>
-								<a {href} tabindex="-1" aria-hidden="true" class="relative h-24 w-20 flex-shrink-0">
-									<img
-										src={item.image}
-										alt=""
-										class="h-full w-full rounded-lg bg-[#ece4d6] object-cover transition-transform duration-300 hover:scale-105"
-									/>
-									<span
-										class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[10px] font-bold text-white"
-									>
-										{item.quantity}
-									</span>
-								</a>
+			<aside
+				class="order-1 mb-6 overflow-hidden rounded-2xl bg-[#FCA1201C] lg:order-2 lg:mb-0 lg:rounded-none"
+			>
+				<!-- Barra plegable: solo móvil. El total queda siempre visible, que es
+				     el dato que da confianza; el detalle se abre si se quiere. -->
+				<button
+					type="button"
+					onclick={() => (summaryOpen = !summaryOpen)}
+					aria-expanded={summaryOpen}
+					class="flex w-full items-center justify-between gap-4 px-5 py-4 lg:hidden"
+				>
+					<span class="flex items-center gap-1.5 font-poppins text-sm text-ink">
+						{summaryOpen ? 'Ocultar' : 'Ver'} resumen del pedido
+						<ChevronDown
+							class="h-4 w-4 transition-transform {summaryOpen ? 'rotate-180' : ''}"
+						/>
+					</span>
+					<span class="font-display text-lg font-semibold tabular-nums text-ink">
+						{formatPrice(total)}
+					</span>
+				</button>
 
-								<div class="flex w-full items-start justify-between gap-4">
-									<div>
-										<a
-											{href}
-											class="font-display text-lg font-semibold text-ink underline-offset-2 hover:underline"
+				<div class="{summaryOpen ? 'block' : 'hidden'} px-5 pb-6 lg:block lg:p-10">
+					{#if cartList.length === 0}
+						<EmptyState
+							title="Tu carrito está vacío"
+							description="Agrega productos para continuar con el pago."
+							actionLabel="Ver catálogo"
+							actionHref="{store.basePath}/productos"
+						/>
+					{:else}
+						<ul class="space-y-5">
+							{#each cartList as item (item.id)}
+								{@const href = productHrefForCartItem(item)}
+								<li
+									class="flex items-start gap-4 border-b border-[#d3c9b8] pb-4 last:border-b-0 last:pb-0"
+								>
+									<a {href} tabindex="-1" aria-hidden="true" class="relative aspect-[3/4] w-20 flex-shrink-0">
+										<img
+											src={item.image}
+											alt=""
+											class="h-full w-full rounded-lg bg-[#ece4d6] object-cover transition-transform duration-300 hover:scale-105"
+										/>
+										<span
+											class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[10px] font-bold text-white"
 										>
-											{item.name}
-										</a>
-										<p class="mt-1 text-sm text-muted-soft">
-											{item.color ?? 'General'}{item.size ? ` / ${formatSize(item.size)}` : ''}
+											{item.quantity}
+										</span>
+									</a>
+
+									<div class="flex w-full items-start justify-between gap-4">
+										<div>
+											<a
+												{href}
+												class="font-display text-lg font-semibold text-ink underline-offset-2 hover:underline"
+											>
+												{item.name}
+											</a>
+											<p class="mt-1 text-sm text-muted-soft">
+												{item.color ?? 'General'}{item.size ? ` / ${formatSize(item.size)}` : ''}
+											</p>
+										</div>
+										<p class="text-right text-base font-medium tabular-nums text-ink">
+											{formatPrice(item.price * item.quantity)}
 										</p>
 									</div>
-									<p class="text-right text-base font-medium tabular-nums text-ink">
-										{formatPrice(item.price * item.quantity)}
-									</p>
-								</div>
-							</li>
-						{/each}
-					</ul>
-				{/if}
-
-				<div class="mt-8 space-y-4 text-[#454545]">
-					<div class="flex items-center justify-between text-base">
-						<span>Subtotal</span>
-						<span class="tabular-nums">{formatPrice(subtotal)}</span>
-					</div>
-					<div class="flex items-center justify-between text-base">
-						<span>Envío</span>
-						<span>{shipping > 0 ? formatPrice(shipping) : 'Por cobrar'}</span>
-					</div>
-					{#if shipping === 0}
-						<p class="text-sm text-muted-soft">
-							El flete se paga al recibir el pedido, directamente a la transportadora.
-						</p>
+								</li>
+							{/each}
+						</ul>
 					{/if}
-					<div
-						class="flex items-center justify-between border-t border-[#d3c9b8] pt-4 text-lg font-semibold text-ink"
-					>
-						<span>Total</span>
-						<span class="tabular-nums">{formatPrice(total)}</span>
+
+					<div class="mt-8 space-y-4 text-muted">
+						<div class="flex items-center justify-between text-base">
+							<span>Subtotal</span>
+							<span class="tabular-nums">{formatPrice(subtotal)}</span>
+						</div>
+						<div class="flex items-center justify-between text-base">
+							<span>Envío</span>
+							<span>{shipping > 0 ? formatPrice(shipping) : 'Por cobrar'}</span>
+						</div>
+						{#if shipping === 0}
+							<p class="text-sm text-muted-soft">
+								El flete se paga al recibir el pedido, directamente a la transportadora.
+							</p>
+						{/if}
+						<div
+							class="flex items-center justify-between border-t border-[#d3c9b8] pt-4 text-lg font-semibold text-ink"
+						>
+							<span>Total</span>
+							<span class="tabular-nums">{formatPrice(total)}</span>
+						</div>
 					</div>
 				</div>
 			</aside>

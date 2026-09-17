@@ -255,7 +255,7 @@
 	{#if showMobileFilters}
 		<Portal>
 			<div
-				class="fixed inset-0 z-[10000] flex flex-col justify-end"
+				class="fixed inset-x-0 top-0 z-[10000] flex h-dvh flex-col justify-end"
 				aria-modal="true"
 				role="dialog"
 				tabindex="-1"
@@ -279,7 +279,7 @@
 				<div
 					id="drawer-filtros"
 					tabindex="-1"
-					class="relative flex max-h-[85vh] animate-[sheetUp_.28s_cubic-bezier(.32,.72,0,1)] flex-col overflow-hidden rounded-t-3xl bg-white shadow-sheet outline-none"
+					class="relative flex max-h-[85dvh] animate-[sheetUp_.28s_cubic-bezier(.32,.72,0,1)] flex-col overflow-hidden rounded-t-3xl bg-white shadow-sheet outline-none"
 				>
 					<div class="flex justify-center pt-3 pb-1">
 						<span class="h-1 w-10 rounded-full bg-line" aria-hidden="true"></span>

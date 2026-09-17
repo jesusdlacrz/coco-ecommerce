@@ -295,8 +295,8 @@
 				{#each slides as slide, i (slide.label)}
 					<div
 						data-index={i}
-						class="relative overflow-hidden bg-graybrand"
-						style="width:100%;height:420px;flex-shrink:0;scroll-snap-align:center"
+						class="relative aspect-[3/4] overflow-hidden bg-graybrand"
+						style="width:100%;flex-shrink:0;scroll-snap-align:center"
 					>
 						<img src={slide.image} alt={slide.alt} class="h-full w-full object-cover" />
 						<div class="absolute bottom-0 left-0 w-48 bg-white/90 px-4 py-3 backdrop-blur-sm">

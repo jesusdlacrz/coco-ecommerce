@@ -55,7 +55,7 @@
 		onclick={onNavigate}
 		tabindex="-1"
 		aria-hidden="true"
-		class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-graybrand/40"
+		class="aspect-[3/4] w-20 flex-shrink-0 overflow-hidden rounded-lg bg-graybrand/40"
 	>
 		<img
 			src={item.image || '/placeholder.svg'}

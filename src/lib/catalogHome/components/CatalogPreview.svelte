@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from '$lib/shared/components/form/Button.svelte';
 	import ProductPreview from '$lib/products/components/ProductCardPreview.svelte';
 	import type { Product } from '$lib/shared/model/products';
 	import { page } from '$app/state';
@@ -18,18 +19,15 @@
 </script>
 
 <section class="space-y-6">
-	<div class="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-10 lg:grid-cols-3">
+	<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 md:gap-10">
 		{#each previewProducts as product (product.id)}
 			<ProductPreview {product} category={activeTab} />
 		{/each}
 	</div>
 
 	<div class="pt-6 text-center">
-		<a
-			href="{store.basePath}/productos?category={activeTab}"
-			class="inline-flex items-center rounded-lg border border-transparent bg-black px-14 py-3 text-sm font-medium text-white shadow-md transition-colors hover:bg-gray-800 hover:shadow-lg"
-		>
+		<Button variant="secondary" href="{store.basePath}/productos?category={activeTab}" class="px-14">
 			Ver Más
-		</a>
+		</Button>
 	</div>
 </section>
