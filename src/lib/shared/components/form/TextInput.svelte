@@ -45,7 +45,7 @@
 	<div
 		class="flex w-full items-stretch rounded-lg border font-body text-ink transition-colors focus-within:ring-2 focus-within:ring-accent/30 {borderClass}"
 	>
-		<span class="flex items-center border-r border-black/10 bg-black/5 pl-4 pr-2 text-muted-soft select-none">
+		<span class="flex items-center border-r border-line-soft bg-black/5 pl-4 pr-2 text-muted-soft select-none">
 			{prefix}
 		</span>
 		<input

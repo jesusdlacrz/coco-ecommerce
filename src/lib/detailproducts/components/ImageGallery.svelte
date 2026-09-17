@@ -6,11 +6,16 @@
 		productName: string;
 		selectedImageIndex: number;
 		onImageSelect: (index: number) => void;
-		id: string;
 		accentColor?: string;
 	};
 
-	let { images, productName, selectedImageIndex, onImageSelect, id, accentColor = '#262635' }: Props = $props();
+	let {
+		images,
+		productName,
+		selectedImageIndex,
+		onImageSelect,
+		accentColor = '#262635'
+	}: Props = $props();
 
 	let isLightboxOpen = $state(false);
 </script>
@@ -49,7 +54,6 @@
 			src={images[selectedImageIndex] || '/placeholder.svg'}
 			alt={productName}
 			class="h-full w-full object-cover"
-			style="view-transition-name: image-{id};"
 		/>
 		<span
 			class="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ink opacity-0 shadow transition-opacity group-hover:opacity-100"

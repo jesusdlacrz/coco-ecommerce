@@ -1,18 +1,16 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import ShoppingCart from '$lib/shared/icons/ShoppingCart.svelte';
-	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import Logo from '$lib/shared/icons/Logo.svelte';
 	import Menu from '$lib/shared/icons/Menu.svelte';
 	import X from '$lib/shared/icons/X.svelte';
-	import { activeCategory, categoryColors, type Category } from '$lib/shared/stores/categoryStore';
+	import { activeCategory, categoryColors } from '$lib/shared/stores/categoryStore';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
 
 	interface Props {
 		cartItemCount: number;
 		onCartClick: () => void;
-		onAccountClick?: () => void;
 		useDynamicColors?: boolean;
 		backgroundColor?: string;
 	}
@@ -20,7 +18,6 @@
 	let {
 		cartItemCount,
 		onCartClick,
-		onAccountClick,
 		useDynamicColors = false,
 		backgroundColor = ''
 	}: Props = $props();
@@ -43,10 +40,12 @@
 	let isMobileMenuOpen = $state(false);
 
 	// Cerrar el menú móvil al navegar a otra ruta, sin tener que enganchar un
-	// handler extra en cada TransitionLink (que ya trae el suyo para la
-	// transición de página y lo pisaría).
+	// handler extra en cada enlace.
+	let lastPathname = page.url.pathname;
 	$effect(() => {
-		page.url.pathname;
+		const pathname = page.url.pathname;
+		if (pathname === lastPathname) return;
+		lastPathname = pathname;
 		isMobileMenuOpen = false;
 	});
 
@@ -78,7 +77,7 @@
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex h-20 items-center justify-between text-muted">
 			<div class="flex items-center space-x-4">
-				<TransitionLink
+				<a
 					href={store.basePath || '/'}
 					class="cursor-pointer transition-all hover:opacity-80"
 				>
@@ -88,7 +87,7 @@
 					{:else}
 						<Logo />
 					{/if}
-				</TransitionLink>
+				</a>
 			</div>
 
 			<!-- Navegación + carrito agrupados a la derecha -->
@@ -96,7 +95,7 @@
 				<!-- Navegación de escritorio: oculta en móvil, el menú hamburguesa la reemplaza ahí -->
 				<div class="hidden items-center space-x-8 md:flex lg:space-x-12">
 					{#each navigationButtons as button (button.label)}
-						<TransitionLink
+						<a
 							href={button.href}
 							class="cursor-pointer px-1 text-sm font-medium transition-all duration-200 {isProductDetail &&
 							button.label === 'Productos'
@@ -107,17 +106,17 @@
 							style="font-family: 'Poppins', sans-serif;"
 						>
 							{button.label}
-						</TransitionLink>
+						</a>
 					{/each}
 
 					{#if store.kind === 'house'}
-						<TransitionLink
+						<a
 							href="/vendedores/registro"
 							class="cursor-pointer rounded-full border border-ink px-4 py-1.5 text-sm font-medium text-ink transition-all duration-200 hover:bg-ink hover:text-white"
 							style="font-family: 'Poppins', sans-serif;"
 						>
 							Vende con nosotros
-						</TransitionLink>
+						</a>
 					{/if}
 				</div>
 
@@ -160,10 +159,10 @@
 		{#if isMobileMenuOpen}
 			<div
 				transition:slide={{ duration: 200 }}
-				class="flex flex-col gap-1 border-t border-black/10 pt-3 pb-4 md:hidden"
+				class="flex flex-col gap-1 border-t border-line-soft pt-3 pb-4 md:hidden"
 			>
 				{#each navigationButtons as button (button.label)}
-					<TransitionLink
+					<a
 						href={button.href}
 						class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-black/5 {isProductDetail &&
 						button.label === 'Productos'
@@ -172,17 +171,17 @@
 						style="font-family: 'Poppins', sans-serif;"
 					>
 						{button.label}
-					</TransitionLink>
+					</a>
 				{/each}
 
 				{#if store.kind === 'house'}
-					<TransitionLink
+					<a
 						href="/vendedores/registro"
 						class="mt-1 rounded-lg border border-ink px-3 py-2.5 text-center text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-white"
 						style="font-family: 'Poppins', sans-serif;"
 					>
 						Vende con nosotros
-					</TransitionLink>
+					</a>
 				{/if}
 			</div>
 		{/if}

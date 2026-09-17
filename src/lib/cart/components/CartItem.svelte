@@ -4,6 +4,7 @@
 	import Plus from '$lib/shared/icons/Plus.svelte';
 	import Minus from '$lib/shared/icons/Minus.svelte';
 	import { productHrefForCartItem } from '$lib/cart/utils/productHref';
+	import { formatSize } from '$lib/shared/model/sizes';
 
 	type Props = {
 		item: CartItem;
@@ -26,7 +27,7 @@
 	}
 
 	const meta = $derived(
-		[item.size ? `Talla: ${item.size}` : '', item.color ? `Color: ${item.color}` : '']
+		[item.size ? `Talla: ${formatSize(item.size)}` : '', item.color ? `Color: ${item.color}` : '']
 			.filter(Boolean)
 			.join(' | ')
 	);

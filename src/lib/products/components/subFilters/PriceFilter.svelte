@@ -50,6 +50,12 @@
 	const rightPct = $derived(((localMax - minBound) / totalRange) * 100);
 	const singlePrice = $derived(minBound === maxBound);
 
+	// Un preset como "Hasta $44.500" puede dejar min y max en el MISMO valor.
+	// Dibujar dos tiradores encima uno del otro se leía como un defecto, así que
+	// el rango colapsado muestra uno solo. Para volver a abrirlo está el clic en
+	// la barra, que siempre mueve el extremo del lado al que se hizo clic.
+	const collapsed = $derived(localMin === localMax);
+
 	function snap(raw: number): number {
 		return Math.round(raw / 1000) * 1000;
 	}
@@ -89,10 +95,15 @@
 		activeThumb = null;
 	}
 
-	// Click on track: jump nearest thumb
+	// Clic en la barra: mueve el extremo correspondiente. Antes desempataba por
+	// cercanía, y con min === max los dos estaban a la misma distancia: ganaba
+	// siempre el mínimo, que ya no podía subir más, así que el rango colapsado
+	// no había forma de volver a ensancharlo. Ahora, un clic fuera del rango
+	// mueve el extremo de ese lado.
 	function onTrackClick(e: MouseEvent) {
 		const val = getValueFromX(e.clientX);
-		if (Math.abs(val - localMin) <= Math.abs(val - localMax)) {
+		const moveMin = val < localMin || (val < localMax && Math.abs(val - localMin) < Math.abs(val - localMax));
+		if (moveMin) {
 			const clamped = Math.max(minBound, Math.min(val, localMax - 1000));
 			localMin = clamped;
 			onRangeChange({ min: clamped, max: localMax });
@@ -152,34 +163,36 @@
 				<!-- Colored fill between thumbs -->
 				<div
 					class="absolute top-0 h-full rounded-full"
-					style="left:{leftPct}%; right:{100 -
-						rightPct}%; background-color:{currentStyle.accentColor}"
+					style="left:{leftPct}%; right:{100 - rightPct}%; min-width:2px; background-color:{currentStyle.accentColor}"
 				></div>
 			</div>
 
-			<!-- Min thumb -->
-			<div
-				role="slider"
-				tabindex="0"
-				aria-label="Precio mínimo"
-				aria-valuemin={minBound}
-				aria-valuemax={maxBound}
-				aria-valuenow={localMin}
-				class="absolute top-1/2 {thumbSize} -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full bg-white
-					shadow-[0_1px_3px_rgba(0,0,0,0.16),0_0_0_1px_rgba(0,0,0,0.06)]
-					transition-transform outline-none hover:scale-110
-					focus-visible:ring-2 focus-visible:ring-offset-1
-					active:scale-110 active:cursor-grabbing"
-				style="left:{leftPct}%; border:2px solid {currentStyle.accentColor}; z-index:{activeThumb ===
-				'min'
-					? 20
-					: 10}"
-				onpointerdown={onMinDown}
-				onpointermove={onMinMove}
-				onpointerup={onUp}
-				onlostpointercapture={onUp}
-				onkeydown={onMinKey}
-			></div>
+			<!-- Min thumb — oculto cuando el rango colapsa a un solo valor: dos
+			     tiradores dibujados uno encima del otro se leían como un defecto. -->
+			{#if !collapsed}
+				<div
+					role="slider"
+					tabindex="0"
+					aria-label="Precio mínimo"
+					aria-valuemin={minBound}
+					aria-valuemax={maxBound}
+					aria-valuenow={localMin}
+					class="absolute top-1/2 {thumbSize} -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full bg-white
+						shadow-[0_1px_3px_rgba(0,0,0,0.16),0_0_0_1px_rgba(0,0,0,0.06)]
+						transition-transform outline-none hover:scale-110
+						focus-visible:ring-2 focus-visible:ring-offset-1
+						active:scale-110 active:cursor-grabbing"
+					style="left:{leftPct}%; border:2px solid {currentStyle.accentColor}; z-index:{activeThumb ===
+					'min'
+						? 20
+						: 10}"
+					onpointerdown={onMinDown}
+					onpointermove={onMinMove}
+					onpointerup={onUp}
+					onlostpointercapture={onUp}
+					onkeydown={onMinKey}
+				></div>
+			{/if}
 
 			<!-- Max thumb -->
 			<div
@@ -197,7 +210,7 @@
 				style="left:{rightPct}%; border:2px solid {currentStyle.accentColor}; z-index:{activeThumb ===
 				'max'
 					? 20
-					: 10}"
+					: 11}"
 				onpointerdown={onMaxDown}
 				onpointermove={onMaxMove}
 				onpointerup={onUp}
@@ -206,10 +219,17 @@
 			></div>
 		</div>
 
-		<!-- Price labels below slider -->
-		<div class="mt-2 flex justify-between text-xs font-medium text-muted">
-			<span>{formatPriceCOP(localMin)}</span>
-			<span>{formatPriceCOP(localMax)}</span>
+		<!-- Con el rango colapsado, repetir el mismo precio a izquierda y derecha
+		     se leía como si fueran dos valores distintos. -->
+		<div class="mt-2 text-xs font-medium text-muted">
+			{#if localMin === localMax}
+				<p class="text-center">{formatPriceCOP(localMin)}</p>
+			{:else}
+				<div class="flex justify-between">
+					<span>{formatPriceCOP(localMin)}</span>
+					<span>{formatPriceCOP(localMax)}</span>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Preset quick-picks -->

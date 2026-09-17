@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { registerOverlay } from '$lib/shared/services/overlays';
+
 	type Props = {
 		images: string[];
 		productName: string;
@@ -132,6 +134,13 @@
 	let isTouchDragging = $state(false);
 	let wasGesture = false;
 
+	// Si el navegador ya se comprometió con un scroll, el touchend llega con
+	// cancelable=false y preventDefault() no hace nada salvo ensuciar la consola
+	// con avisos de [Intervention].
+	function cancel(e: TouchEvent) {
+		if (e.cancelable) e.preventDefault();
+	}
+
 	function touchDistance(touches: TouchList): number {
 		const dx = touches[0].clientX - touches[1].clientX;
 		const dy = touches[0].clientY - touches[1].clientY;
@@ -155,7 +164,7 @@
 
 	function handleTouchMove(e: TouchEvent) {
 		if (e.touches.length === 2) {
-			e.preventDefault();
+			cancel(e);
 			const distance = touchDistance(e.touches);
 			if (lastTouchDistance > 0) {
 				scale = clamp(scale * (distance / lastTouchDistance), 1, MAX_SCALE);
@@ -168,7 +177,7 @@
 				clampPan();
 			}
 		} else if (e.touches.length === 1 && isTouchDragging) {
-			e.preventDefault();
+			cancel(e);
 			translateX = translateStart.x + (e.touches[0].clientX - dragStart.x);
 			translateY = translateStart.y + (e.touches[0].clientY - dragStart.y);
 			clampPan();
@@ -182,29 +191,31 @@
 		lastTouchDistance = 0;
 		if (scale <= 1) resetZoom();
 
+		// Un gesto (pellizco o arrastre) ya se resolvió durante el movimiento:
+		// aquí solo hay que impedir que además se dispare un clic.
 		if (wasGesture) {
-			e.preventDefault();
+			cancel(e);
 			wasGesture = false;
 			return;
 		}
 
-		// Tap simple o doble tap — se resuelve aquí, no como click sintético.
-		e.preventDefault();
 		const now = Date.now();
 		const isDoubleTap = now - lastTapTime < DOUBLE_TAP_MS;
 		lastTapTime = isDoubleTap ? 0 : now;
+
 		if (isDoubleTap) {
+			cancel(e);
 			toggleZoomAt(lastTapPoint.x, lastTapPoint.y);
+			return;
 		}
+
+		// Un toque simple NO se cancela: se deja pasar para que el navegador
+		// genere su clic y los onclick normales funcionen. Antes se cancelaba
+		// siempre, así que en una pantalla táctil tocar el fondo para cerrar el
+		// visor no hacía absolutamente nada — el clic nunca llegaba a existir.
 	}
 
-	$effect(() => {
-		const previousOverflow = document.body.style.overflow;
-		document.body.style.overflow = 'hidden';
-		return () => {
-			document.body.style.overflow = previousOverflow;
-		};
-	});
+	$effect(() => registerOverlay('lightbox'));
 </script>
 
 <svelte:window onkeydown={handleKeydown} onmousemove={handleWindowMouseMove} onmouseup={handleWindowMouseUp} />

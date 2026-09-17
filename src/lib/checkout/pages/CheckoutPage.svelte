@@ -15,6 +15,7 @@
 	import Button from '$lib/shared/components/form/Button.svelte';
 	import EmptyState from '$lib/shared/components/EmptyState.svelte';
 	import { productHrefForCartItem } from '$lib/cart/utils/productHref';
+	import { formatSize } from '$lib/shared/model/sizes';
 	import toast from 'svelte-5-french-toast';
 
 	const PAYMENT_METHODS = ['Tarjeta', 'PSE', 'Nequi'];
@@ -303,7 +304,7 @@
 							Método de pago
 						</h2>
 
-						<div class="rounded-2xl border border-line bg-white p-4">
+						<div class="rounded-2xl border border-line-soft bg-white p-5">
 							<div class="flex flex-wrap gap-2">
 								{#each PAYMENT_METHODS as method (method)}
 									<span
@@ -377,7 +378,7 @@
 											{item.name}
 										</a>
 										<p class="mt-1 text-sm text-muted-soft">
-											{item.color ?? 'General'}{item.size ? ` / ${item.size}` : ''}
+											{item.color ?? 'General'}{item.size ? ` / ${formatSize(item.size)}` : ''}
 										</p>
 									</div>
 									<p class="text-right text-base font-medium text-ink">
@@ -396,8 +397,13 @@
 					</div>
 					<div class="flex items-center justify-between text-base">
 						<span>Envío</span>
-						<span>{formatPrice(shipping)}</span>
+						<span>{shipping > 0 ? formatPrice(shipping) : 'Por cobrar'}</span>
 					</div>
+					{#if shipping === 0}
+						<p class="text-sm text-muted-soft">
+							El flete se paga al recibir el pedido, directamente a la transportadora.
+						</p>
+					{/if}
 					<div
 						class="flex items-center justify-between border-t border-[#d3c9b8] pt-4 text-lg font-semibold text-ink"
 					>

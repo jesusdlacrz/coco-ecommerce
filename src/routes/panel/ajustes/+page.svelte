@@ -23,7 +23,7 @@
 
 <h1 class="mb-6 font-display text-2xl font-bold text-ink">Ajustes de tu tienda</h1>
 
-<div class="max-w-xl rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+<div class="max-w-xl rounded-2xl border border-line-soft bg-white p-6 shadow-sm">
 	<form
 		method="POST"
 		action="?/guardar"

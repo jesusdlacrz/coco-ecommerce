@@ -15,7 +15,7 @@
 </script>
 
 <div class="min-h-screen bg-gradient-to-b from-[#FCA12014] to-[#FAFAFA]">
-	<header class="sticky top-0 z-30 border-b border-black/10 bg-white/90 backdrop-blur-sm">
+	<header class="sticky top-0 z-30 border-b border-line-soft bg-white/90 backdrop-blur-sm">
 		<div
 			class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 overflow-x-auto px-4"
 		>

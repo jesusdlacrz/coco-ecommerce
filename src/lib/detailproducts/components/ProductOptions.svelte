@@ -3,6 +3,7 @@
 	import Minus from '$lib/shared/icons/Minus.svelte';
 	import type { Color, ProductVariation } from '$lib/shared/model/products';
 	import { stockForSize, stockForColor, stockForCombo } from '$lib/shared/model/stock';
+	import { formatSize, sortSizes } from '$lib/shared/model/sizes';
 
 	type Props = {
 		sizes: string[];
@@ -28,6 +29,10 @@
 		onQuantityChange
 	}: Props = $props();
 
+	// WooCommerce devuelve las tallas en el orden en que se crearon en el panel
+	// (M, XS, XXS…) y con la caja que se haya escrito ahí.
+	const sortedSizes = $derived(sortSizes(sizes));
+
 	// Sin datos de variación (producto simple, o uno que en WooCommerce
 	// todavía no se convirtió a variable) no hay cómo saber el stock por
 	// talla/color desde aquí — no se bloquea nada en el frontend en ese caso;
@@ -48,6 +53,17 @@
 		const needsColor = colors.length > 0;
 		if ((needsSize && !selectedSize) || (needsColor && !selectedColor)) return null;
 		return stockForCombo(variations, needsSize ? selectedSize : null, needsColor ? selectedColor : null);
+	}
+
+	// Un segundo clic sobre la talla/color ya elegido lo deselecciona: es la
+	// única forma de volver a "sin filtro" sin recargar la ficha, y es lo que
+	// la gente intenta por instinto.
+	function toggleSize(size: string) {
+		onSizeSelect(selectedSize === size ? '' : size);
+	}
+
+	function toggleColor(color: string) {
+		onColorSelect(selectedColor === color ? '' : color);
 	}
 
 	function clamp(value: number): number {
@@ -84,22 +100,23 @@
 <div class="space-y-6">
 	{#if sizes.length > 0}
 		<div>
-			<span class="block text-sm font-medium font-display text-black mb-2">Talla:</span>
+			<span class="mb-2 block font-display text-sm font-medium text-ink">Talla:</span>
 			<div class="flex flex-wrap gap-3">
-				{#each sizes as size (size)}
+				{#each sortedSizes as size (size)}
 					{@const disabled = sizeDisabled(size)}
+					{@const selected = selectedSize === size}
 					<button
-						onclick={() => onSizeSelect(size)}
+						onclick={() => toggleSize(size)}
 						{disabled}
-						title={disabled ? 'Agotado' : undefined}
-						style="font-family: 'Poppins', sans-serif;"
-						class="w-10 h-10 text-sm border rounded-md transition-all flex items-center justify-center {disabled
-							? 'cursor-not-allowed border-gray-200 text-gray-300 line-through'
-							: selectedSize === size
-								? 'border-black bg-black text-white'
-								: 'border-black hover:border-gray-800'}"
+						aria-pressed={selected}
+						title={disabled ? 'Agotado' : selected ? 'Quitar selección' : undefined}
+						class="flex h-11 w-11 items-center justify-center rounded-lg border font-poppins text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent {disabled
+							? 'cursor-not-allowed border-line-soft text-line line-through'
+							: selected
+								? 'border-ink bg-ink text-white'
+								: 'border-line text-ink hover:border-ink'}"
 					>
-						{size}
+						{formatSize(size)}
 					</button>
 				{/each}
 			</div>
@@ -108,34 +125,47 @@
 
 	{#if colors.length > 0}
 		<div>
-			<span class="block text-sm font-medium font-display text-black mb-3">Color:</span>
-			<div class="flex flex-wrap gap-2">
+			<span class="mb-3 block font-display text-sm font-medium text-ink">Color:</span>
+			<div class="flex flex-wrap gap-1">
 				{#each colors as color (color.name)}
 					{@const disabled = colorDisabled(color.name)}
+					{@const selected = selectedColor === color.name}
 					<button
-						title={disabled ? `${color.name} — Agotado` : color.name}
-						aria-label={`Color ${color.name}${disabled ? ' (agotado)' : ''}`}
-						onclick={() => onColorSelect(color.name)}
+						title={disabled
+							? `${color.name} — Agotado`
+							: selected
+								? `${color.name} — quitar selección`
+								: color.name}
+						aria-label="Color {color.name}{disabled ? ' (agotado)' : ''}"
+						aria-pressed={selected}
+						onclick={() => toggleColor(color.name)}
 						{disabled}
-						class={`relative w-8 h-8 rounded-full transition-all ${disabled ? 'cursor-not-allowed opacity-30' : ''} ${selectedColor === color.name
-							? 'border-2 border-white ring-1 ring-black'
-							: `${color.name === 'Blanco' ? 'border border-gray-400' : 'border border-gray-300'} hover:border-gray-400`}`}
-						style="background-color: {color.hex}"
-					></button>
+						class="flex h-11 w-11 items-center justify-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent {disabled
+							? 'cursor-not-allowed opacity-30'
+							: 'hover:bg-graybrand/40'}"
+					>
+						<span
+							class="h-8 w-8 rounded-full transition-all {selected
+								? 'border-2 border-white ring-2 ring-ink'
+								: 'border border-line'}"
+							style="background-color: {color.hex}"
+						></span>
+					</button>
 				{/each}
 			</div>
 		</div>
 	{/if}
 
 	<div>
-		<span class="block text-sm font-medium font-display text-black mb-2">Cantidad:</span>
-		<div class="flex items-center space-x-2 bg-white h-10 max-w-[115px] shadow rounded">
+		<span class="mb-2 block font-display text-sm font-medium text-ink">Cantidad:</span>
+		<div class="flex h-11 max-w-[128px] items-center justify-between rounded-lg bg-white px-1 shadow">
 			<button
 				onclick={decrementQuantity}
 				disabled={quantity <= 1}
-				class="flex h-8 w-8 items-center justify-center p-0 disabled:opacity-50"
+				aria-label="Quitar una unidad"
+				class="flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-graybrand/40 disabled:opacity-40 disabled:hover:bg-transparent"
 			>
-				<Minus size={12} class="text-black" />
+				<Minus size={12} class="text-ink" />
 			</button>
 			<input
 				type="number"
@@ -144,19 +174,20 @@
 				value={quantity}
 				oninput={handleInputChange}
 				onblur={handleInputBlur}
-				class="w-10 text-center text-sm font-medium text-black bg-transparent outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-				style="font-family: 'Poppins', sans-serif;"
+				aria-label="Cantidad"
+				class="w-10 bg-transparent text-center font-poppins text-sm font-medium text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 			/>
 			<button
 				onclick={incrementQuantity}
 				disabled={maxQuantity() !== null && quantity >= maxQuantity()!}
-				class="flex h-8 w-8 items-center justify-center p-0 disabled:opacity-50"
+				aria-label="Agregar una unidad"
+				class="flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-graybrand/40 disabled:opacity-40 disabled:hover:bg-transparent"
 			>
 				<Plus size={12} />
 			</button>
 		</div>
 		{#if maxQuantity() !== null}
-			<p class="mt-1 font-body text-xs text-gray-400">
+			<p class="mt-1 font-body text-xs text-muted-faint">
 				{maxQuantity()} disponibles en esta combinación
 			</p>
 		{/if}

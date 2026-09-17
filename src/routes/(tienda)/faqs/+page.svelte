@@ -2,7 +2,6 @@
 	import GridFaq from '$lib/faqs/components/gridFAQ.svelte';
 
 	import mujer from '$lib/assets/faqs/mujer.webp';
-	import LogoVertical from '$lib/shared/icons/LogoVertical.svelte';
 </script>
 
 <section class="px-4 py-16 sm:px-8 sm:py-20 md:px-16 md:py-24 lg:px-32 xl:px-72">

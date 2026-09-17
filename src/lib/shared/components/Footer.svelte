@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import TransitionLink from './TransitionLink.svelte';
 	import IconButton from '$lib/shared/components/form/IconButton.svelte';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
@@ -23,24 +22,24 @@
 	}
 </script>
 
-<footer class="border-t border-black/10 bg-transparent py-12">
+<footer class="border-t border-line-soft bg-transparent py-12">
 	<div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<!-- Centered links + copyright -->
 		<div class="flex flex-col items-center gap-4 text-center">
 			<div class="flex gap-8">
-				<TransitionLink
+				<a
 					href="{store.basePath}/contacto"
 					class="text-muted transition-colors hover:text-ink"
 				>
 					Contacto
-				</TransitionLink>
+				</a>
 				{#if store.kind === 'house'}
-					<TransitionLink
+					<a
 						href="/faqs"
 						class="text-muted transition-colors hover:text-ink"
 					>
 						FAQ'S
-					</TransitionLink>
+					</a>
 				{/if}
 			</div>
 			<p class="text-sm text-muted-soft">Copyright © 2026. All Rights Reserved.</p>

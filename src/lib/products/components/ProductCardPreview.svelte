@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Product } from '$lib/shared/model/products';
 	import { formatPrice, displayPrice } from '$lib/shared/utils/price';
-	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
 
@@ -16,7 +15,7 @@
 	const isAlmostSoldOut = $derived(product.stockQuantity <= 20);
 </script>
 
-<TransitionLink
+<a
 	href={`${store.basePath}/productos/${product.id}${category ? `?category=${category}&from=home` : ''}`}
 	class="group w-full cursor-pointer rounded-lg bg-white shadow-md transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
 >
@@ -28,7 +27,6 @@
 				alt={product.name}
 				class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 				loading="lazy"
-				style="view-transition-name: image-{product.id};"
 			/>
 		</div>
 
@@ -51,4 +49,4 @@
 			{/if}
 		</div>
 	</div>
-</TransitionLink>
+</a>

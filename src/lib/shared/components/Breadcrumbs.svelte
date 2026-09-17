@@ -1,5 +1,4 @@
 <script lang="ts">
-	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 
 	type Breadcrumb = {
 		label: string;
@@ -27,12 +26,12 @@
 				{#if index === breadcrumbs.length - 1}
 					<span class="font-medium text-gray-900">{breadcrumb.label}</span>
 				{:else}
-					<TransitionLink 
+					<a 
 						href={breadcrumb.href}
 						class="hover:text-gray-700 transition-colors"
 					>
 						{breadcrumb.label}
-					</TransitionLink>
+					</a>
 				{/if}
 			</li>
 		{/each}

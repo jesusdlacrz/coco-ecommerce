@@ -79,13 +79,31 @@
 	let quantity = $state<number>(1);
 	let selectedImageIndex = $state<number>(0);
 
-	// Funciones para manejar cambios
+	// Al cambiar de talla/color el stock de la combinación puede ser menor que
+	// la cantidad ya escrita; se ajusta en el momento en vez de dejar que el
+	// usuario descubra el problema recién al agregar al carrito.
+	function clampQuantityToStock() {
+		const variations = product.variations ?? [];
+		if (variations.length === 0) return;
+		const needsSize = product.sizes.length > 0;
+		const needsColor = product.colors.length > 0;
+		if ((needsSize && !selectedSize) || (needsColor && !selectedColor)) return;
+		const stock = stockForCombo(
+			variations,
+			needsSize ? selectedSize : null,
+			needsColor ? selectedColor : null
+		);
+		if (stock > 0 && quantity > stock) quantity = stock;
+	}
+
 	function handleSizeSelect(size: string) {
 		selectedSize = size;
+		clampQuantityToStock();
 	}
 
 	function handleColorSelect(color: string) {
 		selectedColor = color;
+		clampQuantityToStock();
 	}
 
 	function handleQuantityChange(newQuantity: number) {
@@ -177,7 +195,6 @@
 		<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
 			<!-- Galería de imágenes -->
 			<ImageGallery
-				id={product.id}
 				images={product.images}
 				productName={product.name}
 				{selectedImageIndex}

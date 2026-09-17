@@ -9,7 +9,7 @@
 	<h3 class="text-graybrand-light mb-6 text-lg font-light sm:text-xl">Preguntas de ayuda</h3>
 
 	<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-		{#each faqs as faq}
+		{#each faqs as faq (faq.question)}
 			<GridCard {faq} />
 		{/each}
 	</div>

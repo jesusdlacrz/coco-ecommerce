@@ -1,6 +1,5 @@
 <script lang="ts">
 	import ProductPreview from '$lib/products/components/ProductCardPreview.svelte';
-	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import type { Product } from '$lib/shared/model/products';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
@@ -26,12 +25,11 @@
 	</div>
 
 	<div class="pt-6 text-center">
-		<TransitionLink
+		<a
 			href="{store.basePath}/productos?category={activeTab}"
-			hero={false}
 			class="inline-flex items-center rounded-lg border border-transparent bg-black px-14 py-3 text-sm font-medium text-white shadow-md transition-colors hover:bg-gray-800 hover:shadow-lg"
 		>
 			Ver Más
-		</TransitionLink>
+		</a>
 	</div>
 </section>

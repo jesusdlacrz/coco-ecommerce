@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { formatPrice } from '$lib/shared/utils/price';
+	import type { CartItem } from '$lib/shared/model/products';
 
 	type Props = {
-		cartItems: any[];
+		cartItems: CartItem[];
 		total: number;
 		totalItems: number;
 		canCheckout: boolean;

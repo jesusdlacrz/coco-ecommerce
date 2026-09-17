@@ -10,7 +10,7 @@
 	let { title, footer, children }: Props = $props();
 </script>
 
-<div class="rounded-2xl border border-black/10 bg-white p-8 shadow-sm">
+<div class="rounded-2xl border border-line-soft bg-white p-6 shadow-sm sm:p-8">
 	<h1 class="mb-6 font-display text-2xl font-bold text-ink">{title}</h1>
 	{@render children()}
 	{#if footer}

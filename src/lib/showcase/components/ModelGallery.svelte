@@ -1,9 +1,9 @@
 <script lang="ts">
-	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import type { Product } from '$lib/shared/model/products';
 	import type { SiteCopy, SiteHeroImages } from '$lib/shared/services/siteContent.server';
 	import { page } from '$app/state';
 	import { HOUSE_STORE } from '$lib/storefront/model';
+	import Button from '$lib/shared/components/form/Button.svelte';
 
 	// Productos recientes de WooCommerce para las imágenes del hero, salvo que
 	// se haya subido una imagen personalizada en WordPress para esa posición.
@@ -40,22 +40,19 @@
 </script>
 
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-	<!-- MÓVIL: flex-col con reordenamiento. ESCRITORIO: grid 3 columnas -->
+	<!-- Una sola rejilla para las dos disposiciones.
+	     Antes había dos juegos de marcado: las imágenes laterales se escribían
+	     una vez para escritorio (`lg:block`) y otra para móvil (`lg:hidden`),
+	     así que las MISMAS dos fotos estaban dos veces en el DOM y el navegador
+	     las descargaba por duplicado en cada carga. Aquí cada imagen aparece una
+	     sola vez y solo cambia dónde se coloca. -->
 	<div
-		class="flex flex-col gap-5 lg:grid lg:items-start lg:gap-6"
-		style="grid-template-columns: 1fr 1.5fr 1fr;"
+		class="grid grid-cols-2 gap-4 lg:grid-cols-[1fr_1.5fr_1fr] lg:items-start lg:gap-6"
 	>
-		<!-- Imagen izquierda — oculta en móvil, aparece en lg (col 1, row 1) -->
+		<!-- Columna central: en móvil va primera y ocupa el ancho completo. -->
 		<div
-			class="hidden w-full overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg lg:block"
-			style="aspect-ratio: 1/2; grid-column: 1; grid-row: 1;"
+			class="order-1 col-span-2 flex flex-col items-center lg:order-none lg:col-span-1 lg:col-start-2 lg:row-start-1"
 		>
-			<img src={left.src} alt={left.alt} class="h-full w-full object-cover object-top" />
-		</div>
-
-		<!-- Columna central — en lg ocupa col 2, row 1 -->
-		<div class="flex flex-col items-center" style="grid-column: 2; grid-row: 1;">
-			<!-- Texto + botón: order-1 en móvil (va primero), luego imagen -->
 			<div
 				class="order-1 flex flex-col items-center gap-5 py-6 text-center font-poppins lg:order-2 lg:mt-8 lg:py-0"
 			>
@@ -67,7 +64,7 @@
 						{line1}
 					</h1>
 					<h2
-						class="bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-500 bg-clip-text font-bold tracking-tight text-transparent"
+						class="bg-gradient-to-r from-accent via-yellow-500 to-accent-hover bg-clip-text font-bold tracking-tight text-transparent"
 						style="font-size: clamp(3rem, 8vw, 6.5rem); line-height: 1;"
 					>
 						{line2}
@@ -76,40 +73,30 @@
 						{subtitle}
 					</p>
 				</div>
-				<TransitionLink
+				<Button
+					variant="secondary"
 					href="{store.basePath}/productos"
-					hero={false}
-					class="inline-block rounded-xl bg-black px-10 py-4 text-sm font-medium text-white shadow-[0px_20px_35px_0px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-105 hover:bg-gray-800 hover:shadow-xl"
+					class="shadow-[0px_20px_35px_0px_rgba(0,0,0,0.15)]"
 				>
 					Comprar ahora
-				</TransitionLink>
+				</Button>
 			</div>
 
-			<!-- Imagen horizontal: order-2 en móvil (va después del texto) -->
-			<div
-				class="order-2 w-full overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg lg:order-1"
-				style="aspect-ratio: 3/1;"
-			>
+			<div class="order-2 aspect-[3/1] w-full overflow-hidden rounded-2xl bg-graybrand shadow-lg lg:order-1">
 				<img src={center.src} alt={center.alt} class="h-full w-full object-cover" />
 			</div>
 		</div>
 
-		<!-- Imagen derecha — oculta en móvil en lg, col 3, row 1 -->
+		<!-- Laterales: debajo del bloque central en móvil, a los costados en lg. -->
 		<div
-			class="hidden w-full overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg lg:block"
-			style="aspect-ratio: 1/2; grid-column: 3; grid-row: 1;"
+			class="order-2 aspect-[1/2] w-full overflow-hidden rounded-2xl bg-graybrand shadow-lg lg:order-none lg:col-start-1 lg:row-start-1"
+		>
+			<img src={left.src} alt={left.alt} class="h-full w-full object-cover object-top" />
+		</div>
+		<div
+			class="order-3 aspect-[1/2] w-full overflow-hidden rounded-2xl bg-graybrand shadow-lg lg:order-none lg:col-start-3 lg:row-start-1"
 		>
 			<img src={right.src} alt={right.alt} class="h-full w-full object-cover object-top" />
-		</div>
-
-		<!-- Sub-grid de imágenes laterales para móvil (order-3, visible solo en < lg) -->
-		<div class="order-3 grid grid-cols-2 gap-3 lg:hidden">
-			<div class="overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg" style="aspect-ratio: 1/2;">
-				<img src={left.src} alt={left.alt} class="h-full w-full object-cover object-top" />
-			</div>
-			<div class="overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg" style="aspect-ratio: 1/2;">
-				<img src={right.src} alt={right.alt} class="h-full w-full object-cover object-top" />
-			</div>
 		</div>
 	</div>
 </div>

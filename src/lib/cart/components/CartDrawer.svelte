@@ -4,6 +4,7 @@
 	import CartContent from './CartContent.svelte';
 	import CartFooter from './CartFooter.svelte';
 	import { page } from '$app/state';
+	import { registerOverlay } from '$lib/shared/services/overlays';
 	import { HOUSE_STORE } from '$lib/storefront/model';
 	import { cartStore, MIN_PAYMENT_UNITS } from '$lib/cart/stores/cartStore';
 	import toast from 'svelte-5-french-toast';
@@ -61,6 +62,17 @@
 	// subir la cantidad de una talla/color por encima de lo que de verdad
 	// hay. Es solo la capa de UX: `checkout/start` es quien de verdad lo
 	// bloquea si esto se salta.
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && isOpen) onClose();
+	}
+
+	// El panel del carrito tapa la pantalla completa pero no bloqueaba el scroll:
+	// el fondo se movía detrás. Usa el mismo lock con contador que el visor de
+	// imágenes y la hoja de filtros.
+	$effect(() => {
+		if (isOpen) return registerOverlay('cart');
+	});
+
 	let stockByItemId = $state<Record<string, number>>({});
 
 	$effect(() => {
@@ -100,13 +112,23 @@
 	const missingUnits = $derived(Math.max(0, MIN_PAYMENT_UNITS - totalItems));
 </script>
 
+<svelte:window onkeydown={handleKeydown} />
+
 {#if isOpen}
 	<!-- Overlay -->
-	<button class="fixed inset-0 z-40 bg-black/50" onclick={onClose} aria-label="Cerrar carrito"
+	<button class="fixed inset-0 z-40 bg-ink/50" onclick={onClose} aria-label="Cerrar carrito"
 	></button>
 
-	<!-- Drawer -->
-	<div class="fixed top-0 right-0 z-50 flex h-full w-full flex-col bg-white sm:max-w-lg">
+	<!-- Drawer. `role="dialog"` no es solo semántica: es la marca por la que el
+	     resto del código (y el panel de diagnóstico) reconoce que hay un panel
+	     modal legítimamente abierto. Sin ella, un carrito abierto se veía desde
+	     fuera igual que un bloqueo de scroll huérfano. -->
+	<div
+		role="dialog"
+		aria-modal="true"
+		aria-label="Carro de compras"
+		class="fixed top-0 right-0 z-50 flex h-full w-full flex-col bg-white sm:max-w-lg"
+	>
 		<CartHeader {totalItems} {total} {onClose} />
 
 		<CartContent

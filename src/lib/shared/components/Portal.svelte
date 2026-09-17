@@ -11,11 +11,16 @@
 
 	let container = $state<HTMLDivElement | null>(null);
 
+	// Mover el contenedor fuera de su sitio en el árbol, y retirarlo al final, es
+	// precisamente la función de un portal: sacar el modal del contexto de
+	// apilamiento del padre. Svelte sigue siendo el dueño de lo que hay DENTRO
+	// del div; aquí solo se reubica el envoltorio.
 	onMount(() => {
 		(target ?? document.body).appendChild(container!);
 	});
 
 	onDestroy(() => {
+		// eslint-disable-next-line svelte/no-dom-manipulating
 		container?.remove();
 	});
 </script>

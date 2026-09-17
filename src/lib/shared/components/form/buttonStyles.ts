@@ -17,8 +17,8 @@ const SIZE: Record<ButtonSize, string> = {
 // convivían tres tipografías distintas para el mismo botón primario (font-display
 // title case, text-sm uppercase con tracking, y text-sm font-medium); aquí queda
 // una sola. Se expone como función —y no solo dentro de Button.svelte— para que
-// los enlaces que necesitan otro componente (TransitionLink, que conserva la
-// view transition) puedan usar exactamente el mismo aspecto sin duplicar clases.
+// un enlace que no pueda usar el componente tenga exactamente el mismo aspecto
+// sin duplicar las clases a mano.
 const BASE =
 	'inline-flex items-center justify-center gap-2 rounded-xl font-display font-semibold transition-colors active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100';
 

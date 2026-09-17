@@ -49,30 +49,16 @@
 
 	// =================== LIFECYCLE ===================
 	onMount(() => {
-		// Listen for cart open events from header
-		const handleOpenCart = () => {
-			isCartOpen = true;
-		};
-		window.addEventListener('openCart', handleOpenCart);
-
-		// Subscribe to category changes
-		const unsubscribe = activeCategory.subscribe((category) => {
+		// El header abre el carrito por la prop `onCartClick`; el evento
+		// 'openCart' que se escuchaba aquí no lo despachaba nadie.
+		return activeCategory.subscribe((category) => {
 			currentCategory = category;
 		});
-
-		return () => {
-			window.removeEventListener('openCart', handleOpenCart);
-			unsubscribe();
-		};
 	});
 
 	// =================== CART HANDLERS ===================
 	function handleCartClick() {
 		isCartOpen = true;
-	}
-
-	function handleAccountClick() {
-		console.log('Account clicked - implement navigation');
 	}
 
 	function handleUpdateQuantity(itemId: string, quantity: number) {
@@ -100,7 +86,6 @@
 <Header
 	cartItemCount={$cartItemCount}
 	onCartClick={handleCartClick}
-	onAccountClick={handleAccountClick}
 	useDynamicColors={isProductsPage}
 	backgroundColor={currentBackground}
 />

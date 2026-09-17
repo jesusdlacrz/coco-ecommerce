@@ -23,6 +23,7 @@
 		buildCategoryCounts
 	} from '$lib/products/filters/logic';
 	import Portal from '$lib/shared/components/Portal.svelte';
+	import { registerOverlay } from '$lib/shared/services/overlays';
 	import Button from '$lib/shared/components/form/Button.svelte';
 	import FilterSections from './subFilters/FilterSections.svelte';
 	import ActiveFiltersChips from './subFilters/ActiveFiltersChips.svelte';
@@ -109,15 +110,10 @@
 		onFiltersChange(filteredProducts);
 	});
 
-	// Scroll lock when mobile drawer open
+	// Bloqueo de scroll compartido: antes esto actuaba sobre <html> y el visor
+	// de imágenes sobre <body>, cada uno con su propio "valor previo".
 	$effect(() => {
-		if (showMobileFilters) {
-			const prev = document.documentElement.style.overflow;
-			document.documentElement.style.overflow = 'hidden';
-			return () => {
-				document.documentElement.style.overflow = prev;
-			};
-		}
+		if (showMobileFilters) return registerOverlay('filters');
 	});
 
 	function toggleCategory(category: string) {

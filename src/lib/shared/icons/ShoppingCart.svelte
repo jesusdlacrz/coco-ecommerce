@@ -8,11 +8,12 @@
 </script>
 
 <svg
-	width="24"
-	height="23"
+	width={size}
+	height={size}
 	viewBox="0 0 24 23"
 	fill="none"
-	xmlns="http://www.w3.org/2000/svg 	class={className}"
+	xmlns="http://www.w3.org/2000/svg"
+	class={className}
 >
 	<path
 		d="M20.5555 17.3333H7.33331L3.44442 1H1.11108M4.2222 4.11111H22.8889L20.5555 14.2222H6.55553L4.2222 4.11111Z"

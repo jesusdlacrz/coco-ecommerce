@@ -19,6 +19,12 @@
 <div>
 	<h1 class="font-display text-3xl font-bold text-ink">{product.name}</h1>
 	<div class="prose-description mt-1 font-body text-muted-soft">
+		<!-- La descripción viene del panel de WordPress, escrita por la dueña de la
+		     tienda, y llega con etiquetas (<p>, <strong>, listas) que hay que
+		     renderizar. No es entrada de un visitante, así que no hay superficie
+		     de XSS por parte de terceros: quien puede escribir aquí ya tiene
+		     acceso de administración a WooCommerce. -->
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html product.description}
 	</div>
 </div>

@@ -154,7 +154,7 @@
 			<div class="flex flex-1 items-start gap-4 pt-10 pr-4 pb-8">
 				<!-- Main card: keyed so fly transition fires on change -->
 				<div
-					class="relative min-w-0 flex-[11] overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-[0px_4px_35px_0px_rgba(0,0,0,0.15)]"
+					class="relative min-w-0 flex-[11] overflow-hidden rounded-2xl bg-graybrand shadow-[0px_4px_35px_0px_rgba(0,0,0,0.15)]"
 					style="height:580px"
 				>
 					{#key current}
@@ -169,22 +169,26 @@
 							/>
 						</div>
 					{/key}
-					<div class="absolute bottom-0 left-0 w-52 bg-white/90 px-5 py-4 backdrop-blur-sm">
-						{#key current}
-							<div in:fade={{ duration: 250, delay: 100 }}>
-								<p class="text-sm text-muted">
-									{slides[current].label} — {slides[current].sale}
-								</p>
-								<p class="mt-1 text-2xl font-medium text-muted">{slides[current].discount}</p>
-							</div>
-						{/key}
-					</div>
+					<div
+					class="absolute bottom-4 left-4 max-w-[70%] rounded-xl bg-white/85 px-5 py-3.5 shadow-lg backdrop-blur-md"
+				>
+					{#key current}
+						<div in:fade={{ duration: 250, delay: 100 }}>
+							<p class="font-poppins text-xs tracking-wide text-muted-soft uppercase">
+								{slides[current].label} — {slides[current].sale}
+							</p>
+							<p class="mt-0.5 font-display text-2xl font-semibold text-ink">
+								{slides[current].discount}
+							</p>
+						</div>
+					{/key}
+				</div>
 				</div>
 				<!-- Secondary card (peek): click advances to next -->
 				<div class="flex min-w-0 flex-[10] flex-col gap-4">
 					<button
 						onclick={goNext}
-						class="w-full cursor-pointer overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-[0px_4px_35px_0px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:scale-[1.02]"
+						class="w-full cursor-pointer overflow-hidden rounded-2xl bg-graybrand shadow-[0px_4px_35px_0px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:scale-[1.02]"
 						style="height:520px"
 						aria-label="Ver siguiente"
 					>
@@ -229,7 +233,7 @@
 					{#each slides as slide, i (slide.label)}
 						<div
 							data-index={i}
-							class="relative shrink-0 snap-center overflow-hidden rounded-2xl bg-[#d5d5d5] shadow-lg"
+							class="relative shrink-0 snap-center overflow-hidden rounded-2xl bg-graybrand shadow-lg"
 							style="width:min(420px,90vw);height:500px;flex-shrink:0"
 						>
 							<img src={slide.image} alt={slide.alt} class="h-full w-full object-cover" />
@@ -291,7 +295,7 @@
 				{#each slides as slide, i (slide.label)}
 					<div
 						data-index={i}
-						class="relative overflow-hidden bg-[#d5d5d5]"
+						class="relative overflow-hidden bg-graybrand"
 						style="width:100%;height:420px;flex-shrink:0;scroll-snap-align:center"
 					>
 						<img src={slide.image} alt={slide.alt} class="h-full w-full object-cover" />

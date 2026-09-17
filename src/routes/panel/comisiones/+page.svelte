@@ -139,9 +139,9 @@
 	</div>
 </div>
 
-<div class="overflow-x-auto rounded-2xl border border-black/10 bg-white shadow-sm">
+<div class="overflow-x-auto rounded-2xl border border-line-soft bg-white shadow-sm">
 	<table class="w-full text-left text-sm">
-		<thead class="border-b border-black/10 text-xs text-muted-faint uppercase">
+		<thead class="border-b border-line-soft text-xs text-muted-faint uppercase">
 			<tr>
 				<th class="px-4 py-3">Producto</th>
 				<th class="px-4 py-3">Precio base</th>
@@ -205,7 +205,7 @@
 							onclick={() => toggleHidden(row)}
 							aria-pressed={cur.hidden}
 							class="rounded-full border px-3 py-1 text-xs font-medium {cur.hidden
-								? 'border-black/10 bg-gray-100 text-gray-500'
+								? 'border-line-soft bg-gray-100 text-gray-500'
 								: 'border-green-200 bg-green-50 text-green-700'}"
 						>
 							{cur.hidden ? 'Oculta' : 'Visible'}
@@ -228,7 +228,7 @@
 	<form
 		method="POST"
 		action="?/guardar"
-		class="fixed inset-x-0 bottom-0 z-20 border-t border-black/10 bg-white/95 px-4 py-3 backdrop-blur"
+		class="fixed inset-x-0 bottom-0 z-20 border-t border-line-soft bg-white/95 px-4 py-3 backdrop-blur"
 		use:enhance={() => {
 			saving = true;
 			return async ({ result, update }) => {

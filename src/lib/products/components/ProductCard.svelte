@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Product } from '$lib/shared/model/products';
 	import { categoryColors, type Category } from '$lib/shared/stores/categoryStore';
-	import TransitionLink from '$lib/shared/components/TransitionLink.svelte';
 	import {
 		displayPrice as getDisplayPrice,
 		strikePrice,
@@ -36,7 +35,7 @@
 	}
 </script>
 
-<TransitionLink
+<a
 	href={`${store.basePath}/productos/${product.id}?category=${currentCategory}&from=productos`}
 	class="group block cursor-pointer overflow-hidden transition-all duration-300"
 >
@@ -47,7 +46,6 @@
 				src={product.images[0]}
 				alt={product.name}
 				class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-				style="view-transition-name: image-{product.id};"
 			/>
 		</div>
 
@@ -123,7 +121,7 @@
 			{product.category}
 		</span> -->
 	</div>
-</TransitionLink>
+</a>
 
 <style>
 	.line-clamp-2 {

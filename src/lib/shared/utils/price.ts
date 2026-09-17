@@ -1,8 +1,10 @@
 import type { Product } from '$lib/shared/model/products';
 
-// Envío plano — mismo valor usado en el resumen del carrito y en el
-// recálculo server-side del checkout, para que nunca queden desincronizados.
-export const SHIPPING_COST = 60;
+// El flete se paga al recibir (transportadora nacional), así que no se cobra
+// nada por envío en la pasarela: 0 aquí, 0 en el recálculo server-side del
+// checkout y 0 en el pedido de WooCommerce, para que los tres coincidan.
+// Si algún día se cobra el envío por adelantado, basta cambiar este valor.
+export const SHIPPING_COST = 0;
 
 // Instancia única: crear un Intl.NumberFormat por llamada es costoso cuando se
 // formatean decenas de precios por render (catálogo, filtros, carrito).
