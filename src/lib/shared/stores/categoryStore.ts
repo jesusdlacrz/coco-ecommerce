@@ -18,25 +18,25 @@ export interface CategoryColors {
 export const categoryColors: Record<Category, CategoryColors> = {
 	women: {
 		primary: 'bg-[#7C00F4]',
-		primaryHover: categoryStyles.women.softHover,
+		primaryHover: categoryStyles.women.solidHover,
 		border: categoryStyles.women.borderColor,
 		text: categoryStyles.women.textAccent
 	},
 	men: {
 		primary: 'bg-[#16167F]',
-		primaryHover: categoryStyles.men.softHover,
+		primaryHover: categoryStyles.men.solidHover,
 		border: categoryStyles.men.borderColor,
 		text: categoryStyles.men.textAccent
 	},
 	girls: {
 		primary: 'bg-[#FF91C1]',
-		primaryHover: categoryStyles.girls.softHover,
+		primaryHover: categoryStyles.girls.solidHover,
 		border: categoryStyles.girls.borderColor,
 		text: categoryStyles.girls.textAccent
 	},
 	boys: {
 		primary: 'bg-[#2C71CC]',
-		primaryHover: categoryStyles.boys.softHover,
+		primaryHover: categoryStyles.boys.solidHover,
 		border: categoryStyles.boys.borderColor,
 		text: categoryStyles.boys.textAccent
 	}

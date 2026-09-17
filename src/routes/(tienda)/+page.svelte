@@ -14,7 +14,11 @@
 </script>
 
 <svelte:head>
-	<title>Coco's</title>
+	<title>Coco's — Bodega de ropa al por mayor</title>
+	<meta
+		name="description"
+		content="Ropa al por mayor para mujer, hombre y niños. Prendas de calidad con precios de mayorista y envíos a toda Colombia."
+	/>
 </svelte:head>
 
 <!-- Hero -->
@@ -23,6 +27,7 @@
 		products={data.products}
 		copy={data.siteContent?.copy}
 		heroImages={data.siteContent?.heroImages}
+		srcsets={data.siteContent?.srcsets}
 	/>
 </section>
 
@@ -42,7 +47,7 @@
 <Features />
 
 <!-- Instagram Gallery -->
-<InstagramGallery images={data.siteContent?.instagram} />
+<InstagramGallery images={data.siteContent?.instagram} srcsets={data.siteContent?.srcsets} />
 
 <!-- Testimonios -->
 <Testimonials testimonials={data.siteContent?.testimonials} />

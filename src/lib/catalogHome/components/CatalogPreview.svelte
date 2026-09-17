@@ -20,8 +20,8 @@
 
 <section class="space-y-6">
 	<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 md:gap-10">
-		{#each previewProducts as product (product.id)}
-			<ProductPreview {product} category={activeTab} />
+		{#each previewProducts as product, i (product.id)}
+			<ProductPreview {product} category={activeTab} priority={i < 3} />
 		{/each}
 	</div>
 

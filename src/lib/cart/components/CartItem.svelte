@@ -16,9 +16,22 @@
 		onRemoveItem: (itemId: string) => void;
 		/** El carrito es un panel flotante: al ir a la ficha hay que cerrarlo. */
 		onNavigate?: () => void;
+		/** Dónde se está pintando la línea. Cambia el encuadre, no lo que se
+		 *  puede hacer: la misma pieza sirve al panel del carrito y al resumen
+		 *  del pedido, para que no puedan volver a discrepar. */
+		variant?: 'drawer' | 'summary';
 	};
 
-	let { item, maxQuantity, onUpdateQuantity, onRemoveItem, onNavigate }: Props = $props();
+	let {
+		item,
+		maxQuantity,
+		onUpdateQuantity,
+		onRemoveItem,
+		onNavigate,
+		variant = 'drawer'
+	}: Props = $props();
+
+	const lineTotal = $derived(item.price * item.quantity);
 
 	const href = $derived(productHrefForCartItem(item));
 
@@ -49,7 +62,11 @@
 	}
 </script>
 
-<div class="flex gap-3 border-b border-line-soft px-6 py-4">
+<div
+	class="flex gap-3 border-b py-4 {variant === 'summary'
+		? 'border-[#d3c9b8] last:border-b-0 last:pb-0'
+		: 'border-line-soft px-6'}"
+>
 	<a
 		{href}
 		onclick={onNavigate}
@@ -90,9 +107,14 @@
 			<p class="font-body text-xs text-muted-faint">{meta}</p>
 		{/if}
 
-		<p class="font-body text-sm font-semibold tabular-nums text-ink">
-			{formatPrice(item.price)}
+		<p class="font-body text-sm tabular-nums text-muted-soft">
+			{formatPrice(item.price)} c/u
 		</p>
+		{#if variant === 'summary'}
+			<p class="font-body text-base font-semibold tabular-nums text-ink">
+				{formatPrice(lineTotal)}
+			</p>
+		{/if}
 
 		<!-- Selector de cantidad -->
 		<div class="mt-1 flex h-8 w-fit items-center rounded-lg bg-graybrand/40">

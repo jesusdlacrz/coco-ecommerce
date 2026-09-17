@@ -12,9 +12,12 @@
 	interface Props {
 		product: Product;
 		currentCategory: Category;
+		/** Las tarjetas de la primera fila entran ya visibles: diferirlas
+		 *  retrasa el elemento más grande de la página. El resto sí espera. */
+		priority?: boolean;
 	}
 
-	let { product, currentCategory }: Props = $props();
+	let { product, currentCategory, priority = false }: Props = $props();
 
 	const store = $derived(page.data.storefront ?? HOUSE_STORE);
 	const colors = $derived(categoryColors[currentCategory]);
@@ -44,7 +47,12 @@
 		<div class="h-full w-full overflow-hidden rounded border-4 {colors.border}">
 			<img
 				src={product.images[0]}
+				srcset={product.imageSrcsets?.[0] || undefined}
+				sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
 				alt={product.name}
+				loading={priority ? 'eager' : 'lazy'}
+				fetchpriority={priority ? 'high' : undefined}
+				decoding="async"
 				class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 			/>
 		</div>

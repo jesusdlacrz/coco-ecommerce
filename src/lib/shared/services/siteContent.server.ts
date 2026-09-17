@@ -2,6 +2,7 @@
 // gestionado desde una página de opciones de ACF en WordPress. Solo servidor.
 // Ver WORDPRESS-SETUP.md para cómo crear esos campos.
 import { env } from '$env/dynamic/private';
+import { getMediaSrcsets } from './mediaSrcsets.server';
 import { describeError } from '$lib/shared/utils/describeError';
 
 export interface SiteTestimonial {
@@ -43,6 +44,9 @@ export interface SiteContent {
 	about: SiteAboutSlide[];
 	copy: SiteCopy | null;
 	heroImages: SiteHeroImages | null;
+	/** URL de imagen → `srcset` con los tamaños que WordPress ya tiene
+	 *  generados. Las imágenes subidas a mano no lo traen de serie. */
+	srcsets: Record<string, string>;
 }
 
 interface RawTestimonial {
@@ -144,6 +148,8 @@ export async function getSiteContent(fetchFn: typeof fetch = fetch): Promise<Sit
 	const baseUrl = getBaseUrl();
 	if (!baseUrl) return null;
 
+	const srcsets = getMediaSrcsets(fetchFn);
+
 	try {
 		const res = await fetchFn(`${baseUrl}/wp-json/coco/v1/site-content`, {
 			signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
@@ -157,7 +163,8 @@ export async function getSiteContent(fetchFn: typeof fetch = fetch): Promise<Sit
 			instagram: (raw.instagram ?? []).map(toInstagramImage),
 			about: (raw.about ?? []).map(toAboutSlide),
 			copy: toCopy(raw.copy),
-			heroImages: toHeroImages(raw.heroImages)
+			heroImages: toHeroImages(raw.heroImages),
+			srcsets: await srcsets
 		};
 	} catch (err) {
 		console.error(`[site-content] Error al traer contenido del sitio (${describeError(err)}).`);

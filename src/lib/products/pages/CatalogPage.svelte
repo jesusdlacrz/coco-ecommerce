@@ -86,6 +86,10 @@
 
 <svelte:head>
 	<title>Productos - {store.name}</title>
+	<meta
+		name="description"
+		content="Catálogo completo de {store.name}: blusas, camisas y conjuntos al por mayor, por talla y color, con envío a toda Colombia."
+	/>
 </svelte:head>
 
 <div class="min-h-screen">
@@ -115,8 +119,8 @@
 				<div class="space-y-6">
 					<!-- Grid de productos con tarjetas especializadas -->
 					<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-						{#each filteredProducts as product (product.id)}
-							<ProductCard {product} currentCategory={activeTab} />
+						{#each filteredProducts as product, i (product.id)}
+							<ProductCard {product} currentCategory={activeTab} priority={i < 3} />
 						{/each}
 					</div>
 

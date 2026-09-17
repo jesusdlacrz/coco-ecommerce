@@ -198,6 +198,7 @@
 			<!-- Galería de imágenes -->
 			<ImageGallery
 				images={product.images}
+				srcsets={product.imageSrcsets}
 				productName={product.name}
 				{selectedImageIndex}
 				onImageSelect={handleImageSelect}

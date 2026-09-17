@@ -14,6 +14,14 @@ import { browser } from '$app/environment';
 const open = new Set<string>();
 let savedOverflow: string | null = null;
 
+// Una capa huérfana solo puede existir si antes se abrió alguna. Hasta
+// entonces el guardián no tiene nada que vigilar, y sondear el DOM cada
+// segundo durante la carga sale caro: `elementFromPoint` y `getComputedStyle`
+// obligan al navegador a recalcular estilo y maquetación en el peor momento,
+// justo cuando compite con la hidratación. En la medición de PageSpeed en
+// móvil eso aparecía como tiempo de «Style & Layout» y reflows forzados.
+let everOpened = false;
+
 function sync() {
 	if (!browser) return;
 	if (open.size > 0) {
@@ -34,6 +42,7 @@ function sync() {
  * scroll se deriva del registro: solo se suelta cuando no queda ninguna.
  */
 export function registerOverlay(id: string): () => void {
+	everOpened = true;
 	open.add(id);
 	sync();
 	let released = false;
@@ -111,12 +120,15 @@ function disablePointerEvents(el: HTMLElement) {
  * usable sola y deja constancia en la consola de qué era el intruso.
  *
  * Corre también en producción a propósito: el fallo que arregla no era exclusivo
- * de desarrollo, y el coste es leer tres puntos de la pantalla por segundo.
+ * de desarrollo. Solo empieza a sondear cuando se ha abierto alguna capa: antes
+ * de eso no hay nada que pueda haberse quedado pegado, y así la carga inicial
+ * —lo único que mide PageSpeed— no paga el coste.
  */
 export function startOverlayGuardian(): () => void {
 	if (!browser) return () => {};
 
 	const timer = setInterval(() => {
+		if (!everOpened) return; // nunca se abrió nada: no puede haber huérfanas
 		if (open.size > 0) return; // hay algo abierto: todo esto es legítimo
 
 		const problems: string[] = [];

@@ -20,6 +20,12 @@ export interface Product {
 	price: number;
 	wholesalePrice?: number;
 	images: string[];
+	/** `srcset` de WordPress para cada imagen, mismo índice que `images`.
+	 *  WordPress ya genera los tamaños reducidos y los publica en la API;
+	 *  sin esto el móvil descarga el original (1202×1600 para pintar 445px).
+	 *  Campo aparte y no un objeto dentro de `images` para no tocar el carrito
+	 *  guardado en el navegador, que almacena la URL suelta. */
+	imageSrcsets?: string[];
 	category: string;
 	gender: 'men' | 'women' | 'boys' | 'girls';
 	sizes: string[];

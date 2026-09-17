@@ -3,6 +3,8 @@
 
 	type Props = {
 		images: string[];
+		/** `srcset` de WordPress por imagen, mismo índice que `images`. */
+		srcsets?: string[];
 		productName: string;
 		selectedImageIndex: number;
 		onImageSelect: (index: number) => void;
@@ -11,6 +13,7 @@
 
 	let {
 		images,
+		srcsets = [],
 		productName,
 		selectedImageIndex,
 		onImageSelect,
@@ -37,7 +40,15 @@
 						? `border-color: ${accentColor}; box-shadow: 0 0 0 2px ${accentColor}30;`
 						: ''}
 				>
-					<img src={image} alt="Vista {index + 1}" class="h-full w-full object-cover" />
+					<img
+						src={image}
+						srcset={srcsets[index] || undefined}
+						sizes="72px"
+						alt="Vista {index + 1}"
+						loading="lazy"
+						decoding="async"
+						class="h-full w-full object-cover"
+					/>
 				</button>
 			{/each}
 		</div>
@@ -52,7 +63,11 @@
 	>
 		<img
 			src={images[selectedImageIndex] || '/placeholder.svg'}
+			srcset={srcsets[selectedImageIndex] || undefined}
+			sizes="(min-width: 1024px) 600px, 100vw"
 			alt={productName}
+			fetchpriority="high"
+			decoding="async"
 			class="h-full w-full object-cover"
 		/>
 		<span

@@ -3,10 +3,13 @@
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import {
 		cartItems,
+		cartStore,
 		cartTotal,
 		canProceedToPayment,
 		missingUnitsForPayment
 	} from '$lib/cart/stores/cartStore';
+	import CartLine from '$lib/cart/components/CartItem.svelte';
+	import { createStockLookup } from '$lib/cart/services/stockLookup.svelte';
 	import { formatPrice, SHIPPING_COST } from '$lib/shared/utils/price';
 	import ChevronDown from '$lib/shared/icons/ChevronDown.svelte';
 	import Lock from '$lib/shared/icons/Lock.svelte';
@@ -15,8 +18,6 @@
 	import { HOUSE_STORE } from '$lib/storefront/model';
 	import Button from '$lib/shared/components/form/Button.svelte';
 	import EmptyState from '$lib/shared/components/EmptyState.svelte';
-	import { productHrefForCartItem } from '$lib/cart/utils/productHref';
-	import { formatSize } from '$lib/shared/model/sizes';
 	import toast from 'svelte-5-french-toast';
 
 	const PAYMENT_METHODS = ['Tarjeta', 'PSE', 'Nequi'];
@@ -93,6 +94,11 @@
 
 	const store = $derived(page.data.storefront ?? HOUSE_STORE);
 	const cartList = $derived($cartItems ?? []);
+
+	// El resumen deja editar igual que el carrito: la queja era tener que
+	// volver atrás para quitar una prenda. Ambas vistas hablan con el mismo
+	// store, así que no hay nada que sincronizar entre ellas.
+	const stock = createStockLookup(() => cartList);
 	const subtotal = $derived($cartTotal ?? 0);
 	const shipping = $derived(cartList.length > 0 ? SHIPPING_COST : 0);
 	const total = $derived(subtotal + shipping);
@@ -375,41 +381,16 @@
 						actionHref="{store.basePath}/productos"
 					/>
 				{:else}
-					<ul class="space-y-5">
+					<ul>
 						{#each cartList as item (item.id)}
-							{@const href = productHrefForCartItem(item)}
-							<li
-								class="flex items-start gap-4 border-b border-[#d3c9b8] pb-4 last:border-b-0 last:pb-0"
-							>
-								<a {href} tabindex="-1" aria-hidden="true" class="relative aspect-[3/4] w-20 flex-shrink-0">
-									<img
-										src={item.image}
-										alt=""
-										class="h-full w-full rounded-lg bg-[#ece4d6] object-cover transition-transform duration-300 hover:scale-105"
-									/>
-									<span
-										class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[10px] font-bold text-white"
-									>
-										{item.quantity}
-									</span>
-								</a>
-
-								<div class="flex w-full items-start justify-between gap-4">
-									<div>
-										<a
-											{href}
-											class="font-display text-lg font-semibold text-ink underline-offset-2 hover:underline"
-										>
-											{item.name}
-										</a>
-										<p class="mt-1 text-sm text-muted-soft">
-											{item.color ?? 'General'}{item.size ? ` / ${formatSize(item.size)}` : ''}
-										</p>
-									</div>
-									<p class="text-right text-base font-medium tabular-nums text-ink">
-										{formatPrice(item.price * item.quantity)}
-									</p>
-								</div>
+							<li>
+								<CartLine
+									{item}
+									variant="summary"
+									maxQuantity={stock.byItemId[item.id]}
+									onUpdateQuantity={(id, qty) => cartStore.updateQuantity(id, qty)}
+									onRemoveItem={(id) => cartStore.removeItem(id)}
+								/>
 							</li>
 						{/each}
 					</ul>

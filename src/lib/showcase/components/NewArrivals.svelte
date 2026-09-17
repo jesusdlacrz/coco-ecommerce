@@ -40,6 +40,7 @@
 			sale: product.name,
 			discount: priceTag(product),
 			image: product.images[0] ?? '/placeholder.svg',
+			srcset: product.imageSrcsets?.[0] || undefined,
 			alt: product.name
 		}))
 	);
@@ -164,7 +165,10 @@
 						>
 							<img
 								src={slides[current].image}
+								srcset={slides[current].srcset}
+								sizes="(min-width: 1024px) 700px, 100vw"
 								alt={slides[current].alt}
+								decoding="async"
 								class="h-full w-full object-cover"
 							/>
 						</div>
@@ -195,7 +199,11 @@
 						{#key nextIdx}
 							<img
 								src={slides[nextIdx].image}
+								srcset={slides[nextIdx].srcset}
+								sizes="(min-width: 1024px) 400px, 100vw"
 								alt={slides[nextIdx].alt}
+								loading="lazy"
+								decoding="async"
 								class="h-full w-full object-cover"
 								in:fade={{ duration: 300 }}
 							/>
@@ -236,7 +244,15 @@
 							class="relative shrink-0 snap-center overflow-hidden rounded-2xl bg-graybrand shadow-lg"
 							style="width:min(420px,90vw);height:500px;flex-shrink:0"
 						>
-							<img src={slide.image} alt={slide.alt} class="h-full w-full object-cover" />
+							<img
+								src={slide.image}
+								srcset={slide.srcset}
+								sizes="(min-width: 1024px) 700px, 100vw"
+								alt={slide.alt}
+								loading="lazy"
+								decoding="async"
+								class="h-full w-full object-cover"
+							/>
 							<div class="absolute bottom-0 left-0 w-52 bg-white/90 px-5 py-4 backdrop-blur-sm">
 								<p class="text-sm text-muted">{slide.label} — {slide.sale}</p>
 								<p class="mt-1 text-2xl font-medium text-muted">{slide.discount}</p>
@@ -298,7 +314,15 @@
 						class="relative aspect-[3/4] overflow-hidden bg-graybrand"
 						style="width:100%;flex-shrink:0;scroll-snap-align:center"
 					>
-						<img src={slide.image} alt={slide.alt} class="h-full w-full object-cover" />
+						<img
+							src={slide.image}
+							srcset={slide.srcset}
+							sizes="90vw"
+							alt={slide.alt}
+							loading="lazy"
+							decoding="async"
+							class="h-full w-full object-cover"
+						/>
 						<div class="absolute bottom-0 left-0 w-48 bg-white/90 px-4 py-3 backdrop-blur-sm">
 							<p class="text-xs text-muted">{slide.label} — {slide.sale}</p>
 							<p class="mt-1 text-xl font-medium text-muted">{slide.discount}</p>

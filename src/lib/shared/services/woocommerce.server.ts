@@ -11,6 +11,8 @@ import { describeError } from '$lib/shared/utils/describeError';
 interface WooImage {
 	src: string;
 	alt?: string;
+	/** Lista de tamaños ya generados por WordPress, lista para usar. */
+	srcset?: string;
 }
 
 interface WooCategory {
@@ -314,6 +316,7 @@ function mapWooProduct(woo: WooProduct, swatches: Map<string, string>, variation
 		price,
 		wholesalePrice,
 		images: woo.images.length ? woo.images.map((img) => img.src) : ['/placeholder.svg'],
+		imageSrcsets: woo.images.map((img) => img.srcset ?? ''),
 		category: pickCategoryLabel(woo.categories),
 		gender: detectGender(woo.categories),
 		sizes: findAttribute(woo.attributes, 'Talla', 'Tallas', 'Size', 'pa_talla'),

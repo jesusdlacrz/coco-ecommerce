@@ -68,6 +68,14 @@ function writeToStorage(key: string, items: CartItem[]): void {
 	}
 }
 
+// Toda mutación crea objetos y array nuevos, nunca modifica los existentes.
+//
+// No es una preferencia de estilo: `cartTotal` es un `derived`, y un `derived`
+// recalcula ante cualquier notificación aunque el valor sea el mismo objeto.
+// El `{#each}` que pinta las líneas, en cambio, compara identidades. Al mutar
+// `item.quantity` en su sitio y devolver el mismo array, el total cambiaba y
+// la línea no: el resumen del pago mostraba «6 · $390.000» junto a un subtotal
+// de $130.000. Con objetos nuevos ambas cosas leen lo mismo por construcción.
 // =================== SIMPLE CART STORE ===================
 function createCartStore() {
 	let currentKey = LEGACY_KEY;
@@ -101,12 +109,16 @@ function createCartStore() {
 			update((items) => {
 				const id = cartItemId(product.id, size, color, vendorSlug);
 				const existingIndex = items.findIndex((item) => item.id === id);
+				const now = new Date().toISOString();
+				let next: CartItem[];
 
 				if (existingIndex !== -1) {
-					items[existingIndex].quantity += quantity;
-					items[existingIndex].updatedAt = new Date().toISOString();
+					next = items.map((item, i) =>
+						i === existingIndex
+							? { ...item, quantity: item.quantity + quantity, updatedAt: now }
+							: item
+					);
 				} else {
-					const now = new Date().toISOString();
 					const newItem: CartItem = {
 						id,
 						productId: product.id,
@@ -125,32 +137,28 @@ function createCartStore() {
 						addedAt: now,
 						updatedAt: now
 					};
-					items.push(newItem);
+					next = [...items, newItem];
 				}
 
-				// Auto-save optimizado
-				saveToStorage(items);
-
-				return items;
+				saveToStorage(next);
+				return next;
 			});
 		},
 
 		// Actualizar cantidad
 		updateQuantity: (itemId: string, quantity: number) => {
 			update((items) => {
-				const index = items.findIndex((item) => item.id === itemId);
-				if (index !== -1) {
-					if (quantity <= 0) {
-						items.splice(index, 1);
-					} else {
-						items[index].quantity = quantity;
-					}
-				}
+				const next =
+					quantity <= 0
+						? items.filter((item) => item.id !== itemId)
+						: items.map((item) =>
+								item.id === itemId
+									? { ...item, quantity, updatedAt: new Date().toISOString() }
+									: item
+							);
 
-				// Auto-save optimizado
-				saveToStorage(items);
-
-				return items;
+				saveToStorage(next);
+				return next;
 			});
 		},
 

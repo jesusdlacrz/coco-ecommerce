@@ -10,9 +10,14 @@
 	let {
 		products = [],
 		copy = null,
-		heroImages = null
-	}: { products?: Product[]; copy?: SiteCopy | null; heroImages?: SiteHeroImages | null } =
-		$props();
+		heroImages = null,
+		srcsets = {}
+	}: {
+		products?: Product[];
+		copy?: SiteCopy | null;
+		heroImages?: SiteHeroImages | null;
+		srcsets?: Record<string, string>;
+	} = $props();
 
 	const line1 = $derived(copy?.offerLine1 || 'GRAN');
 	const line2 = $derived(copy?.offerLine2 || 'OFERTA');
@@ -25,11 +30,16 @@
 	function image(
 		override: string | null | undefined,
 		productIndex: number
-	): { src: string; alt: string } {
-		if (override) return { src: override, alt: 'Gran Oferta' };
+	): { src: string; srcset?: string; alt: string } {
+		// La imagen del catálogo trae su `srcset` en la respuesta de WooCommerce;
+		// la subida a mano no, y hay que buscarla en la biblioteca de medios.
+		// Sin él, el móvil se descargaba el original (1295 px) para pintar una
+		// columna de 164.
+		if (override) return { src: override, srcset: srcsets[override], alt: 'Gran Oferta' };
 		const product = products[productIndex];
 		return {
 			src: product?.images[0] ?? PLACEHOLDER,
+			srcset: product?.imageSrcsets?.[0] || undefined,
 			alt: product?.name ?? 'Producto destacado'
 		};
 	}
@@ -83,7 +93,15 @@
 			</div>
 
 			<div class="order-2 aspect-[3/1] w-full overflow-hidden rounded-2xl bg-graybrand shadow-lg lg:order-1">
-				<img src={center.src} alt={center.alt} class="h-full w-full object-cover" />
+				<img
+					src={center.src}
+					srcset={center.srcset}
+					sizes="(min-width: 1024px) 700px, 100vw"
+					alt={center.alt}
+					fetchpriority="high"
+					decoding="async"
+					class="h-full w-full object-cover"
+				/>
 			</div>
 		</div>
 
@@ -91,12 +109,26 @@
 		<div
 			class="order-2 aspect-[1/2] w-full overflow-hidden rounded-2xl bg-graybrand shadow-lg lg:order-none lg:col-start-1 lg:row-start-1"
 		>
-			<img src={left.src} alt={left.alt} class="h-full w-full object-cover object-top" />
+			<img
+				src={left.src}
+				srcset={left.srcset}
+				sizes="(min-width: 1024px) 320px, 50vw"
+				alt={left.alt}
+				decoding="async"
+				class="h-full w-full object-cover object-top"
+			/>
 		</div>
 		<div
 			class="order-3 aspect-[1/2] w-full overflow-hidden rounded-2xl bg-graybrand shadow-lg lg:order-none lg:col-start-3 lg:row-start-1"
 		>
-			<img src={right.src} alt={right.alt} class="h-full w-full object-cover object-top" />
+			<img
+				src={right.src}
+				srcset={right.srcset}
+				sizes="(min-width: 1024px) 320px, 50vw"
+				alt={right.alt}
+				decoding="async"
+				class="h-full w-full object-cover object-top"
+			/>
 		</div>
 	</div>
 </div>

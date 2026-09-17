@@ -11,7 +11,10 @@
 		alt: `foto ${i + 1}`
 	}));
 
-	let { images: provided = [] }: { images?: SiteInstagramImage[] } = $props();
+	let {
+		images: provided = [],
+		srcsets = {}
+	}: { images?: SiteInstagramImage[]; srcsets?: Record<string, string> } = $props();
 
 	const images = $derived(provided.length ? provided : FALLBACK_IMAGES);
 </script>
@@ -62,7 +65,11 @@
 					>
 						<img
 							src={img.src ?? PLACEHOLDER}
+							srcset={(img.src && srcsets[img.src]) || undefined}
+							sizes="(min-width: 768px) 340px, 70vw"
 							alt=""
+							loading="lazy"
+							decoding="async"
 							class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 						/>
 						<span

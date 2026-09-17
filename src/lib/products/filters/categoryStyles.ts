@@ -23,8 +23,9 @@ export interface CategoryStyle {
 	accentColor: string; // hex crudo para CSS inline (sliders, degradados)
 	/** Fondo tenue de la categoría: catálogo y ficha de producto. */
 	tint: string;
-	/** Fondo de hover para una pestaña inactiva. */
-	softHover: string;
+	/** Hover de un botón macizo del color de la categoría. Tiene que ser otro
+	 *  tono sólido: el mismo color con alfa deja el botón casi transparente. */
+	solidHover: string;
 }
 
 export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
@@ -39,7 +40,7 @@ export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
 		hoverBorderColor: 'hover:border-[#0F0F5F]',
 		accentColor: '#16167F',
 		tint: 'bg-[#EFEFF9]',
-		softHover: 'hover:bg-[#16167F14]'
+		solidHover: 'hover:bg-[#414190]'
 	},
 	women: {
 		accent: 'bg-[#7C00F4] border-[#7C00F4] text-white',
@@ -52,7 +53,7 @@ export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
 		hoverBorderColor: 'hover:border-[#5A00B8]',
 		accentColor: '#7C00F4',
 		tint: 'bg-[#F8F4FC]',
-		softHover: 'hover:bg-[#7C00F414]'
+		solidHover: 'hover:bg-[#5A00B8]'
 	},
 	boys: {
 		accent: 'bg-[#2C71CC] border-[#2C71CC] text-white',
@@ -65,7 +66,7 @@ export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
 		hoverBorderColor: 'hover:border-[#4A7BC1]',
 		accentColor: '#2C71CC',
 		tint: 'bg-[#F0F4FC]',
-		softHover: 'hover:bg-[#2C71CC14]'
+		solidHover: 'hover:bg-[#6297DB]'
 	},
 	girls: {
 		accent: 'bg-[#FF91C1] border-[#FF91C1] text-white',
@@ -78,7 +79,7 @@ export const categoryStyles: Record<CategoryKey, CategoryStyle> = {
 		hoverBorderColor: 'hover:border-[#E5729A]',
 		accentColor: '#FF91C1',
 		tint: 'bg-[#FFECF4]',
-		softHover: 'hover:bg-[#FF91C129]'
+		solidHover: 'hover:bg-[#E5729A]'
 	}
 };
 
