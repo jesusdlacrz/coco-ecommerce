@@ -620,10 +620,14 @@ export async function createOrder(
 		shipping_lines: [
 			{ method_id: 'flat_rate', method_title: 'Envío', total: input.shippingTotal }
 		],
+		customer_note: `Tipo de vivienda: ${input.billing.dwellingType}`,
 		meta_data: [
 			{ key: '_wompi_reference', value: input.reference },
 			{ key: '_vendor_slug', value: input.vendorSlug ?? '' },
-			{ key: '_dwelling_type', value: input.billing.dwellingType }
+			// Sin guion bajo a propósito: una meta_data que empieza por `_` es
+			// privada y WooCommerce no la muestra en el pedido. Este dato lo
+			// necesita quien despacha, así que tiene que ser visible.
+			{ key: 'Tipo de vivienda', value: input.billing.dwellingType }
 		]
 	};
 	const created = await wooRequest<WooOrderResponse>('/orders', fetchFn, { method: 'POST', body: payload });

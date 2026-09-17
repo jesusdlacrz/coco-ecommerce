@@ -28,10 +28,10 @@
 		useDynamicColors
 			? categoryColors[currentCategory]
 			: {
-					primary: 'bg-black',
-					primaryHover: 'hover:bg-gray-800',
+					primary: 'bg-ink',
+					primaryHover: 'hover:bg-ink-hover',
 					border: 'border-transparent',
-					text: 'text-gray-600'
+					text: 'text-muted'
 				}
 	);
 
@@ -71,87 +71,93 @@
 			? [{ label: 'Productos', href: `${store.basePath}/productos?category=${$activeCategory}` }]
 			: [])
 	]);
+
+	// Versalitas espaciadas: es el recurso tipográfico que separa una tienda de
+	// autor de un marketplace. Se repite en escritorio y en el panel móvil.
+	const NAV_LINK = 'font-poppins text-[11px] uppercase tracking-[0.18em] transition-colors';
 </script>
 
-<header class="{backgroundColor} transition-colors duration-700">
+<!-- Retícula de tres columnas con las laterales del mismo ancho (`1fr`): el
+     logo queda centrado respecto a la página, no respecto al espacio que dejan
+     los enlaces. La línea inferior cierra el header como una franja propia, de
+     modo que el título de la página siguiente no se lea como parte de él. -->
+<header class="{backgroundColor} border-b border-line-soft transition-colors duration-700">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="flex h-20 items-center justify-between text-muted">
-			<div class="flex items-center space-x-4">
-				<a
-					href={store.basePath || '/'}
-					class="cursor-pointer transition-all hover:opacity-80"
+		<div class="grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-4 lg:h-24">
+			<!-- Izquierda: hamburguesa en móvil, navegación en escritorio -->
+			<div class="flex items-center justify-start">
+				<button
+					onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
+					class="-ml-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink transition-colors hover:bg-ink/5 md:hidden"
+					aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+					aria-expanded={isMobileMenuOpen}
 				>
-					{#if store.kind === 'vendor'}
-						<span class="font-display text-xl font-bold text-ink">{store.name}</span
-						>
+					{#if isMobileMenuOpen}
+						<X size={22} />
 					{:else}
-						<Logo />
+						<Menu size={22} />
 					{/if}
-				</a>
-			</div>
+				</button>
 
-			<!-- Navegación + carrito agrupados a la derecha -->
-			<div class="flex items-center gap-6 lg:gap-10">
-				<!-- Navegación de escritorio: oculta en móvil, el menú hamburguesa la reemplaza ahí -->
-				<div class="hidden items-center space-x-8 md:flex lg:space-x-12">
+				<nav class="hidden items-center gap-8 md:flex lg:gap-10" aria-label="Principal">
 					{#each navigationButtons as button (button.label)}
 						<a
 							href={button.href}
-							class="cursor-pointer px-1 text-sm font-medium transition-all duration-200 {isProductDetail &&
+							class="{NAV_LINK} cursor-pointer border-b pb-1 {isProductDetail &&
 							button.label === 'Productos'
-								? 'border-b-2 border-black text-gray-900'
+								? 'border-ink text-ink'
 								: useDynamicColors && button.label === 'Tienda'
-									? `border-b-2 ${colors.border} ${colors.text} hover:opacity-80`
-									: 'border-b-2 border-transparent text-gray-600 hover:text-gray-800'}"
-							style="font-family: 'Poppins', sans-serif;"
+									? `${colors.border} ${colors.text} hover:opacity-70`
+									: 'border-transparent text-muted hover:border-ink/30 hover:text-ink'}"
 						>
 							{button.label}
 						</a>
 					{/each}
+				</nav>
+			</div>
 
-					{#if store.kind === 'house'}
-						<a
-							href="/vendedores/registro"
-							class="cursor-pointer rounded-full border border-ink px-4 py-1.5 text-sm font-medium text-ink transition-all duration-200 hover:bg-ink hover:text-white"
-							style="font-family: 'Poppins', sans-serif;"
-						>
-							Vende con nosotros
-						</a>
-					{/if}
-				</div>
+			<!-- Centro: la marca -->
+			<a
+				href={store.basePath || '/'}
+				class="cursor-pointer justify-self-center transition-opacity hover:opacity-70"
+				aria-label="Ir al inicio"
+			>
+				{#if store.kind === 'vendor'}
+					<span class="font-display text-xl tracking-wide text-ink lg:text-2xl">{store.name}</span>
+				{:else}
+					<Logo class="h-7 w-auto lg:h-9" />
+				{/if}
+			</a>
 
-				<!-- Hamburguesa (solo móvil) + carrito, siempre visible en ambos tamaños -->
-				<div class="flex items-center space-x-2">
-					<button
-						onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
-						class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-black/5 md:hidden"
-						aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
-						aria-expanded={isMobileMenuOpen}
+			<!-- Derecha: acción secundaria y carrito -->
+			<div class="flex items-center justify-end gap-5">
+				{#if store.kind === 'house'}
+					<a
+						href="/vendedores/registro"
+						class="{NAV_LINK} hidden cursor-pointer border-b border-ink/30 pb-1 text-ink hover:border-ink lg:inline-block"
 					>
-						{#if isMobileMenuOpen}
-							<X size={22} />
-						{:else}
-							<Menu size={22} />
-						{/if}
-					</button>
+						Vende con nosotros
+					</a>
+				{/if}
 
-					<div class="relative">
-						<button
-							onclick={onCartClick}
-						class="flex cursor-pointer items-center space-x-2 rounded-lg p-2.5 transition-colors {colors.primary} {colors.primaryHover}"
+				<div class="relative">
+					<button
+						onclick={onCartClick}
+						class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full transition-colors {colors.primary} {colors.primaryHover}"
 						aria-label="Abrir carrito"
 					>
-						<ShoppingCart size={20} class="text-white" />
+						<ShoppingCart size={19} class="text-white" />
 					</button>
 					{#if cartItemCount > 0}
+						<!-- Contador en el color de acento de la marca: el rojo con latido
+						     era una alerta, y aquí no hay nada que alertar. -->
 						<span
-							class="absolute -top-2 -right-2 flex h-5 w-5 animate-pulse items-center justify-center rounded-full bg-red-500 text-xs text-white"
+							class="pointer-events-none absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 font-poppins text-[11px] font-semibold text-ink tabular-nums"
 						>
 							{cartItemCount}
 						</span>
 					{/if}
 				</div>
-			</div>
 			</div>
 		</div>
 
@@ -159,16 +165,15 @@
 		{#if isMobileMenuOpen}
 			<div
 				transition:slide={{ duration: 200 }}
-				class="flex flex-col gap-1 border-t border-line-soft pt-3 pb-4 md:hidden"
+				class="flex flex-col border-t border-line-soft py-2 md:hidden"
 			>
 				{#each navigationButtons as button (button.label)}
 					<a
 						href={button.href}
-						class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-black/5 {isProductDetail &&
+						class="{NAV_LINK} rounded-lg px-2 py-3.5 hover:bg-ink/5 {isProductDetail &&
 						button.label === 'Productos'
-							? 'text-gray-900'
-							: ''}"
-						style="font-family: 'Poppins', sans-serif;"
+							? 'text-ink'
+							: 'text-muted'}"
 					>
 						{button.label}
 					</a>
@@ -177,8 +182,7 @@
 				{#if store.kind === 'house'}
 					<a
 						href="/vendedores/registro"
-						class="mt-1 rounded-lg border border-ink px-3 py-2.5 text-center text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-white"
-						style="font-family: 'Poppins', sans-serif;"
+						class="{NAV_LINK} mt-2 rounded-full border border-ink px-4 py-3 text-center text-ink hover:bg-ink hover:text-white"
 					>
 						Vende con nosotros
 					</a>

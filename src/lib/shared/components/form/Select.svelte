@@ -142,15 +142,25 @@
 	</button>
 
 	{#if open}
+		<!-- `mousedown` (no `pointerdown`) para conservar el foco del botón al hacer
+		     clic con el ratón: mousedown no se dispara al desplazar con el dedo, así
+		     que no interfiere con el scroll táctil. -->
 		<ul
 			bind:this={list}
 			id={listId}
 			role="listbox"
 			tabindex="-1"
-			class="absolute z-50 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-line bg-white py-1 shadow-float"
+			onmousedown={(e) => e.preventDefault()}
+			class="absolute z-50 mt-1 max-h-64 w-full overflow-y-auto overscroll-contain rounded-lg border border-line bg-white py-1 shadow-float"
+			style="-webkit-overflow-scrolling: touch"
 		>
 			{#each options as option, i (option.value)}
 				{@const isSelected = option.value === value}
+				<!-- El teclado NO va en cada opción: en el patrón listbox de ARIA el
+				     foco se queda en el combobox y la opción activa se anuncia con
+				     aria-activedescendant, que es como funciona un select nativo.
+				     Poner tabindex en 33 opciones rompería ese patrón. -->
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<li
 					id="{id}-opt-{i}"
 					role="option"
@@ -158,11 +168,13 @@
 					class="cursor-pointer px-4 py-2.5 text-base transition-colors
 						{i === active ? 'bg-graybrand/50' : ''}
 						{isSelected ? 'font-semibold text-ink' : 'text-muted'}"
-					onpointerdown={(e) => {
-						e.preventDefault(); // evita que el botón pierda el foco antes del clic
+					onclick={(e) => {
+						e.stopPropagation();
 						choose(i);
 					}}
-					onpointerenter={() => (active = i)}
+					onpointerenter={(e) => {
+						if (e.pointerType === 'mouse') active = i;
+					}}
 				>
 					{option.label}
 				</li>

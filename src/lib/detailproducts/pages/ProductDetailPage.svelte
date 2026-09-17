@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { cartStore } from '$lib/cart/stores/cartStore';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { activeCategory, type Category } from '$lib/shared/stores/categoryStore';
 	import { onMount } from 'svelte';
 	import type { Product } from '$lib/shared/model/products';
@@ -177,8 +178,9 @@
 		if (!validateSelections()) return;
 
 		cartStore.addItem(product, quantity, selectedSize || null, selectedColor || null, store.slug);
-		// Aquí iría la lógica para ir directo al pago
-		toast.success('Producto agregado al carrito y redirigiendo a pago...');
+		// Mismo destino que el botón de pagar del carrito: `/carrito` es la
+		// página de checkout.
+		goto(`${store.basePath}/carrito`);
 	}
 </script>
 

@@ -176,268 +176,267 @@
 	<title>Pago - {store.name}</title>
 </svelte:head>
 
-<div class="min-h-screen pt-2 pb-16">
-	<div class="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
-		<h1 class="text-center font-display text-3xl font-bold text-ink sm:text-4xl">
-			Pago
-		</h1>
+<div class="min-h-screen pb-16">
+	<div class="mx-auto max-w-[1200px] px-4 pt-12 pb-8 text-center sm:px-6 sm:pt-14 lg:px-8">
+		<h1 class="font-display text-3xl font-bold text-ink sm:text-4xl">Pago</h1>
+		<p class="mt-2.5 text-sm text-muted-soft">
+			Completa tus datos y confirma el pedido.
+		</p>
 	</div>
 
-	<div class="mt-8 border-t border-line-soft">
-		<div class="mx-auto grid max-w-[1200px] px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-			<section
-				class="order-2 py-8 lg:order-1 lg:border-r lg:border-line-soft lg:py-10 lg:pr-12"
-			>
-				<div class="space-y-8">
-					<div>
-						<h2 class="mb-5 font-display text-2xl font-bold text-ink">Contacto</h2>
-						<label class="block">
-							<span class="mb-2 block text-sm text-muted-soft">Correo electrónico</span>
-							<input
-								bind:value={email}
-								class={FIELD}
-								placeholder="Correo electrónico"
-							/>
-						</label>
-					</div>
-
-					<div>
-						<h2 class="mb-5 font-display text-2xl font-bold text-ink">Envío</h2>
-						<p class="mb-4 text-sm text-muted-soft">
-							Por ahora solo hacemos envíos dentro de Colombia.
-						</p>
-
-						<div class="grid gap-4 sm:grid-cols-2">
-							<label class="block">
-								<span class="mb-2 block text-sm text-muted-soft">Nombre</span>
-								<input
-									bind:value={firstName}
-									class={FIELD}
-									placeholder="Nombre"
-								/>
-							</label>
-
-							<label class="block">
-								<span class="mb-2 block text-sm text-muted-soft">Apellido</span>
-								<input
-									bind:value={lastName}
-									class={FIELD}
-									placeholder="Apellido"
-								/>
-							</label>
-						</div>
-
-						<label class="mt-4 block">
-							<span class="mb-2 block text-sm text-muted-soft">Teléfono</span>
-							<input
-								bind:value={phone}
-								type="tel"
-								class={FIELD}
-								placeholder="Ej: 300 123 4567"
-							/>
-						</label>
-
-						<label class="mt-4 block">
-							<span class="mb-2 block text-sm text-muted-soft">Dirección</span>
-							<input
-								bind:value={address}
-								class={FIELD}
-								placeholder="Ej: Calle 45 # 20-30"
-							/>
-						</label>
-
-						<label class="mt-4 block">
-							<span class="mb-2 block text-sm text-muted-soft"
-								>Complemento (apto, torre, interior, bloque)</span
-							>
-							<input
-								bind:value={addressComplement}
-								class={FIELD}
-								placeholder="Ej: Apto 302, Torre 4, Conjunto Los Robles"
-							/>
-						</label>
-
-						<div class="mt-4 grid gap-4 sm:grid-cols-2">
-							<label class="block">
-								<span class="mb-2 block text-sm text-muted-soft">Tipo de vivienda</span>
-								<Select
-									id="tipo-vivienda"
-									bind:value={dwellingType}
-									options={DWELLING_OPTIONS}
-									class={FIELD}
-								/>
-							</label>
-
-							<label class="block">
-								<span class="mb-2 block text-sm text-muted-soft">Ciudad</span>
-								<input
-									bind:value={city}
-									class={FIELD}
-									placeholder="Ciudad"
-								/>
-							</label>
-						</div>
-
-						<div class="mt-4 grid gap-4 sm:grid-cols-2">
-							<label class="block">
-								<span class="mb-2 block text-sm text-muted-soft">Departamento</span>
-								<Select
-									id="departamento"
-									bind:value={department}
-									options={DEPARTMENT_OPTIONS}
-									class={FIELD}
-								/>
-							</label>
-
-							<label class="block">
-								<span class="mb-2 block text-sm text-muted-soft">Código Postal (opcional)</span>
-								<input
-									bind:value={postalCode}
-									class={FIELD}
-									placeholder="Código Postal"
-								/>
-							</label>
-						</div>
-					</div>
-
-					<div class="pt-2">
-						<h2
-							class="mb-5 font-display text-2xl font-bold tracking-tight text-ink"
-						>
-							Método de pago
-						</h2>
-
-						<div class="rounded-2xl border border-line-soft bg-white p-5">
-							<div class="flex flex-wrap gap-2">
-								{#each PAYMENT_METHODS as method (method)}
-									<span
-										class="rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink"
-									>
-										{method}
-									</span>
-								{/each}
-							</div>
-							<div class="mt-3 flex items-center gap-2 text-xs text-muted-soft">
-								<Lock size={14} class="flex-shrink-0" />
-								<span
-									>Pago seguro procesado por <strong>Wompi</strong> — nunca vemos tu tarjeta.</span
-								>
-							</div>
-						</div>
-
-						{#if !$canProceedToPayment}
-							<p class="mt-3 text-sm text-[#b45309]">
-								Agrega {$missingUnitsForPayment} unidades más para continuar con el pago.
-							</p>
-						{/if}
-					</div>
-
-					<Button
-						variant="secondary"
-						onclick={handlePay}
-						loading={isSubmitting}
-						disabled={cartList.length === 0 || !$canProceedToPayment}
-						class="mt-8 w-full"
-					>
-						{isSubmitting ? 'Procesando...' : 'Pagar ahora'}
-					</Button>
+	<div class="mx-auto grid max-w-[1200px] px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+		<section
+			class="order-2 py-8 lg:order-1 lg:pt-2 lg:pb-10 lg:pr-12"
+		>
+			<div class="space-y-8">
+				<div>
+					<h2 class="mb-5 font-display text-2xl font-bold text-ink">Contacto</h2>
+					<label class="block">
+						<span class="mb-2 block text-sm text-muted-soft">Correo electrónico</span>
+						<input
+							bind:value={email}
+							class={FIELD}
+							placeholder="Correo electrónico"
+						/>
+					</label>
 				</div>
-			</section>
 
-			<aside
-				class="order-1 mb-6 overflow-hidden rounded-2xl bg-[#FCA1201C] lg:order-2 lg:mb-0 lg:rounded-none"
-			>
-				<!-- Barra plegable: solo móvil. El total queda siempre visible, que es
-				     el dato que da confianza; el detalle se abre si se quiere. -->
-				<button
-					type="button"
-					onclick={() => (summaryOpen = !summaryOpen)}
-					aria-expanded={summaryOpen}
-					class="flex w-full items-center justify-between gap-4 px-5 py-4 lg:hidden"
-				>
-					<span class="flex items-center gap-1.5 font-poppins text-sm text-ink">
-						{summaryOpen ? 'Ocultar' : 'Ver'} resumen del pedido
-						<ChevronDown
-							class="h-4 w-4 transition-transform {summaryOpen ? 'rotate-180' : ''}"
-						/>
-					</span>
-					<span class="font-display text-lg font-semibold tabular-nums text-ink">
-						{formatPrice(total)}
-					</span>
-				</button>
+				<div>
+					<h2 class="mb-5 font-display text-2xl font-bold text-ink">Envío</h2>
+					<p class="mb-4 text-sm text-muted-soft">
+						Por ahora solo hacemos envíos dentro de Colombia.
+					</p>
 
-				<div class="{summaryOpen ? 'block' : 'hidden'} px-5 pb-6 lg:block lg:p-10">
-					{#if cartList.length === 0}
-						<EmptyState
-							title="Tu carrito está vacío"
-							description="Agrega productos para continuar con el pago."
-							actionLabel="Ver catálogo"
-							actionHref="{store.basePath}/productos"
+					<div class="grid gap-4 sm:grid-cols-2">
+						<label class="block">
+							<span class="mb-2 block text-sm text-muted-soft">Nombre</span>
+							<input
+								bind:value={firstName}
+								class={FIELD}
+								placeholder="Nombre"
+							/>
+						</label>
+
+						<label class="block">
+							<span class="mb-2 block text-sm text-muted-soft">Apellido</span>
+							<input
+								bind:value={lastName}
+								class={FIELD}
+								placeholder="Apellido"
+							/>
+						</label>
+					</div>
+
+					<label class="mt-4 block">
+						<span class="mb-2 block text-sm text-muted-soft">Teléfono</span>
+						<input
+							bind:value={phone}
+							type="tel"
+							class={FIELD}
+							placeholder="Ej: 300 123 4567"
 						/>
-					{:else}
-						<ul class="space-y-5">
-							{#each cartList as item (item.id)}
-								{@const href = productHrefForCartItem(item)}
-								<li
-									class="flex items-start gap-4 border-b border-[#d3c9b8] pb-4 last:border-b-0 last:pb-0"
+					</label>
+
+					<label class="mt-4 block">
+						<span class="mb-2 block text-sm text-muted-soft">Dirección</span>
+						<input
+							bind:value={address}
+							class={FIELD}
+							placeholder="Ej: Calle 45 # 20-30"
+						/>
+					</label>
+
+					<label class="mt-4 block">
+						<span class="mb-2 block text-sm text-muted-soft"
+							>Complemento (apto, torre, interior, bloque)</span
+						>
+						<input
+							bind:value={addressComplement}
+							class={FIELD}
+							placeholder="Ej: Apto 302, Torre 4, Conjunto Los Robles"
+						/>
+					</label>
+
+					<div class="mt-4 grid gap-4 sm:grid-cols-2">
+						<div>
+							<label for="tipo-vivienda" class="mb-2 block text-sm text-muted-soft">Tipo de vivienda</label>
+							<Select
+								id="tipo-vivienda"
+								bind:value={dwellingType}
+								options={DWELLING_OPTIONS}
+								class={FIELD}
+							/>
+						</div>
+
+						<label class="block">
+							<span class="mb-2 block text-sm text-muted-soft">Ciudad</span>
+							<input
+								bind:value={city}
+								class={FIELD}
+								placeholder="Ciudad"
+							/>
+						</label>
+					</div>
+
+					<div class="mt-4 grid gap-4 sm:grid-cols-2">
+						<div>
+							<label for="departamento" class="mb-2 block text-sm text-muted-soft">Departamento</label>
+							<Select
+								id="departamento"
+								bind:value={department}
+								options={DEPARTMENT_OPTIONS}
+								class={FIELD}
+							/>
+						</div>
+
+						<label class="block">
+							<span class="mb-2 block text-sm text-muted-soft">Código Postal (opcional)</span>
+							<input
+								bind:value={postalCode}
+								class={FIELD}
+								placeholder="Código Postal"
+							/>
+						</label>
+					</div>
+				</div>
+
+				<div class="pt-2">
+					<h2
+						class="mb-5 font-display text-2xl font-bold tracking-tight text-ink"
+					>
+						Método de pago
+					</h2>
+
+					<div class="rounded-2xl border border-line-soft bg-white p-5">
+						<div class="flex flex-wrap gap-2">
+							{#each PAYMENT_METHODS as method (method)}
+								<span
+									class="rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink"
 								>
-									<a {href} tabindex="-1" aria-hidden="true" class="relative aspect-[3/4] w-20 flex-shrink-0">
-										<img
-											src={item.image}
-											alt=""
-											class="h-full w-full rounded-lg bg-[#ece4d6] object-cover transition-transform duration-300 hover:scale-105"
-										/>
-										<span
-											class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[10px] font-bold text-white"
-										>
-											{item.quantity}
-										</span>
-									</a>
+									{method}
+								</span>
+							{/each}
+						</div>
+						<div class="mt-3 flex items-center gap-2 text-xs text-muted-soft">
+							<Lock size={14} class="flex-shrink-0" />
+							<span
+								>Pago seguro procesado por <strong>Wompi</strong> — nunca vemos tu tarjeta.</span
+							>
+						</div>
+					</div>
 
-									<div class="flex w-full items-start justify-between gap-4">
-										<div>
-											<a
-												{href}
-												class="font-display text-lg font-semibold text-ink underline-offset-2 hover:underline"
-											>
-												{item.name}
-											</a>
-											<p class="mt-1 text-sm text-muted-soft">
-												{item.color ?? 'General'}{item.size ? ` / ${formatSize(item.size)}` : ''}
-											</p>
-										</div>
-										<p class="text-right text-base font-medium tabular-nums text-ink">
-											{formatPrice(item.price * item.quantity)}
+					{#if !$canProceedToPayment}
+						<p class="mt-3 text-sm text-[#b45309]">
+							Agrega {$missingUnitsForPayment} unidades más para continuar con el pago.
+						</p>
+					{/if}
+				</div>
+
+				<Button
+					variant="secondary"
+					onclick={handlePay}
+					loading={isSubmitting}
+					disabled={cartList.length === 0 || !$canProceedToPayment}
+					class="mt-8 w-full"
+				>
+					{isSubmitting ? 'Procesando...' : 'Pagar ahora'}
+				</Button>
+			</div>
+		</section>
+
+		<aside
+			class="order-1 mb-6 overflow-hidden rounded-2xl bg-[#FCA1201C] lg:order-2 lg:mb-0"
+		>
+			<!-- Barra plegable: solo móvil. El total queda siempre visible, que es
+			     el dato que da confianza; el detalle se abre si se quiere. -->
+			<button
+				type="button"
+				onclick={() => (summaryOpen = !summaryOpen)}
+				aria-expanded={summaryOpen}
+				class="flex w-full items-center justify-between gap-4 px-5 py-4 lg:hidden"
+			>
+				<span class="flex items-center gap-1.5 font-poppins text-sm text-ink">
+					{summaryOpen ? 'Ocultar' : 'Ver'} resumen del pedido
+					<ChevronDown
+						class="h-4 w-4 transition-transform {summaryOpen ? 'rotate-180' : ''}"
+					/>
+				</span>
+				<span class="font-display text-lg font-semibold tabular-nums text-ink">
+					{formatPrice(total)}
+				</span>
+			</button>
+
+			<div class="{summaryOpen ? 'block' : 'hidden'} px-5 pb-6 lg:block lg:p-10">
+				{#if cartList.length === 0}
+					<EmptyState
+						title="Tu carrito está vacío"
+						description="Agrega productos para continuar con el pago."
+						actionLabel="Ver catálogo"
+						actionHref="{store.basePath}/productos"
+					/>
+				{:else}
+					<ul class="space-y-5">
+						{#each cartList as item (item.id)}
+							{@const href = productHrefForCartItem(item)}
+							<li
+								class="flex items-start gap-4 border-b border-[#d3c9b8] pb-4 last:border-b-0 last:pb-0"
+							>
+								<a {href} tabindex="-1" aria-hidden="true" class="relative aspect-[3/4] w-20 flex-shrink-0">
+									<img
+										src={item.image}
+										alt=""
+										class="h-full w-full rounded-lg bg-[#ece4d6] object-cover transition-transform duration-300 hover:scale-105"
+									/>
+									<span
+										class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[10px] font-bold text-white"
+									>
+										{item.quantity}
+									</span>
+								</a>
+
+								<div class="flex w-full items-start justify-between gap-4">
+									<div>
+										<a
+											{href}
+											class="font-display text-lg font-semibold text-ink underline-offset-2 hover:underline"
+										>
+											{item.name}
+										</a>
+										<p class="mt-1 text-sm text-muted-soft">
+											{item.color ?? 'General'}{item.size ? ` / ${formatSize(item.size)}` : ''}
 										</p>
 									</div>
-								</li>
-							{/each}
-						</ul>
-					{/if}
+									<p class="text-right text-base font-medium tabular-nums text-ink">
+										{formatPrice(item.price * item.quantity)}
+									</p>
+								</div>
+							</li>
+						{/each}
+					</ul>
+				{/if}
 
-					<div class="mt-8 space-y-4 text-muted">
-						<div class="flex items-center justify-between text-base">
-							<span>Subtotal</span>
-							<span class="tabular-nums">{formatPrice(subtotal)}</span>
-						</div>
-						<div class="flex items-center justify-between text-base">
-							<span>Envío</span>
-							<span>{shipping > 0 ? formatPrice(shipping) : 'Por cobrar'}</span>
-						</div>
-						{#if shipping === 0}
-							<p class="text-sm text-muted-soft">
-								El flete se paga al recibir el pedido, directamente a la transportadora.
-							</p>
-						{/if}
-						<div
-							class="flex items-center justify-between border-t border-[#d3c9b8] pt-4 text-lg font-semibold text-ink"
-						>
-							<span>Total</span>
-							<span class="tabular-nums">{formatPrice(total)}</span>
-						</div>
+				<div class="mt-8 space-y-4 text-muted">
+					<div class="flex items-center justify-between text-base">
+						<span>Subtotal</span>
+						<span class="tabular-nums">{formatPrice(subtotal)}</span>
+					</div>
+					<div class="flex items-center justify-between text-base">
+						<span>Envío</span>
+						<span>{shipping > 0 ? formatPrice(shipping) : 'Por cobrar'}</span>
+					</div>
+					{#if shipping === 0}
+						<p class="text-sm text-muted-soft">
+							El flete se paga al recibir el pedido, directamente a la transportadora.
+						</p>
+					{/if}
+					<div
+						class="flex items-center justify-between border-t border-[#d3c9b8] pt-4 text-lg font-semibold text-ink"
+					>
+						<span>Total</span>
+						<span class="tabular-nums">{formatPrice(total)}</span>
 					</div>
 				</div>
-			</aside>
-		</div>
+			</div>
+		</aside>
 	</div>
 </div>
