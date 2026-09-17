@@ -178,7 +178,7 @@
 					aria-valuemax={maxBound}
 					aria-valuenow={localMin}
 					class="absolute top-1/2 {thumbSize} -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full bg-white
-						shadow-[0_1px_3px_rgba(0,0,0,0.16),0_0_0_1px_rgba(0,0,0,0.06)]
+						shadow-control
 						transition-transform outline-none hover:scale-110
 						focus-visible:ring-2 focus-visible:ring-offset-1
 						active:scale-110 active:cursor-grabbing"
@@ -203,7 +203,7 @@
 				aria-valuemax={maxBound}
 				aria-valuenow={localMax}
 				class="absolute top-1/2 {thumbSize} -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full bg-white
-					shadow-[0_1px_3px_rgba(0,0,0,0.16),0_0_0_1px_rgba(0,0,0,0.06)]
+					shadow-control
 					transition-transform outline-none hover:scale-110
 					focus-visible:ring-2 focus-visible:ring-offset-1
 					active:scale-110 active:cursor-grabbing"

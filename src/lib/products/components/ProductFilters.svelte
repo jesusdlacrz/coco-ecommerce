@@ -264,17 +264,22 @@
 					if (e.key === 'Escape') closeMobile();
 				}}
 			>
+				<!-- El velo cubre el viewport ENTERO, también por detrás de la hoja.
+				     Antes era un hermano flex (`flex-1`) que terminaba justo donde
+				     empieza la hoja: en las esquinas redondeadas no quedaba nada que
+				     oscureciera y se veía la página cruda, como dos muescas blancas
+				     recortando el radio. -->
 				<button
 					type="button"
 					aria-label="Cerrar filtros"
-					class="flex-1 bg-ink/40 backdrop-blur-[2px]"
+					class="absolute inset-0 bg-ink/40 backdrop-blur-[2px]"
 					onclick={closeMobile}
 				></button>
 
 				<div
 					id="drawer-filtros"
 					tabindex="-1"
-					class="flex max-h-[85vh] animate-[sheetUp_.28s_cubic-bezier(.32,.72,0,1)] flex-col overflow-hidden rounded-t-3xl bg-white shadow-[0_-8px_40px_rgba(38,38,53,0.22)] outline-none"
+					class="relative flex max-h-[85vh] animate-[sheetUp_.28s_cubic-bezier(.32,.72,0,1)] flex-col overflow-hidden rounded-t-3xl bg-white shadow-sheet outline-none"
 				>
 					<div class="flex justify-center pt-3 pb-1">
 						<span class="h-1 w-10 rounded-full bg-line" aria-hidden="true"></span>

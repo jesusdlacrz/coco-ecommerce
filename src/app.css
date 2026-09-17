@@ -74,6 +74,17 @@ body {
 	   un chat deben usar el color que la gente ya reconoce. */
 	--color-whatsapp: #25d366;
 	--color-whatsapp-hover: #1fb855;
+
+	/* Escala de sombras. Antes convivían 12 valores sueltos con tres tintes
+	   distintos (negro puro, rgba(46,33,61) y rgba(38,38,53)); ahora todas se
+	   tiñen con el color de tinta, que es lo que hace que un conjunto de
+	   sombras se lea como un sistema y no como piezas de sitios distintos. */
+	--shadow-control: 0 1px 3px rgba(38, 38, 53, 0.16), 0 0 0 1px rgba(38, 38, 53, 0.06);
+	--shadow-card: 0 4px 35px rgba(38, 38, 53, 0.12);
+	--shadow-raised: 0 20px 35px rgba(38, 38, 53, 0.15);
+	--shadow-float: 0 20px 50px rgba(38, 38, 53, 0.16);
+	--shadow-float-soft: 0 10px 30px rgba(38, 38, 53, 0.08);
+	--shadow-sheet: 0 -8px 40px rgba(38, 38, 53, 0.22);
 }
 
 button {

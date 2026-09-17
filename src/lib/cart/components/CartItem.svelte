@@ -90,7 +90,7 @@
 			<p class="font-body text-xs text-muted-faint">{meta}</p>
 		{/if}
 
-		<p class="font-body text-sm font-semibold text-ink">
+		<p class="font-body text-sm font-semibold tabular-nums text-ink">
 			{formatPrice(item.price)}
 		</p>
 

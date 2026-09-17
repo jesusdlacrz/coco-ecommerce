@@ -76,7 +76,7 @@
 				<Button
 					variant="secondary"
 					href="{store.basePath}/productos"
-					class="shadow-[0px_20px_35px_0px_rgba(0,0,0,0.15)]"
+					class="shadow-raised"
 				>
 					Comprar ahora
 				</Button>

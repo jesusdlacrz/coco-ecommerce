@@ -82,7 +82,7 @@
 				{@const t = testimonials[activeIndex]}
 				<div
 					in:fade={{ duration: 280 }}
-					class="rounded-2xl bg-white p-6 shadow-[0px_20px_50px_0px_rgba(46,33,61,0.15)]"
+					class="rounded-2xl bg-white p-6 shadow-float"
 				>
 					<div class="mb-4 flex items-center gap-4">
 						<div class="relative h-14 w-14 shrink-0">
@@ -133,8 +133,8 @@
 					"
 					class="w-full max-w-[560px] overflow-hidden rounded-2xl bg-white transition-all duration-500 ease-in-out
 						{isCenter
-							? 'cursor-default shadow-[0px_20px_50px_0px_rgba(46,33,61,0.18)]'
-							: 'cursor-pointer shadow-[0px_10px_30px_0px_rgba(46,33,61,0.08)]'}"
+							? 'cursor-default shadow-float'
+							: 'cursor-pointer shadow-float-soft'}"
 				>
 					{#if isCenter}
 						<div class="flex gap-6 p-8">

@@ -120,7 +120,7 @@
 				<Button
 					variant="secondary"
 					href="{store.basePath}/productos"
-					class="w-fit shadow-[0px_20px_35px_0px_rgba(0,0,0,0.15)]"
+					class="w-fit shadow-raised"
 				>
 					Comprar
 				</Button>
@@ -154,7 +154,7 @@
 			<div class="flex flex-1 items-start gap-4 pt-10 pr-4 pb-8">
 				<!-- Main card: keyed so fly transition fires on change -->
 				<div
-					class="relative min-w-0 flex-[11] overflow-hidden rounded-2xl bg-graybrand shadow-[0px_4px_35px_0px_rgba(0,0,0,0.15)]"
+					class="relative min-w-0 flex-[11] overflow-hidden rounded-2xl bg-graybrand shadow-card"
 					style="height:580px"
 				>
 					{#key current}
@@ -188,7 +188,7 @@
 				<div class="flex min-w-0 flex-[10] flex-col gap-4">
 					<button
 						onclick={goNext}
-						class="w-full cursor-pointer overflow-hidden rounded-2xl bg-graybrand shadow-[0px_4px_35px_0px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:scale-[1.02]"
+						class="w-full cursor-pointer overflow-hidden rounded-2xl bg-graybrand shadow-card transition-transform duration-300 hover:scale-[1.02]"
 						style="height:520px"
 						aria-label="Ver siguiente"
 					>

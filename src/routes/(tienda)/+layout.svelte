@@ -9,6 +9,9 @@
 	import { goto } from '$app/navigation';
 	import { HOUSE_STORE } from '$lib/storefront/model';
 	import { categoryStyles } from '$lib/products/filters/categoryStyles';
+	import CatalogSkeleton from '$lib/shared/components/skeletons/CatalogSkeleton.svelte';
+	import ProductSkeleton from '$lib/shared/components/skeletons/ProductSkeleton.svelte';
+	import { createPendingSkeleton } from '$lib/shared/services/pendingNavigation.svelte';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -24,6 +27,11 @@
 	});
 
 	// =================== CART STATE ===================
+	// El esqueleto vive en el layout, no en la página: durante una navegación la
+	// página de destino todavía no está montada, así que ella no puede
+	// anunciarse a sí misma.
+	const pending = createPendingSkeleton();
+
 	let isCartOpen = $state(false);
 	let currentCategory = $state<Category>('women');
 
@@ -91,7 +99,13 @@
 />
 <div class="{currentBackground} transition-colors duration-700">
 	<main class="min-h-screen">
-		{@render children?.()}
+		{#if pending.kind === 'catalog'}
+			<CatalogSkeleton />
+		{:else if pending.kind === 'product'}
+			<ProductSkeleton />
+		{:else}
+			{@render children?.()}
+		{/if}
 	</main>
 
 	{#if !isHomePage}

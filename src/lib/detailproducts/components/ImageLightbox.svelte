@@ -96,7 +96,31 @@
 	}
 
 	// ------------------------------------------------------- Escritorio (mouse)
+	// Con `object-contain` la foto se ve centrada y con franjas vacías a los
+	// lados, pero el ELEMENTO <img> sigue ocupando el área completa. Sin esto, un
+	// clic en la franja oscura —que para cualquiera es "fuera de la imagen"—
+	// aterriza igualmente sobre la imagen y hace zoom en vez de cerrar.
+	function pointOnPicture(img: HTMLImageElement, clientX: number, clientY: number): boolean {
+		const { naturalWidth: nw, naturalHeight: nh } = img;
+		if (!nw || !nh) return true; // sin medidas todavía: no cerrar por error
+		const rect = img.getBoundingClientRect();
+		const ratio = Math.min(rect.width / nw, rect.height / nh);
+		const shownW = nw * ratio;
+		const shownH = nh * ratio;
+		const left = rect.left + (rect.width - shownW) / 2;
+		const top = rect.top + (rect.height - shownH) / 2;
+		return (
+			clientX >= left && clientX <= left + shownW && clientY >= top && clientY <= top + shownH
+		);
+	}
+
 	function handleImageClick(e: MouseEvent) {
+		// Con zoom activo toda el área es la foto ampliada: ahí el clic vuelve a
+		// significar "quitar el zoom", no "cerrar".
+		if (scale === 1 && !pointOnPicture(e.currentTarget as HTMLImageElement, e.clientX, e.clientY)) {
+			onClose();
+			return;
+		}
 		toggleZoomAt(e.clientX, e.clientY);
 	}
 

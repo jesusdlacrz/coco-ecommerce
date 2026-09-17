@@ -381,7 +381,7 @@
 											{item.color ?? 'General'}{item.size ? ` / ${formatSize(item.size)}` : ''}
 										</p>
 									</div>
-									<p class="text-right text-base font-medium text-ink">
+									<p class="text-right text-base font-medium tabular-nums text-ink">
 										{formatPrice(item.price * item.quantity)}
 									</p>
 								</div>
@@ -393,7 +393,7 @@
 				<div class="mt-8 space-y-4 text-[#454545]">
 					<div class="flex items-center justify-between text-base">
 						<span>Subtotal</span>
-						<span>{formatPrice(subtotal)}</span>
+						<span class="tabular-nums">{formatPrice(subtotal)}</span>
 					</div>
 					<div class="flex items-center justify-between text-base">
 						<span>Envío</span>
@@ -408,7 +408,7 @@
 						class="flex items-center justify-between border-t border-[#d3c9b8] pt-4 text-lg font-semibold text-ink"
 					>
 						<span>Total</span>
-						<span>{formatPrice(total)}</span>
+						<span class="tabular-nums">{formatPrice(total)}</span>
 					</div>
 				</div>
 			</aside>

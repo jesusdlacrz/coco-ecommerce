@@ -72,11 +72,11 @@
 
 		<!-- Price -->
 		<div class="flex items-baseline gap-2">
-			<span class="font-body text-base font-semibold text-ink">
+			<span class="font-body text-base font-semibold tabular-nums text-ink">
 				{formatPrice(displayPrice)}
 			</span>
 			{#if originalPrice}
-				<span class="font-body text-sm text-muted-faint line-through">
+				<span class="font-body text-sm tabular-nums text-muted-faint line-through">
 					{formatPrice(originalPrice)}
 				</span>
 			{/if}
