@@ -19,15 +19,15 @@
 			path: 'M12 3l2.6 5.5 6 .9-4.3 4.3 1 6-5.3-2.9-5.3 2.9 1-6L3.4 9.4l6-.9L12 3z'
 		},
 		{
-			id: 'warranty',
-			title: 'Respaldo total',
-			subtitle: 'Cobertura mayorista por 12 meses',
+			id: 'payment',
+			title: 'Pago seguro',
+			subtitle: 'Tarjeta, PSE o Nequi a través de Wompi',
 			path: 'M12 3l7 3v5.5c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3zM9 12l2.2 2.2L15.4 10'
 		},
 		{
 			id: 'shipping',
-			title: 'Envío gratis',
-			subtitle: 'En pedidos superiores a $200.000',
+			title: 'Envíos nacionales',
+			subtitle: 'Despachamos a toda Colombia',
 			path: 'M3 7.5L12 3l9 4.5v9L12 21 3 16.5v-9zM3 7.5L12 12m0 0l9-4.5M12 12v9'
 		},
 		{

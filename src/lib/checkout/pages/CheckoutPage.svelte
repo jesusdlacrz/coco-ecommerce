@@ -6,7 +6,8 @@
 		cartStore,
 		cartTotal,
 		canProceedToPayment,
-		missingUnitsForPayment
+		shortfallsForPayment,
+		describeShortfalls
 	} from '$lib/cart/stores/cartStore';
 	import CartLine from '$lib/cart/components/CartItem.svelte';
 	import { createStockLookup } from '$lib/cart/services/stockLookup.svelte';
@@ -123,7 +124,7 @@
 			return;
 		}
 		if (!$canProceedToPayment) {
-			toast.error(`Agrega ${$missingUnitsForPayment} unidades más para continuar`);
+			toast.error(describeShortfalls($shortfallsForPayment));
 			return;
 		}
 
@@ -331,9 +332,9 @@
 						</div>
 					</div>
 
-					{#if !$canProceedToPayment}
+					{#if $shortfallsForPayment.length > 0}
 						<p class="mt-3 text-sm text-[#b45309]">
-							Agrega {$missingUnitsForPayment} unidades más para continuar con el pago.
+							{describeShortfalls($shortfallsForPayment)}
 						</p>
 					{/if}
 				</div>

@@ -7,9 +7,45 @@ import { displayPrice, strikePrice } from '$lib/shared/utils/price';
 // ya guardados en localStorage de antes de esta feature.
 const LEGACY_KEY = 'cart';
 
-// Mínimo mayorista — usado también por el checkout en el servidor para
-// rechazar un intento de pago que no lo cumpla.
-export const MIN_PAYMENT_UNITS = 4;
+// Mínimo mayorista POR PRENDA: las tallas y colores de una misma prenda se
+// suman entre sí (2 M + 2 L de la misma blusa cumplen). Lo usa también el
+// checkout en el servidor para rechazar un intento de pago que no lo cumpla.
+export const MIN_UNITS_PER_PRODUCT = 4;
+
+export interface ProductShortfall {
+	productId: string;
+	name: string;
+	missing: number;
+}
+
+/** Prendas del carrito que aún no llegan al mínimo, con cuántas unidades les faltan. */
+export function productsBelowMinimum(
+	items: Pick<CartItem, 'productId' | 'name' | 'quantity'>[]
+): ProductShortfall[] {
+	const unitsByProduct = new Map<string, { name: string; units: number }>();
+	for (const item of items) {
+		const entry = unitsByProduct.get(item.productId) ?? { name: item.name, units: 0 };
+		entry.units += item.quantity;
+		unitsByProduct.set(item.productId, entry);
+	}
+	return [...unitsByProduct.entries()]
+		.filter(([, { units }]) => units < MIN_UNITS_PER_PRODUCT)
+		.map(([productId, { name, units }]) => ({
+			productId,
+			name,
+			missing: MIN_UNITS_PER_PRODUCT - units
+		}));
+}
+
+/** Mensaje para el comprador a partir de `productsBelowMinimum`. */
+export function describeShortfalls(shortfalls: ProductShortfall[]): string {
+	if (shortfalls.length === 1) {
+		const [{ name, missing }] = shortfalls;
+		return `Agrega ${missing} ${missing === 1 ? 'unidad' : 'unidades'} más de "${name}" (mínimo ${MIN_UNITS_PER_PRODUCT} por prenda, puedes combinar tallas y colores).`;
+	}
+	const list = shortfalls.map(({ name, missing }) => `"${name}" (faltan ${missing})`).join(', ');
+	return `Cada prenda necesita mínimo ${MIN_UNITS_PER_PRODUCT} unidades, combinando tallas y colores: ${list}.`;
+}
 
 // La identidad de una línea del carrito es producto + talla + color + vendedor:
 // es exactamente el criterio con el que `addItem` decide si suma cantidad o crea
@@ -220,12 +256,9 @@ export const cartItemCount = derived(cartItems, ($items) =>
 	$items.reduce((total, item) => total + item.quantity, 0)
 );
 
-export const totalUnits = derived(cartItems, ($items) =>
-	$items.reduce((total, item) => total + item.quantity, 0)
-);
+export const shortfallsForPayment = derived(cartItems, productsBelowMinimum);
 
-export const canProceedToPayment = derived(totalUnits, ($totalUnits) => $totalUnits >= MIN_PAYMENT_UNITS);
-
-export const missingUnitsForPayment = derived(totalUnits, ($totalUnits) =>
-	Math.max(0, MIN_PAYMENT_UNITS - $totalUnits)
+export const canProceedToPayment = derived(
+	[cartItems, shortfallsForPayment],
+	([$items, $shortfalls]) => $items.length > 0 && $shortfalls.length === 0
 );

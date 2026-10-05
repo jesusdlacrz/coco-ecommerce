@@ -12,7 +12,7 @@
 		cartTotal,
 		cartItemCount,
 		canProceedToPayment,
-		missingUnitsForPayment
+		shortfallsForPayment
 	} from '$lib/cart/stores/cartStore';
 	import toast from 'svelte-5-french-toast';
 
@@ -93,7 +93,7 @@
 	const total = $derived($cartTotal);
 	const totalItems = $derived($cartItemCount);
 	const canCheckout = $derived($canProceedToPayment);
-	const missingUnits = $derived($missingUnitsForPayment);
+	const shortfalls = $derived($shortfallsForPayment);
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -126,9 +126,8 @@
 		<CartFooter
 			{cartItems}
 			{total}
-			{totalItems}
 			{canCheckout}
-			{missingUnits}
+			{shortfalls}
 			{onClearCart}
 			{onCheckout}
 		/>

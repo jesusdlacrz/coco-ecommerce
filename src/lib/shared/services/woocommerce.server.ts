@@ -2,6 +2,7 @@
 // (el sufijo ".server.ts" impide que SvelteKit lo incluya en el bundle del
 // cliente, manteniendo las API keys fuera del navegador).
 import { env } from '$env/dynamic/private';
+import { dev } from '$app/environment';
 import type { Color, Product, ProductVariation } from '$lib/shared/model/products';
 import { sampleProducts } from '$lib/dataProducts/products';
 import { describeError } from '$lib/shared/utils/describeError';
@@ -475,7 +476,8 @@ export async function getProduct(
 		return mapWooProduct(product, swatches, variations);
 	} catch (err) {
 		console.error(`[woocommerce] Error al traer el producto "${id}" (${describeError(err)}).`);
-		return sampleProducts.find((p) => p.id === id) ?? null;
+		// Solo en local: en producción un producto de ejemplo se podría cobrar.
+		return dev ? (sampleProducts.find((p) => p.id === id) ?? null) : null;
 	}
 }
 

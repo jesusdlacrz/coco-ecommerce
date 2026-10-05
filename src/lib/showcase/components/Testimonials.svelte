@@ -3,47 +3,14 @@
 	import IconButton from '$lib/shared/components/form/IconButton.svelte';
 	import type { SiteTestimonial } from '$lib/shared/services/siteContent.server';
 
-	// Contenido de respaldo mientras no haya testimonios cargados en WordPress.
-	const FALLBACK_TESTIMONIALS: SiteTestimonial[] = [
-		{
-			name: 'Ana María G.',
-			role: 'Dueña de Boutique',
-			quote:
-				'"La calidad de los productos de Cocos superó nuestras expectativas. Desde que incluimos su catálogo en nuestra tienda, nuestras ventas y márgenes de ganancia han mejorado notablemente. ¡Totalmente recomendados!"',
-			stars: 5,
-			photo: null
-		},
-		{
-			name: 'Daniel T.',
-			role: 'Emprendedor Retail',
-			quote:
-				'"Nuestros clientes son muy exigentes con los acabados, y los materiales que maneja Cocos nos permiten ofrecer un producto de primera categoría sin inflar nuestros costos. Excelente inversión."',
-			stars: 5,
-			photo: null
-		},
-		{
-			name: 'Diego R.',
-			role: 'Distribuidor Mayorista',
-			quote:
-				'"Llevamos meses haciendo pedidos mayoristas y la puntualidad es impecable. Saber que los despachos llegan a tiempo y exactamente con lo que pedimos nos da muchísima tranquilidad."',
-			stars: 5,
-			photo: null
-		},
-		{
-			name: 'Camila J.',
-			role: 'Gerente de Compras',
-			quote:
-				'"Más que un proveedor, Cocos se ha convertido en un aliado estratégico para nuestro negocio. La atención personalizada y la facilidad para gestionar grandes volúmenes de compra hacen toda la diferencia."',
-			stars: 5,
-			photo: null
-		}
-	];
+	// Sin respaldo inventado: si no hay testimonios cargados en WordPress, la
+	// sección no se muestra (publicar opiniones ficticias como reales sería
+	// publicidad engañosa).
+	let { testimonials = [] }: { testimonials?: SiteTestimonial[] } = $props();
 
-	let { testimonials: provided = [] }: { testimonials?: SiteTestimonial[] } = $props();
-
-	const testimonials = $derived(provided.length ? provided : FALLBACK_TESTIMONIALS);
-
-	let activeIndex = $state(1);
+	// Arranca en el segundo para que en escritorio quede uno a cada lado, pero
+	// con un solo testimonio el índice 1 no existiría.
+	let activeIndex = $state(testimonials.length > 1 ? 1 : 0);
 	const len = $derived(testimonials.length);
 
 	function goPrev() {
@@ -66,6 +33,7 @@
 	}
 </script>
 
+{#if testimonials.length}
 <section class="overflow-hidden py-20">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<!-- Title -->
@@ -218,3 +186,4 @@
 		</div>
 	</div>
 </section>
+{/if}

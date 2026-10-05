@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import { dev } from '$app/environment';
 import {
 	fetchProductsOrThrow,
 	getProduct,
@@ -31,8 +32,10 @@ export async function getCachedProducts(fetchFn: typeof fetch = fetch): Promise<
 			return products;
 		} catch (err) {
 			const isUnconfigured = err instanceof WooNotConfiguredError;
-			// Preferimos datos reales viejos antes que los de ejemplo.
-			const products = lastGood ?? sampleProducts;
+			// Preferimos datos reales viejos antes que los de ejemplo. En producción
+			// nunca se sirven ejemplos: el checkout valida precios contra esta misma
+			// lista, así que se podría cobrar una prenda que no existe en WooCommerce.
+			const products = lastGood ?? (dev ? sampleProducts : []);
 			cache = { products, expiresAt: Date.now() + (isUnconfigured ? TTL_OK_MS : TTL_ERROR_MS) };
 			if (!isUnconfigured) {
 				console.error(

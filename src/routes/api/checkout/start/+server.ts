@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import type { RequestHandler } from './$types';
 import type { CartItem } from '$lib/shared/model/products';
 import { SHIPPING_COST } from '$lib/shared/utils/price';
-import { MIN_PAYMENT_UNITS } from '$lib/cart/stores/cartStore';
+import { productsBelowMinimum, describeShortfalls } from '$lib/cart/stores/cartStore';
 import { getHouseCartPrices, getVendorCartPrices, getCartStock } from '$lib/pricing/catalog.server';
 import { getWompiConfig } from '$lib/server/wompi/config';
 import { buildIntegritySignature } from '$lib/server/wompi/signature';
@@ -53,9 +53,9 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 	if (hasInvalidQuantity) {
 		throw error(400, 'Hay una cantidad inválida en el carrito.');
 	}
-	const totalUnits = items.reduce((sum, item) => sum + item.quantity, 0);
-	if (totalUnits < MIN_PAYMENT_UNITS) {
-		throw error(400, `El pedido mínimo es de ${MIN_PAYMENT_UNITS} unidades.`);
+	const shortfalls = productsBelowMinimum(items);
+	if (shortfalls.length > 0) {
+		throw error(400, describeShortfalls(shortfalls));
 	}
 	if (!isValidCustomer(body.customer)) {
 		throw error(400, 'Faltan datos de contacto o envío.');

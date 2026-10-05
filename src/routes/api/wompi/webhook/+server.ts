@@ -132,6 +132,17 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 		return json({ ok: true });
 	}
 
+	// La firma de integridad ya amarra el monto a la referencia, pero si por
+	// cualquier motivo Wompi aprobó un monto distinto al calculado, no se crea
+	// el pedido: queda en el log para revisarlo a mano en el panel de Wompi.
+	if (transaction.amount_in_cents !== checkout.amountInCents) {
+		await markCheckoutResolved(transaction.reference, 'declined', null);
+		console.error(
+			`[wompi-webhook] Monto distinto para "${transaction.reference}": Wompi cobró ${transaction.amount_in_cents}, se esperaba ${checkout.amountInCents}.`
+		);
+		return json({ ok: true });
+	}
+
 	try {
 		const lineItems = await buildLineItems(checkout, fetch);
 		const order = await createOrder(
