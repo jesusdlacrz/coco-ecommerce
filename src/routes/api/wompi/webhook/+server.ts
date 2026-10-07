@@ -1,86 +1,14 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { SHIPPING_COST } from '$lib/shared/utils/price';
 import { getWompiConfig } from '$lib/server/wompi/config';
 import { verifyEventChecksum } from '$lib/server/wompi/signature';
-import {
-	getPendingCheckout,
-	claimPendingCheckout,
-	releasePendingCheckout,
-	markCheckoutResolved,
-	type PendingCheckout
-} from '$lib/server/checkout/repository';
-import {
-	createOrder,
-	resolveOrderTarget,
-	type CreateOrderLineItem
-} from '$lib/shared/services/woocommerce.server';
-import { describeError } from '$lib/shared/utils/describeError';
-
-// Estados terminales negativos de Wompi. 'PENDING' NO está aquí a propósito:
-// métodos async (PSE, transferencia) mandan primero un evento PENDING y
-// después el definitivo — tratarlo como declinado bloquearía para siempre el
-// evento APPROVED real que llega después (la fila ya no estaría en 'pending').
-type WompiTerminalStatus = 'DECLINED' | 'VOIDED' | 'ERROR';
-
-interface WompiTransaction {
-	id: string;
-	reference: string;
-	status: 'APPROVED' | WompiTerminalStatus | 'PENDING';
-	amount_in_cents: number;
-}
+import { applyWompiTransaction, type WompiTransaction } from '$lib/server/checkout/fulfill';
 
 interface WompiWebhookPayload {
 	event: string;
 	data: { transaction: WompiTransaction };
 	signature: { properties: string[]; checksum: string };
 	timestamp: number;
-}
-
-// Misma combinación producto+talla+color no debe resolverse dos veces contra
-// WooCommerce aunque aparezca en más de una línea del carrito.
-function itemKey(item: { productId: string; size: string | null; color: string | null }): string {
-	return `${item.productId}::${item.size ?? ''}::${item.color ?? ''}`;
-}
-
-async function buildLineItems(
-	checkout: PendingCheckout,
-	fetchFn: typeof fetch
-): Promise<CreateOrderLineItem[]> {
-	const uniqueItems = new Map<string, { productId: string; size: string | null; color: string | null }>();
-	for (const item of checkout.items) {
-		uniqueItems.set(itemKey(item), { productId: item.productId, size: item.size, color: item.color });
-	}
-	const resolvedPairs = await Promise.all(
-		[...uniqueItems.entries()].map(
-			async ([key, { productId, size, color }]) =>
-				[key, await resolveOrderTarget(productId, size, color, fetchFn)] as const
-		)
-	);
-	const targetByKey = new Map(resolvedPairs);
-
-	return checkout.items.map((item) => {
-		const target = targetByKey.get(itemKey(item));
-		if (!target) {
-			throw new Error(`No se pudo resolver el producto/variación de "${item.productId}" en WooCommerce`);
-		}
-		// Con variación, WooCommerce ya muestra talla y color desde sus atributos:
-		// repetirlos como meta los duplicaba en el pedido. Solo hacen falta en
-		// productos simples, donde no hay variación que los lleve.
-		const meta = target.variationId
-			? []
-			: [
-					...(item.color ? [{ key: 'Color', value: item.color }] : []),
-					...(item.size ? [{ key: 'Talla', value: item.size }] : [])
-				];
-		return {
-			productId: target.productId,
-			variationId: target.variationId,
-			quantity: item.quantity,
-			total: (item.price * item.quantity).toFixed(2),
-			meta
-		};
-	});
 }
 
 export const POST: RequestHandler = async ({ request, fetch }) => {
@@ -106,81 +34,10 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 		return json({ ok: true });
 	}
 
-	const { transaction } = payload.data;
-
-	// Estado intermedio (ej. PSE/transferencia todavía procesando) — no hay
-	// nada que resolver aún, el evento definitivo llega después.
-	if (transaction.status === 'PENDING') {
-		return json({ ok: true });
-	}
-
-	if (transaction.status !== 'APPROVED') {
-		const checkout = await getPendingCheckout(transaction.reference);
-		if (checkout?.status === 'pending') {
-			await markCheckoutResolved(transaction.reference, 'declined', null);
-		}
-		return json({ ok: true });
-	}
-
-	// Reclamo atómico: si dos entregas del mismo webhook llegan casi a la vez
-	// (Wompi reintenta si no responde 200 rápido), solo una de ellas logra
-	// pasar de 'pending' a 'processing' — la otra ve claimed=false y no crea
-	// un segundo pedido en WooCommerce para el mismo pago.
-	const claimed = await claimPendingCheckout(transaction.reference);
-	if (!claimed) {
-		return json({ ok: true });
-	}
-
-	const checkout = await getPendingCheckout(transaction.reference);
-	if (!checkout) {
-		console.warn(`[wompi-webhook] Referencia desconocida: ${transaction.reference}`);
-		return json({ ok: true });
-	}
-
-	// La firma de integridad ya amarra el monto a la referencia, pero si por
-	// cualquier motivo Wompi aprobó un monto distinto al calculado, no se crea
-	// el pedido: queda en el log para revisarlo a mano en el panel de Wompi.
-	if (transaction.amount_in_cents !== checkout.amountInCents) {
-		await markCheckoutResolved(transaction.reference, 'declined', null);
-		console.error(
-			`[wompi-webhook] Monto distinto para "${transaction.reference}": Wompi cobró ${transaction.amount_in_cents}, se esperaba ${checkout.amountInCents}.`
-		);
-		return json({ ok: true });
-	}
-
 	try {
-		const lineItems = await buildLineItems(checkout, fetch);
-		const order = await createOrder(
-			{
-				reference: transaction.reference,
-				vendorSlug: checkout.vendorSlug,
-				lineItems,
-				shippingTotal: SHIPPING_COST.toFixed(2),
-				billing: {
-					firstName: checkout.customer.firstName,
-					lastName: checkout.customer.lastName,
-					email: checkout.customer.email,
-					phone: checkout.customer.phone,
-					address: checkout.customer.address,
-					addressComplement: checkout.customer.addressComplement,
-					dwellingType: checkout.customer.dwellingType,
-					city: checkout.customer.city,
-					state: checkout.customer.state,
-					postalCode: checkout.customer.postalCode,
-					country: checkout.customer.country
-				}
-			},
-			fetch
-		);
-		await markCheckoutResolved(transaction.reference, 'approved', order.id);
-	} catch (err) {
-		// Se libera de vuelta a 'pending' (no se queda atascada en
-		// 'processing') para que el próximo reintento de Wompi pueda
-		// reclamarla e intentar de nuevo, en vez de perder la venta.
-		await releasePendingCheckout(transaction.reference);
-		console.error(
-			`[wompi-webhook] Error creando el pedido para "${transaction.reference}" (${describeError(err)}).`
-		);
+		await applyWompiTransaction(payload.data.transaction, fetch);
+	} catch {
+		// Ya quedó en el log; el 500 hace que Wompi reintente el evento.
 		throw error(500, 'No se pudo crear el pedido');
 	}
 
