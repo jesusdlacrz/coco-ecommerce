@@ -14,11 +14,13 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 		throw error(404, 'Referencia no encontrada');
 	}
 
-	// Respaldo del webhook: mientras siga pendiente, se le pregunta a Wompi
+	// Respaldo del webhook: mientras no esté aprobado, se le pregunta a Wompi
 	// directamente. Así el pedido se crea aunque la URL de eventos no esté
-	// configurada en Wompi o su aviso no haya llegado todavía.
+	// configurada en Wompi o su aviso no haya llegado todavía. 'declined'
+	// entra porque un intento rechazado puede reintentarse con la misma
+	// referencia y aprobarse después.
 	const wompi = getWompiConfig();
-	if (checkout.status === 'pending' && wompi) {
+	if ((checkout.status === 'pending' || checkout.status === 'declined') && wompi) {
 		await reconcileWithWompi(reference, wompi, fetch);
 		checkout = (await getPendingCheckout(reference)) ?? checkout;
 	}

@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { db } from '$lib/server/db/client';
 import { pendingCheckouts } from '$lib/server/db/schema';
 import type { CartItem } from '$lib/shared/model/products';
@@ -67,15 +67,24 @@ export async function getPendingCheckout(reference: string): Promise<PendingChec
 }
 
 // El webhook de Wompi puede reintentar el mismo evento en paralelo — este
-// UPDATE condicionado a status='pending' es la única fuente de verdad sobre
-// quién "gana" el reintento: solo una llamada concurrente puede pasar de
-// pending a processing (rowsAffected === 1 para ella, 0 para las demás), así
-// que solo una crea el pedido en WooCommerce.
+// UPDATE condicionado al estado es la única fuente de verdad sobre quién
+// "gana": solo una llamada concurrente puede pasar a processing
+// (rowsAffected === 1 para ella, 0 para las demás), así que solo una crea el
+// pedido en WooCommerce.
+//
+// 'declined' también se puede reclamar: Wompi deja reintentar el pago con
+// otro medio durante unos minutos usando la MISMA referencia, así que a un
+// intento rechazado le puede seguir uno aprobado que sí debe crear el pedido.
 export async function claimPendingCheckout(reference: string): Promise<boolean> {
 	const result = await db
 		.update(pendingCheckouts)
 		.set({ status: 'processing', updatedAt: new Date() })
-		.where(and(eq(pendingCheckouts.reference, reference), eq(pendingCheckouts.status, 'pending')));
+		.where(
+			and(
+				eq(pendingCheckouts.reference, reference),
+				inArray(pendingCheckouts.status, ['pending', 'declined'])
+			)
+		);
 	return result.rowsAffected === 1;
 }
 
