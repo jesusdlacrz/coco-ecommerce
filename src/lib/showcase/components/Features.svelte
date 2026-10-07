@@ -4,6 +4,8 @@
 	// ajeno: rompían con el trazo fino y la sobriedad del resto de la página.
 	// Aquí son trazos de 1px dibujados con la misma familia de formas que
 	// Menu/ShoppingCart/Lock, y en el color de acento de la marca.
+	import type { SiteFeatureCopy } from '$lib/shared/services/siteExtras.server';
+
 	interface Feature {
 		readonly id: string;
 		readonly title: string;
@@ -37,6 +39,18 @@
 			path: 'M21 15a2 2 0 01-2 2H8l-4 4V6a2 2 0 012-2h13a2 2 0 012 2v9zM9 10h6M9 13.5h4'
 		}
 	];
+
+	// Los textos se editan en WordPress por posición (beneficio 1 a 4); el
+	// ícono queda fijo. Cada campo vacío conserva su texto original.
+	let { copy = [] }: { copy?: SiteFeatureCopy[] } = $props();
+
+	const features = $derived(
+		FEATURES.map((feature, i) => ({
+			...feature,
+			title: copy[i]?.title || feature.title,
+			subtitle: copy[i]?.text || feature.subtitle
+		}))
+	);
 </script>
 
 <!-- Franja centrada y con separadores finos en escritorio, en lugar de cuatro
@@ -46,7 +60,7 @@
 		<ul
 			class="grid grid-cols-1 gap-y-10 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-4 lg:divide-x lg:divide-line-soft"
 		>
-			{#each FEATURES as feature (feature.id)}
+			{#each features as feature (feature.id)}
 				<li class="flex items-start gap-4 lg:flex-col lg:items-center lg:gap-3 lg:px-6 lg:text-center">
 					<svg
 						viewBox="0 0 24 24"

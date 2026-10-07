@@ -683,3 +683,156 @@ productos. Por cada color de un producto:
 
 Así el sitio nunca se rompe mientras vas configurando los colores reales de a
 poco, pero cada uno que configures deja de depender de adivinar.
+
+---
+
+## Parte 5 — Contenido editable: beneficios, Instagram y preguntas frecuentes
+
+Tres secciones más, con el mismo criterio de siempre: cualquier campo que se
+deje vacío conserva el texto original, así que se pueden ir llenando de a poco.
+
+- **Franja de beneficios** (Calidad garantizada, Pago seguro…) y **perfil de
+  Instagram** → campos ACF nuevos en la página **"Textos del Sitio"**.
+- **Preguntas frecuentes** → un tipo de contenido propio, una entrada por
+  pregunta (igual que Testimonios).
+
+Todo sale por un endpoint **aparte** (`coco/v1/site-extras`), así que el
+snippet "Endpoint contenido del sitio" que ya está activo **no se toca**.
+
+### Paso 1 — Campos ACF en "Textos del Sitio"
+
+**ACF → Grupos de campos → "Copys del sitio" → Editar** y añade estos campos
+(nombres de campo **exactos**):
+
+| Etiqueta                   | Nombre del campo      | Tipo          |
+| -------------------------- | --------------------- | ------------- |
+| Beneficio 1 — Título       | `beneficio_1_titulo`  | Texto         |
+| Beneficio 1 — Texto        | `beneficio_1_texto`   | Texto         |
+| Beneficio 2 — Título       | `beneficio_2_titulo`  | Texto         |
+| Beneficio 2 — Texto        | `beneficio_2_texto`   | Texto         |
+| Beneficio 3 — Título       | `beneficio_3_titulo`  | Texto         |
+| Beneficio 3 — Texto        | `beneficio_3_texto`   | Texto         |
+| Beneficio 4 — Título       | `beneficio_4_titulo`  | Texto         |
+| Beneficio 4 — Texto        | `beneficio_4_texto`   | Texto         |
+| Instagram — Usuario        | `instagram_usuario`   | Texto         |
+| Instagram — Enlace         | `instagram_enlace`    | URL           |
+| Instagram — Texto          | `instagram_texto`     | Área de texto |
+
+Los beneficios van en el orden de la franja (1 = el de la estrella, 2 = el
+escudo, 3 = la caja, 4 = el globo de chat). El ícono de cada posición es fijo.
+
+En **Instagram — Usuario** se puede escribir con o sin `@`. Si se cambia el
+usuario y se deja vacío el enlace, el enlace se arma solo
+(`https://www.instagram.com/<usuario>`).
+
+**Guardar cambios.** Las reglas de ubicación del grupo ya apuntan a "Textos del
+Sitio", no hay que cambiarlas.
+
+### Paso 2 — Snippet "Preguntas frecuentes y extras"
+
+**Snippets → Añadir nuevo**, título: `Preguntas frecuentes y extras`, pega:
+
+```php
+// Tipo de contenido: una entrada por pregunta frecuente.
+add_action('init', function () {
+	register_post_type('pregunta_frecuente', [
+		'label'        => 'Preguntas frecuentes',
+		'labels'       => [
+			'name'          => 'Preguntas frecuentes',
+			'singular_name' => 'Pregunta frecuente',
+			'add_new_item'  => 'Añadir pregunta',
+			'edit_item'     => 'Editar pregunta',
+		],
+		'public'       => false,
+		'show_ui'      => true,
+		'show_in_menu' => true,
+		'menu_icon'    => 'dashicons-editor-help',
+		// 'page-attributes' agrega el campo "Orden" para acomodar las preguntas.
+		'supports'     => ['title', 'editor', 'page-attributes'],
+	]);
+});
+
+// Endpoint propio: beneficios, Instagram y preguntas frecuentes (solo lectura, público).
+add_action('rest_api_init', function () {
+	register_rest_route('coco/v1', '/site-extras', [
+		'methods'             => 'GET',
+		'callback'            => 'coco_get_site_extras',
+		'permission_callback' => '__return_true', // contenido de marketing, no sensible
+	]);
+});
+
+function coco_get_site_extras() {
+	$page = get_page_by_path('textos-del-sitio');
+	$field = function ($name) use ($page) {
+		if (!$page || !function_exists('get_field')) {
+			return '';
+		}
+		return get_field($name, $page->ID) ?: '';
+	};
+
+	$features = [];
+	for ($i = 1; $i <= 4; $i++) {
+		$features[] = [
+			'title' => $field("beneficio_{$i}_titulo"),
+			'text'  => $field("beneficio_{$i}_texto"),
+		];
+	}
+
+	$faq_posts = get_posts([
+		'post_type'      => 'pregunta_frecuente',
+		'posts_per_page' => -1,
+		'orderby'        => ['menu_order' => 'ASC', 'date' => 'ASC'],
+	]);
+
+	$faqs = [];
+	foreach ($faq_posts as $post) {
+		// post_title en crudo: get_the_title() convierte comillas en entidades HTML.
+		$question = trim($post->post_title);
+		$answer   = trim(wp_strip_all_tags($post->post_content));
+		if ($question !== '' && $answer !== '') {
+			$faqs[] = ['question' => $question, 'answer' => $answer];
+		}
+	}
+
+	return [
+		'features'  => $features,
+		'instagram' => [
+			'handle' => $field('instagram_usuario'),
+			'url'    => $field('instagram_enlace'),
+			'text'   => $field('instagram_texto'),
+		],
+		'faqs'      => $faqs,
+	];
+}
+```
+
+**Run everywhere** → **Save and Activate**. Debe aparecer **"Preguntas
+frecuentes"** en el menú lateral.
+
+### Paso 3 — Cargar las preguntas
+
+**Preguntas frecuentes → Añadir pregunta:** el **título** es la pregunta y el
+**contenido** es la respuesta. En la caja **Atributos → Orden** pon 1, 2, 3…
+para decidir en qué orden salen (de menor a mayor).
+
+> ⚠️ Mientras no haya ninguna pregunta cargada, la página `/faqs` muestra las
+> 5 preguntas originales. En cuanto se publique **la primera**, se muestran
+> **solo las de WordPress** — así que conviene pasar las 5 originales de una
+> vez (y luego editarlas o agregar más).
+
+### Paso 4 — Probar
+
+Abre `https://beige-newt-613576.hostingersite.com/wp-json/coco/v1/site-extras`.
+Deberías ver un JSON con `features` (4 elementos), `instagram` y `faqs`.
+
+### Cómo lo lee el frontend (referencia técnica)
+
+| Campo del front                  | De dónde sale                                         |
+| -------------------------------- | ----------------------------------------------------- |
+| `features[i].title` / `.text`    | `beneficio_{i}_titulo` / `beneficio_{i}_texto`        |
+| `instagram.handle`               | `instagram_usuario`                                   |
+| `instagram.url`                  | `instagram_enlace` (o se arma desde el usuario)       |
+| `instagram.text`                 | `instagram_texto`                                     |
+| `faqs[].question` / `.answer`    | Título / contenido de cada `pregunta_frecuente`       |
+
+Toda la lógica está en `src/lib/shared/services/siteExtras.server.ts`.

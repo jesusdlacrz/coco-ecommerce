@@ -44,10 +44,14 @@
 </section>
 
 <!-- Features bar -->
-<Features />
+<Features copy={data.siteExtras?.features} />
 
 <!-- Instagram Gallery -->
-<InstagramGallery images={data.siteContent?.instagram} srcsets={data.siteContent?.srcsets} />
+<InstagramGallery
+	images={data.siteContent?.instagram}
+	srcsets={data.siteContent?.srcsets}
+	profile={data.siteExtras?.instagram}
+/>
 
 <!-- Testimonios -->
 <Testimonials testimonials={data.siteContent?.testimonials} />

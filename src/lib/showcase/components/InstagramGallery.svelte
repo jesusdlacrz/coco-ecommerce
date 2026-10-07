@@ -1,9 +1,12 @@
 <script lang="ts">
 	import type { SiteInstagramImage } from '$lib/shared/services/siteContent.server';
+	import type { SiteInstagramProfile } from '$lib/shared/services/siteExtras.server';
 	import Instagram from '$lib/shared/icons/Instagram.svelte';
 
-	const INSTAGRAM_URL = 'https://www.instagram.com/cocos.bodegaderopa?igsi=d3p0aHVmMHhzb3h5';
-	const HANDLE = '@cocos.bodegaderopa';
+	// Valores originales: se usan para cada campo que quede vacío en WordPress.
+	const DEFAULT_URL = 'https://www.instagram.com/cocos.bodegaderopa?igsi=d3p0aHVmMHhzb3h5';
+	const DEFAULT_HANDLE = 'cocos.bodegaderopa';
+	const DEFAULT_TEXT = 'Mira las últimas prendas, looks y novedades directamente en nuestra cuenta.';
 	const PLACEHOLDER = '/placeholder.svg?height=500&width=400';
 
 	const FALLBACK_IMAGES: SiteInstagramImage[] = Array.from({ length: 4 }, (_, i) => ({
@@ -13,16 +16,30 @@
 
 	let {
 		images: provided = [],
-		srcsets = {}
-	}: { images?: SiteInstagramImage[]; srcsets?: Record<string, string> } = $props();
+		srcsets = {},
+		profile = null
+	}: {
+		images?: SiteInstagramImage[];
+		srcsets?: Record<string, string>;
+		profile?: SiteInstagramProfile | null;
+	} = $props();
 
 	const images = $derived(provided.length ? provided : FALLBACK_IMAGES);
+
+	// El usuario se acepta con o sin "@". Si cambian el usuario pero no el
+	// enlace, el enlace se arma a partir del usuario nuevo.
+	const handle = $derived(profile?.handle.trim().replace(/^@/, '') || DEFAULT_HANDLE);
+	const instagramUrl = $derived(
+		profile?.url.trim() ||
+			(handle === DEFAULT_HANDLE ? DEFAULT_URL : `https://www.instagram.com/${handle}`)
+	);
+	const text = $derived(profile?.text.trim() || DEFAULT_TEXT);
 </script>
 
 <section class="py-20">
 	<div class="mb-12 text-center">
 		<a
-			href={INSTAGRAM_URL}
+			href={instagramUrl}
 			target="_blank"
 			rel="noopener noreferrer"
 			class="inline-block transition-opacity hover:opacity-70"
@@ -33,9 +50,9 @@
 			<Instagram class="mx-auto mb-3 h-8 w-8 text-accent" />
 			<h2 class="font-display text-3xl text-ink sm:text-4xl">Síguenos en Instagram</h2>
 		</a>
-		<p class="mt-2 font-poppins text-sm text-muted-soft">{HANDLE}</p>
+		<p class="mt-2 font-poppins text-sm text-muted-soft">@{handle}</p>
 		<p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-soft">
-			Mira las últimas prendas, looks y novedades directamente en nuestra cuenta.
+			{text}
 		</p>
 	</div>
 
@@ -57,7 +74,7 @@
 						md:w-auto md:max-w-none md:shrink md:grow md:basis-1/3 lg:basis-1/4"
 				>
 					<a
-						href={INSTAGRAM_URL}
+						href={instagramUrl}
 						target="_blank"
 						rel="noopener noreferrer"
 						class="group relative block aspect-[4/5] overflow-hidden bg-graybrand md:aspect-auto md:h-[380px] lg:h-[420px]"

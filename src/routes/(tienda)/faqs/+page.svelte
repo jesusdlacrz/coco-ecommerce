@@ -2,6 +2,9 @@
 	import GridFaq from '$lib/faqs/components/gridFAQ.svelte';
 
 	import mujer from '$lib/assets/faqs/mujer.webp';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
 </script>
 
 <section class="px-4 py-16 sm:px-8 sm:py-20 md:px-16 md:py-24 lg:px-32 xl:px-72">
@@ -9,7 +12,7 @@
 		<h2 class="text-3xl sm:text-4xl">FAQ'S</h2>
 	</div>
 
-	<GridFaq />
+	<GridFaq items={data.faqs} />
 </section>
 <svelte:head>
 	<title>FAQ'S - Coco's</title>
