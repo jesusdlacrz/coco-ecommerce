@@ -14,7 +14,6 @@
 	const reference = $derived(page.url.searchParams.get('reference'));
 
 	let status = $state<CheckoutStatus>('pending');
-	let wooOrderId = $state<number | null>(null);
 	let pollHandle: ReturnType<typeof setInterval> | undefined;
 	let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
@@ -29,11 +28,9 @@
 			if (!res.ok) return;
 			const data = (await res.json()) as {
 				status: 'pending' | 'approved' | 'declined';
-				wooOrderId: number | null;
 			};
 			if (data.status === 'approved') {
 				status = 'approved';
-				wooOrderId = data.wooOrderId;
 				cartStore.clearCart();
 				stopPolling();
 			} else if (data.status === 'declined') {
@@ -83,8 +80,8 @@
 		{:else if status === 'approved'}
 			<h1 class="font-display text-2xl font-bold text-ink">¡Pago aprobado!</h1>
 			<p class="mt-2 text-sm text-muted-soft">
-				{#if wooOrderId}Tu pedido #{wooOrderId} fue registrado correctamente.{:else}Tu pedido fue
-					registrado correctamente.{/if}
+				Tu pedido fue registrado correctamente. Wompi te enviará el comprobante del pago a tu
+				correo.
 			</p>
 			<Button variant="secondary" href={store.basePath || '/'} class="mt-6">
 				Volver a la tienda

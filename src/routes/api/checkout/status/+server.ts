@@ -11,5 +11,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	if (!checkout) {
 		throw error(404, 'Referencia no encontrada');
 	}
-	return json({ status: checkout.status, wooOrderId: checkout.wooOrderId });
+	// El número de pedido de WooCommerce no se expone: es consecutivo y
+	// revelaría cuántas ventas tiene la tienda.
+	return json({ status: checkout.status });
 };

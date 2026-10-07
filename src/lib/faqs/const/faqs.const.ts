@@ -27,6 +27,6 @@ export const faqs: FAQ[] = [
 	{
 		question: '¿Qué debo hacer si recibo un producto dañado o incorrecto?',
 		answer:
-			'Escríbenos desde la página de contacto apenas recibas tu pedido, con el número de pedido y fotos del producto, y te ayudamos a solucionarlo.'
+			'Escríbenos desde la página de contacto apenas recibas tu pedido, con el correo que usaste al comprar y fotos del producto, y te ayudamos a solucionarlo.'
 	}
 ];
