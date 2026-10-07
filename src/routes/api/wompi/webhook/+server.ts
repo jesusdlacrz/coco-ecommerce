@@ -60,14 +60,19 @@ async function buildLineItems(
 	const targetByKey = new Map(resolvedPairs);
 
 	return checkout.items.map((item) => {
-		const meta = [
-			...(item.color ? [{ key: 'Color', value: item.color }] : []),
-			...(item.size ? [{ key: 'Talla', value: item.size }] : [])
-		];
 		const target = targetByKey.get(itemKey(item));
 		if (!target) {
 			throw new Error(`No se pudo resolver el producto/variación de "${item.productId}" en WooCommerce`);
 		}
+		// Con variación, WooCommerce ya muestra talla y color desde sus atributos:
+		// repetirlos como meta los duplicaba en el pedido. Solo hacen falta en
+		// productos simples, donde no hay variación que los lleve.
+		const meta = target.variationId
+			? []
+			: [
+					...(item.color ? [{ key: 'Color', value: item.color }] : []),
+					...(item.size ? [{ key: 'Talla', value: item.size }] : [])
+				];
 		return {
 			productId: target.productId,
 			variationId: target.variationId,
