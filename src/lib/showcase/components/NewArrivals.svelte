@@ -13,7 +13,7 @@
 
 	const DEFAULT_TITLE = 'Lo Más Nuevo';
 	const DEFAULT_TEXT =
-		'Las prendas que acaban de llegar a bodega. Precios por mayor desde 4 unidades, listas para despachar a todo el país.';
+		'Las prendas que acaban de llegar a bodega. Precios de mayorista desde 4 unidades por prenda, combinando tallas y colores, con envíos a toda Colombia.';
 
 	// Los productos más recientes de WooCommerce (los primeros que llegan del load).
 	let { products = [], copy = null }: { products?: Product[]; copy?: SiteCopy | null } = $props();

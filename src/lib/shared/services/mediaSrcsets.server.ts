@@ -63,7 +63,14 @@ export async function getMediaSrcsets(
 			const map: Record<string, string> = {};
 			for (const item of items) {
 				const srcset = toSrcset(item);
-				if (srcset) map[item.source_url] = srcset;
+				if (!srcset) continue;
+				map[item.source_url] = srcset;
+				// El endpoint propio puede devolver un tamaño reducido (Instagram
+				// llega en `medium`, ~200×300) en vez del original: sin esta
+				// entrada no se encontraba su srcset y la foto se estiraba borrosa.
+				for (const size of Object.values(item.media_details?.sizes ?? {})) {
+					map[size.source_url] = srcset;
+				}
 			}
 			cache = { map, expiresAt: Date.now() + TTL_MS };
 			return map;

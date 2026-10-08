@@ -62,16 +62,17 @@
 		     ajustada al ancho desde tablet. Antes el mismo juego de fotos estaba
 		     escrito tres veces en el marcado, una por punto de ruptura.
 
-		     El reparto es flex con `grow`, no una rejilla de columnas fijas: la
-		     versión anterior reservaba SIETE columnas siempre y, con cuatro fotos
-		     cargadas, media franja quedaba vacía. Aquí la última fila se estira
-		     hasta llenar el ancho, así que no hay huecos con ninguna cantidad —
-		     4, 7 u 8 se ven igual de intencionales. -->
-		<ul class="scrollbar-hide flex snap-x snap-mandatory overflow-x-auto md:flex-wrap md:overflow-visible">
+		     Desde tablet es UNA sola fila que reparte el ancho a partes iguales
+		     (`flex-1`): con 4 fotos son 4 columnas anchas, con 7 son 7 más
+		     angostas. Antes envolvía a varias filas y la última foto se estiraba
+		     sola a todo el ancho (con 5 fotos, la quinta quedaba gigante y
+		     recortada). Si son tantas que bajarían de 200 px, la fila se
+		     desliza en horizontal, igual que en el móvil. -->
+		<ul class="scrollbar-hide flex snap-x snap-mandatory overflow-x-auto">
 			{#each images as img, i (i)}
 				<li
 					class="w-[70vw] max-w-[320px] shrink-0 snap-center
-						md:w-auto md:max-w-none md:shrink md:grow md:basis-1/3 lg:basis-1/4"
+						md:w-auto md:max-w-none md:min-w-[200px] md:flex-1 md:snap-start"
 				>
 					<a
 						href={instagramUrl}
@@ -83,7 +84,7 @@
 						<img
 							src={img.src ?? PLACEHOLDER}
 							srcset={(img.src && srcsets[img.src]) || undefined}
-							sizes="(min-width: 768px) 340px, 70vw"
+							sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 70vw"
 							alt=""
 							loading="lazy"
 							decoding="async"
