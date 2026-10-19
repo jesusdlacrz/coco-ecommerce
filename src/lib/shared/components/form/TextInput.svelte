@@ -12,7 +12,7 @@
 		required?: boolean;
 		error?: string;
 		describedBy?: string;
-		// Texto fijo mostrado antes del valor (ej. "coco.com/v/") para campos
+		// Texto fijo mostrado antes del valor (ej. "cocosbodega.com/v/") para campos
 		// tipo slug: el usuario nunca lo escribe, solo ve dónde termina el
 		// dominio y empieza lo que sí puede editar.
 		prefix?: string;

@@ -5,6 +5,7 @@
 	import Field from '$lib/shared/components/form/Field.svelte';
 	import TextInput from '$lib/shared/components/form/TextInput.svelte';
 	import Button from '$lib/shared/components/form/Button.svelte';
+	import { SITE_DOMAIN } from '$lib/storefront/model';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
@@ -56,7 +57,7 @@
 					{id}
 					name="slug"
 					value={value('slug', vendor?.slug ?? '')}
-					prefix="coco.com/v/"
+					prefix="{SITE_DOMAIN}/v/"
 					required
 					error={form?.errors?.slug}
 					{describedBy}

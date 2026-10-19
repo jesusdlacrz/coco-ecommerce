@@ -1,3 +1,10 @@
+/**
+ * Dominio público de la tienda, solo para TEXTOS visibles (ej. el prefijo
+ * "cocosbodega.com/v/" del formulario de vendedores). Los enlaces reales usan
+ * la URL desde la que se abrió la página, así que funcionan en cualquier dominio.
+ */
+export const SITE_DOMAIN = 'cocosbodega.com';
+
 export interface Storefront {
 	kind: 'house' | 'vendor';
 	slug: string | null;
