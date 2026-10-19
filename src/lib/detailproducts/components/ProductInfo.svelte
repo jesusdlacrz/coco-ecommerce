@@ -47,7 +47,8 @@
 		{/if}
 	</div>
 	<p class="font-body text-sm text-muted-soft">
-		SKU: {product.sku} • Stock: {product.stockQuantity}
+		<!-- Un producto con variaciones no tiene SKU propio (lo tiene cada talla/color). -->
+		{#if product.sku}SKU: {product.sku} • {/if}Stock: {product.stockQuantity}
 	</p>
 </div>
 

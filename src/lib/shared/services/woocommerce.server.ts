@@ -347,11 +347,11 @@ function getConfig(): { baseUrl: string; auth: string } | null {
 // tardar en la primera petición (arranque en frío).
 const REQUEST_TIMEOUT_MS = 30000;
 
-async function wooRequest<T>(
+async function wooFetch(
 	path: string,
 	fetchFn: typeof fetch,
-	init?: { method?: string; body?: unknown }
-): Promise<T> {
+	init?: { method?: string; body?: unknown; timeoutMs?: number }
+): Promise<Response> {
 	const config = getConfig();
 	if (!config) {
 		throw new Error('WooCommerce no configurado');
@@ -363,18 +363,43 @@ async function wooRequest<T>(
 			...(init?.body ? { 'Content-Type': 'application/json' } : {})
 		},
 		body: init?.body ? JSON.stringify(init.body) : undefined,
-		signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+		signal: AbortSignal.timeout(init?.timeoutMs ?? REQUEST_TIMEOUT_MS)
 	});
 	if (!res.ok) {
 		const detail = await res.text();
 		throw new Error(`WooCommerce ${res.status}: ${detail}`);
 	}
+	return res;
+}
+
+/** Petición a la API REST de WooCommerce. Exportada para la sincronización con Effi. */
+export async function wooRequest<T>(
+	path: string,
+	fetchFn: typeof fetch,
+	init?: { method?: string; body?: unknown; timeoutMs?: number }
+): Promise<T> {
+	const res = await wooFetch(path, fetchFn, init);
 	return res.json() as Promise<T>;
+}
+
+/**
+ * Recorre todas las páginas de un listado (WooCommerce entrega máximo 100 por
+ * página y dice cuántas hay en `X-WP-TotalPages`). `path` ya trae su `?…`.
+ */
+export async function wooRequestAll<T>(path: string, fetchFn: typeof fetch): Promise<T[]> {
+	const all: T[] = [];
+	const sep = path.includes('?') ? '&' : '?';
+	for (let page = 1; ; page++) {
+		const res = await wooFetch(`${path}${sep}per_page=100&page=${page}`, fetchFn);
+		all.push(...((await res.json()) as T[]));
+		const totalPages = Number(res.headers.get('X-WP-TotalPages')) || 1;
+		if (page >= totalPages) return all;
+	}
 }
 
 
 async function fetchVariations(productId: number, fetchFn: typeof fetch): Promise<WooVariation[]> {
-	return wooRequest<WooVariation[]>(`/products/${productId}/variations?per_page=100`, fetchFn);
+	return wooRequestAll<WooVariation>(`/products/${productId}/variations`, fetchFn);
 }
 
 interface WooColorSwatch {
@@ -425,7 +450,8 @@ export async function fetchProductsOrThrow(fetchFn: typeof fetch = fetch): Promi
 		throw new WooNotConfiguredError('WooCommerce no configurado');
 	}
 	const [products, swatches] = await Promise.all([
-		wooRequest<WooProduct[]>('/products?per_page=100&status=publish', fetchFn),
+		// Todas las páginas: con el catálogo de Effi la tienda pasa de 100 productos.
+		wooRequestAll<WooProduct>('/products?status=publish', fetchFn),
 		fetchColorSwatches(fetchFn)
 	]);
 	return Promise.all(

@@ -58,8 +58,8 @@ export async function getCachedProduct(
 	const products = await getCachedProducts(fetchFn);
 	const hit = products.find((p) => p.id === id);
 	if (hit) return hit;
-	// per_page=100: si la tienda crece, un producto puede quedar fuera del
-	// listado cacheado — lo buscamos directo como último recurso.
+	// Un producto recién publicado (ej. por la sincronización con Effi) puede no
+	// estar todavía en el listado cacheado — lo buscamos directo como último recurso.
 	return getProduct(id, fetchFn);
 }
 

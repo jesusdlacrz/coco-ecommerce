@@ -1,0 +1,8 @@
+{
+	"crons": [
+		{
+			"path": "/api/effi/sync",
+			"schedule": "0 10 * * *"
+		}
+	]
+}

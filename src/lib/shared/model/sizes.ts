@@ -13,6 +13,9 @@ const LETTER_ORDER: Record<string, number> = {
 	XXXL: 7,
 	'S/M': 8,
 	'L/XL': 9,
+	PLUS: 10,
+	ÚNICA: 99,
+	UNICA: 99,
 	ÚNICO: 99,
 	UNICO: 99,
 	'TALLA ÚNICA': 99

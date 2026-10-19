@@ -4,18 +4,19 @@
 	type Props = { product: Product };
 	let { product }: Props = $props();
 
-	// Static mockup: show urgency only when stock is reasonably low
-	const showUrgency = $derived(product.stockQuantity <= 50);
-	const pacasDisplay = $derived(Math.max(1, Math.min(5, Math.floor(product.stockQuantity / 10))));
-	// Fill % for the progress bar (capped at ~30% to always feel urgent)
-	const stockPct = $derived(Math.min(30, Math.round((product.stockQuantity / 100) * 30)));
+	// Aviso de pocas unidades con el stock REAL (antes era un número inventado:
+	// stock / 10 rotulado como "pacas", así 40 unidades decía "quedan 4").
+	const LOW_STOCK = 20;
+	const showUrgency = $derived(product.inStock && product.stockQuantity <= LOW_STOCK);
+	const stockPct = $derived(Math.round((product.stockQuantity / LOW_STOCK) * 100));
 </script>
 
 <!-- Urgencia de stock -->
 {#if showUrgency}
 	<div class="border-t border-white/60 pt-5">
 		<p class="mb-1.5 font-poppins text-sm font-medium text-danger">
-			⚡ Solo quedan {pacasDisplay} pacas en stock
+			⚡ Solo quedan {product.stockQuantity}
+			{product.stockQuantity === 1 ? 'unidad' : 'unidades'}
 		</p>
 		<div class="h-1.5 overflow-hidden rounded-full bg-gray-200">
 			<div
