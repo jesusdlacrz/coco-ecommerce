@@ -37,11 +37,23 @@ las agrupa con el **mismo nombre** y una **referencia con patrón**:
 ```
 JOGGER COCOS   JOG-NEG-32  JOG-NEG-34  JOG-GRI-32 …   → 1 producto, variaciones Color × Talla
 BODY HELENA    HEL-LIL-U   HEL-UVA-U   HEL-NEG-U …   → 1 producto, variaciones por Color
+JEAN BOTA RECTA RIGIDO  5904-T08 5904-T12 …          → "Jean Bota Recta Rigido 5904", por Talla
+                        5768-T06 5768-T16 …          → "Jean Bota Recta Rigido 5768", por Talla
 BLUSA TY190    TY190                                 → producto simple
 ```
 
+- La parte antes del primer guion es el **modelo**. Si un mismo nombre tiene
+  varios modelos, cada uno es un producto aparte (con el número de modelo en
+  el nombre).
+- Las tallas numéricas se reconocen con o sin "T" (`32`, `T14` → "14").
+- **Una foto por color**: si cada talla trae su propia copia de la misma foto,
+  se usa solo la primera de cada color.
 - Solo entran artículos **"Producto terminado"** con control de stock (los
   "en proceso" no se venden).
+- Si se reorganizan referencias (ej. tallas sueltas que pasan a ser un
+  producto con variaciones), los productos viejos que creó la sincronización
+  van a la **papelera de WordPress** (recuperables). Los que tengan fotos
+  subidas a mano solo se ocultan.
 - El significado de cada código (NEG = Negro, U = Única…) está en
   `src/lib/server/effi/mapping.ts`. **Un código nuevo se agrega ahí.**
 - Género y tipo de prenda salen del nombre (BLUSA, JOGGER, MANTA…) y, si no,
@@ -62,11 +74,12 @@ Las tres van en `.env` (local) y en Vercel → Settings → Environment Variable
 
 ## Cuándo se sincroniza
 
-1. **Todos los días a las 5:00 a.m.** (tarea de Vercel, `vercel.json`):
-   sincronización completa — crea productos nuevos, actualiza todo.
-2. **En tiempo real con webhooks de Effi**: actualiza stock y precio de lo que
-   ya está en la tienda (no crea productos, para no duplicarlos si llegan
-   varios avisos a la vez).
+1. **En tiempo real con webhooks de Effi**: cada cambio en Effi dispara la
+   sincronización completa (crea, actualiza, publica, oculta). Tarda de ~10 s
+   (sin cambios) a ~1 min (muchos productos nuevos con fotos).
+2. **Todos los días a las 5:00 a.m.** (tarea de Vercel, `vercel.json`), como
+   respaldo por si algún aviso no llegó. En el plan gratuito de Vercel puede
+   correr en cualquier momento dentro de esa hora.
 3. **A mano**, cuando se quiera:
 
 ```bash
@@ -91,7 +104,21 @@ Effi → Integraciones → Webhooks → **Crear**, uno por cada evento:
 
 En cada uno:
 - **URL:** `https://<dominio>/api/effi/webhook`
-- **Cabeceras:** `{"Authorization": "Bearer <EFFI_WEBHOOK_SECRET>"}`
+- **Cabeceras:** `{"Authorization": "Bearer <EFFI_WEBHOOK_SECRET>", "Content-Type": "application/json"}`
+
+El `Content-Type` es obligatorio: sin él, SvelteKit rechaza el aviso (403)
+por su protección contra formularios de otros sitios.
+
+### Una sola sincronización a la vez
+
+Varios avisos seguidos (ej. una facturación grande) no duplican productos:
+un candado en la base de datos (`src/lib/server/effi/lock.ts`, tabla
+`effi_sync_lock`) deja correr solo una. Los avisos que llegan mientras tanto
+quedan anotados y la sincronización en curso repite al terminar.
+
+Una función de Vercel dura máximo 60 s. Si una sincronización muy grande
+(ej. la clienta carga 100 productos con fotos de una vez) no alcanza a
+terminar, la siguiente continúa donde quedó: todo es idempotente.
 
 ## Ventas web → Effi (pendiente, fase 2)
 

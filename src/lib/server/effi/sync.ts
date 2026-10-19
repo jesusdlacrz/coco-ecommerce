@@ -2,6 +2,10 @@
 // que sigue siendo de donde lee la tienda. Effi manda en stock y precio;
 // WordPress manda en nombre, descripción, categorías y en las fotos que la
 // clienta suba a mano. Ver EFFI-SETUP.md.
+//
+// Escribe en WooCommerce sin coordinarse con otras ejecuciones: quien la
+// llame con dryRun=false debe hacerlo dentro de `runExclusive` (lock.ts), o
+// dos ejecuciones simultáneas crearían el mismo producto dos veces.
 import { wooRequest, wooRequestAll } from '$lib/shared/services/woocommerce.server';
 import { MIN_UNITS_PER_PRODUCT } from '$lib/cart/stores/cartStore';
 import { sortSizes } from '$lib/shared/model/sizes';
@@ -46,7 +50,15 @@ interface WooAdminVariation {
 	sku: string;
 	regular_price: string;
 	stock_quantity: number | null;
+	attributes: { id: number; option: string }[];
 }
+
+/** Firma comparable de los atributos de una variación (sin mayúsculas ni orden). */
+const variationAttrsKey = (attrs: { id: number; option: string }[]) =>
+	attrs
+		.map((a) => `${a.id}:${a.option.toLowerCase()}`)
+		.sort()
+		.join('|');
 
 interface WooTerm {
 	id: number;
@@ -71,6 +83,8 @@ export interface SyncReport {
 	unchanged: number;
 	/** Referencias de Effi sin stock que nunca se crearon en la tienda. */
 	skippedNoStock: number;
+	/** Productos que creó la sincronización y ya no corresponden a nada en Effi (a la papelera). */
+	trashed: string[];
 	errors: string[];
 	durationMs: number;
 }
@@ -105,7 +119,7 @@ async function fetchReservedBySku(fetchFn: typeof fetch): Promise<Map<string, nu
 }
 
 export async function syncEffiToWoo(
-	{ dryRun, createNew = true }: { dryRun: boolean; createNew?: boolean },
+	{ dryRun }: { dryRun: boolean },
 	fetchFn: typeof fetch = fetch
 ): Promise<SyncReport> {
 	const started = Date.now();
@@ -119,6 +133,7 @@ export async function syncEffiToWoo(
 		hidden: [],
 		unchanged: 0,
 		skippedNoStock: 0,
+		trashed: [],
 		errors: [],
 		durationMs: 0
 	};
@@ -178,20 +193,15 @@ export async function syncEffiToWoo(
 		...(v.size ? [{ id: sizeAttrId, option: v.size }] : []),
 		...(v.color ? [{ id: colorAttrId, option: v.color }] : [])
 	];
-	function parentAttributes(p: CatalogProduct, current: WooAdminProduct['attributes'] = []) {
-		// Se unen con las opciones que ya tenga, para no borrar una talla/color
-		// que la clienta haya agregado a mano en WordPress.
-		const merge = (attrId: number, values: (string | null)[]) => {
-			const prev = current.find((a) => a.id === attrId)?.options ?? [];
-			const byLower = new Map<string, string>();
-			// Las opciones existentes primero: si ya está "fucsia", no se agrega "Fucsia".
-			for (const v of [...prev, ...values.filter((v): v is string => Boolean(v))]) {
-				if (!byLower.has(v.toLowerCase())) byLower.set(v.toLowerCase(), v);
-			}
-			return [...byLower.values()];
-		};
-		const sizes = sortSizes(merge(sizeAttrId, p.variants.map((v) => v.size)));
-		const colors = merge(colorAttrId, p.variants.map((v) => v.color));
+	// En un producto de Effi las tallas y colores los define Effi (sus
+	// referencias): se reemplazan, no se unen con lo que haya, o un cambio de
+	// criterio (ej. "T22" pasó de leerse como color a talla) nunca se corregiría.
+	function parentAttributes(p: CatalogProduct) {
+		const unique = (values: (string | null)[]) => [
+			...new Set(values.filter((v): v is string => Boolean(v)))
+		];
+		const sizes = sortSizes(unique(p.variants.map((v) => v.size)));
+		const colors = unique(p.variants.map((v) => v.color));
 		return [
 			...(sizes.length ? [{ id: sizeAttrId, options: sizes, variation: true, visible: true }] : []),
 			...(colors.length ? [{ id: colorAttrId, options: colors, variation: true, visible: true }] : [])
@@ -213,10 +223,6 @@ export async function syncEffiToWoo(
 		const photosMeta = p.photos.join('|');
 
 		if (!existing) {
-			// Los avisos de Effi pueden llegar varios a la vez: si dos creaciones
-			// corrieran en paralelo duplicarían el producto, así que solo la
-			// sincronización completa (una al día o manual) crea productos nuevos.
-			if (!createNew) continue;
 			// No se crean productos que nunca tuvieron stock: solo llenarían el panel.
 			if (totalAvailable(p) === 0) {
 				report.skippedNoStock++;
@@ -274,7 +280,7 @@ export async function syncEffiToWoo(
 			}
 			if (existing.regular_price !== String(v.price)) payload.regular_price = String(v.price);
 		} else {
-			const attrs = parentAttributes(p, existing.attributes);
+			const attrs = parentAttributes(p);
 			// WordPress reutiliza términos que ya existían con otra mayúscula
 			// ("fucsia" vs "Fucsia") y puede reordenarlos: se compara sin eso,
 			// o cada sincronización reescribiría los atributos.
@@ -298,12 +304,23 @@ export async function syncEffiToWoo(
 	}
 
 	// Productos de Effi que ya no están en su catálogo (anulados, pasaron a "en
-	// proceso"…): se ocultan y quedan en 0, sin borrarlos.
+	// proceso", o se reagruparon: tallas sueltas que ahora son un producto con
+	// variaciones). Si nadie los tocó en WordPress van a la papelera (se pueden
+	// recuperar desde ahí); si la clienta les subió fotos, solo se ocultan.
 	const catalogKeys = new Set(catalog.map((p) => p.key));
+	const toTrash: WooAdminProduct[] = [];
 	for (const [key, existing] of existingByKey) {
-		if (catalogKeys.has(key) || existing.status === 'draft') continue;
-		updates.push({ name: existing.name, payload: { id: existing.id, status: 'draft' } });
-		report.hidden.push(existing.name);
+		if (catalogKeys.has(key)) continue;
+		const recordedIds = metaValue(existing, META_IMAGE_IDS).split(',').filter(Boolean).map(Number);
+		const untouched =
+			existing.images.length === 0 || sameIds(existing.images.map((i) => i.id), recordedIds);
+		if (untouched) {
+			toTrash.push(existing);
+			report.trashed.push(existing.name);
+		} else if (existing.status !== 'draft') {
+			updates.push({ name: existing.name, payload: { id: existing.id, status: 'draft' } });
+			report.hidden.push(existing.name);
+		}
 	}
 
 	report.created = creates.map((c) => c.product.name);
@@ -359,6 +376,15 @@ export async function syncEffiToWoo(
 		}
 	}
 
+	// DELETE sin `force` = mover a la papelera (recuperable desde WordPress).
+	for (const product of toTrash) {
+		try {
+			await wooRequest(`/products/${product.id}`, fetchFn, { method: 'DELETE' });
+		} catch (err) {
+			report.errors.push(`Mover a la papelera "${product.name}": ${describeError(err)}`);
+		}
+	}
+
 	for (const group of chunk(imageMetaUpdates, UPDATE_BATCH)) {
 		try {
 			await wooRequest('/products/batch', fetchFn, { method: 'POST', body: { update: group } });
@@ -385,8 +411,18 @@ export async function syncEffiToWoo(
 						stock_quantity: stock,
 						attributes: variantAttributes(v)
 					});
-				} else if (existing.stock_quantity !== stock || existing.regular_price !== String(v.price)) {
-					update.push({ id: existing.id, regular_price: String(v.price), manage_stock: true, stock_quantity: stock });
+				} else {
+					const attrs = variantAttributes(v);
+					const attrsChanged = variationAttrsKey(existing.attributes) !== variationAttrsKey(attrs);
+					if (attrsChanged || existing.stock_quantity !== stock || existing.regular_price !== String(v.price)) {
+						update.push({
+							id: existing.id,
+							regular_price: String(v.price),
+							manage_stock: true,
+							stock_quantity: stock,
+							...(attrsChanged ? { attributes: attrs } : {})
+						});
+					}
 				}
 			}
 			// Variaciones cuyo artículo ya no está en Effi: en 0 (no se borran).

@@ -89,8 +89,14 @@ function detectType(name: string, category: string | null): string {
 	return TYPE_BY_EFFI_CATEGORY[category ?? ''] ?? FALLBACK_TYPE;
 }
 
-const isSizeCode = (code: string) => /^\d{1,3}$/.test(code) || code in SIZE_BY_CODE;
-const sizeLabel = (code: string) => SIZE_BY_CODE[code] ?? code;
+// Tallas numéricas con o sin "T" delante: 32 o T14 (así codifica los jeans).
+const NUMERIC_SIZE = /^T?(\d{1,3})$/;
+const isSizeCode = (code: string) => NUMERIC_SIZE.test(code) || code in SIZE_BY_CODE;
+// "T06" → "6": sin la T ni el cero de relleno.
+const sizeLabel = (code: string) => {
+	const numeric = NUMERIC_SIZE.exec(code);
+	return SIZE_BY_CODE[code] ?? (numeric ? String(Number(numeric[1])) : code);
+};
 const colorLabel = (code: string) => COLOR_BY_CODE[code] ?? code;
 
 const stockOf = (a: EffiArticle) => Math.max(0, Math.floor(Number(a.stock_empresa) || 0));
@@ -166,15 +172,43 @@ export function buildCatalog(articles: EffiArticle[]): CatalogProduct[] {
 		};
 	};
 
-	for (const [name, members] of families) {
-		const refs = members.map((a) => a.referencia?.trim() ?? '');
-		const pattern =
-			members.length > 1 && refs.every(Boolean) ? detectPattern(refs) : null;
-		if (!pattern) {
-			products.push(...members.map(asSimple));
-			continue;
-		}
+	const baseOf = (a: EffiArticle) => (a.referencia?.trim().toUpperCase() ?? '').split('-')[0];
 
+	for (const [name, sameName] of families) {
+		// Bajo un mismo nombre puede haber varios modelos: "JEAN BOTA RECTA
+		// RIGIDO" agrupa 5904-T08…T14 y 5768-T06…T16. Cada base de referencia
+		// (lo que va antes del primer guion) es un producto distinto.
+		const byBase = new Map<string, EffiArticle[]>();
+		for (const a of sameName) byBase.set(baseOf(a), [...(byBase.get(baseOf(a)) ?? []), a]);
+		const severalModels = byBase.size > 1;
+
+		for (const [base, members] of byBase) {
+			const refs = members.map((a) => a.referencia?.trim() ?? '');
+			const pattern =
+				members.length > 1 && refs.every(Boolean) ? detectPattern(refs) : null;
+			if (!pattern) {
+				products.push(...members.map(asSimple));
+				continue;
+			}
+			products.push(
+				buildVariable(members, pattern, {
+					// Con un solo modelo la clave es solo el nombre, como siempre:
+					// así no cambia la identidad de los productos ya creados.
+					key: severalModels ? `fam:${name}|${base}` : `fam:${name}`,
+					name: prettyName(members[0].descripcion) + (severalModels ? ` ${base}` : '')
+				})
+			);
+		}
+	}
+
+	return products;
+
+	function buildVariable(
+		members: EffiArticle[],
+		pattern: { sizeAt: number | null; colorAt: number | null },
+		{ key, name: displayName }: { key: string; name: string }
+	): CatalogProduct {
+		const name = normalizeName(members[0].descripcion);
 		const first = members[0];
 		// Una foto por color: en Effi cada talla trae su propia copia de la misma
 		// foto (archivos distintos que se ven iguales), así que 5 tallas del mismo
@@ -198,9 +232,9 @@ export function buildCatalog(articles: EffiArticle[]): CatalogProduct[] {
 				price: parseNormalPrice(a.precios_venta)
 			};
 		});
-		products.push({
-			key: `fam:${name}`,
-			name: prettyName(first.descripcion),
+		return {
+			key,
+			name: displayName,
 			kind: 'variable',
 			gender: detectGender(name, first.nombre_categoria),
 			type: detectType(name, first.nombre_categoria),
@@ -209,8 +243,6 @@ export function buildCatalog(articles: EffiArticle[]): CatalogProduct[] {
 			// producto se puede vender si Effi lo permite y alguna tiene precio.
 			sellable: members.some((a) => a.ventas === '1') && variants.some((v) => v.price > 0),
 			variants
-		});
+		};
 	}
-
-	return products;
 }
