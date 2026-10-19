@@ -104,10 +104,17 @@ Effi → Integraciones → Webhooks → **Crear**, uno por cada evento:
 
 En cada uno:
 - **URL:** `https://<dominio>/api/effi/webhook`
-- **Cabeceras:** `{"Authorization": "Bearer <EFFI_WEBHOOK_SECRET>", "Content-Type": "application/json"}`
+- **Plataforma destino:** Otra
+- **Cabeceras:** `{"Authorization": "Bearer <EFFI_WEBHOOK_SECRET>"}`
 
-El `Content-Type` es obligatorio: sin él, SvelteKit rechaza el aviso (403)
-por su protección contra formularios de otros sitios.
+Effi pone el `Content-Type` por su cuenta y no deja sobrescribirlo. Debe ser
+`application/json`: con un tipo de formulario, SvelteKit rechazaría el aviso
+(403) por su protección contra envíos de otros sitios. Si los avisos fallan
+con 403, revisar eso primero en el historial del webhook en Effi.
+
+Al crear cada webhook, Effi muestra **una sola vez** un secreto de firma.
+Guardarlo como `EFFI_WEBHOOK_SIGNING_SECRET` (hoy no se usa: la tienda valida
+con la cabecera `Authorization`, pero sirve para verificar firmas más adelante).
 
 ### Una sola sincronización a la vez
 
