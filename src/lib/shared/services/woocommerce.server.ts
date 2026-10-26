@@ -280,7 +280,11 @@ function mapVariation(v: WooVariation): ProductVariation {
 
 function mapWooProduct(woo: WooProduct, swatches: Map<string, string>, variations: WooVariation[]): Product {
 	// Campos ACF (mayorista). Ver guía de WordPress para los nombres exactos.
-	const wholesalePrice = readMetaNumber(woo.meta_data, 'wholesale_price');
+	// Si ACF guardó el campo vacío (pasa al guardar el producto en WordPress sin
+	// llenarlo), Number("") = 0 dejaba el producto en $0: un precio mayorista
+	// que no sea positivo se ignora y manda el precio normal.
+	const rawWholesale = readMetaNumber(woo.meta_data, 'wholesale_price');
+	const wholesalePrice = rawWholesale && rawWholesale > 0 ? rawWholesale : undefined;
 	const minOrderQuantity = readMetaNumber(woo.meta_data, 'min_order_quantity') ?? 1;
 
 	// En un producto variable el stock real vive en cada variación (talla +
@@ -347,6 +351,24 @@ function getConfig(): { baseUrl: string; auth: string } | null {
 // tardar en la primera petición (arranque en frío).
 const REQUEST_TIMEOUT_MS = 30000;
 
+// El hosting compartido de WordPress responde 503 ("temporarily busy") cuando
+// recibe muchas peticiones seguidas — pasa con la sincronización de Effi. Son
+// rechazos ANTES de procesar, así que reintentar es seguro… salvo al crear:
+// un POST con `create` no se repite, para no arriesgar productos duplicados.
+const BUSY_STATUSES = new Set([429, 502, 503, 504]);
+const RETRY_DELAYS_MS = [1000, 3000];
+
+function isSafeToRetry(method: string, body: unknown): boolean {
+	if (method === 'GET' || method === 'PUT' || method === 'DELETE') return true;
+	// Lotes solo de actualización (/batch con `update`) repiten los mismos valores.
+	return (
+		method === 'POST' &&
+		typeof body === 'object' &&
+		body !== null &&
+		!('create' in body && (body as { create?: unknown[] }).create?.length)
+	);
+}
+
 async function wooFetch(
 	path: string,
 	fetchFn: typeof fetch,
@@ -356,20 +378,28 @@ async function wooFetch(
 	if (!config) {
 		throw new Error('WooCommerce no configurado');
 	}
-	const res = await fetchFn(`${config.baseUrl}/wp-json/wc/v3${path}`, {
-		method: init?.method ?? 'GET',
-		headers: {
-			Authorization: `Basic ${config.auth}`,
-			...(init?.body ? { 'Content-Type': 'application/json' } : {})
-		},
-		body: init?.body ? JSON.stringify(init.body) : undefined,
-		signal: AbortSignal.timeout(init?.timeoutMs ?? REQUEST_TIMEOUT_MS)
-	});
-	if (!res.ok) {
-		const detail = await res.text();
-		throw new Error(`WooCommerce ${res.status}: ${detail}`);
+	const method = init?.method ?? 'GET';
+	const retries = isSafeToRetry(method, init?.body) ? RETRY_DELAYS_MS : [];
+	for (let attempt = 0; ; attempt++) {
+		const res = await fetchFn(`${config.baseUrl}/wp-json/wc/v3${path}`, {
+			method,
+			headers: {
+				Authorization: `Basic ${config.auth}`,
+				...(init?.body ? { 'Content-Type': 'application/json' } : {})
+			},
+			body: init?.body ? JSON.stringify(init.body) : undefined,
+			signal: AbortSignal.timeout(init?.timeoutMs ?? REQUEST_TIMEOUT_MS)
+		});
+		if (res.ok) return res;
+		if (BUSY_STATUSES.has(res.status) && attempt < retries.length) {
+			await res.body?.cancel();
+			await new Promise((resolve) => setTimeout(resolve, retries[attempt]));
+			continue;
+		}
+		// Las páginas de error del hosting son HTML completo: solo el texto, recortado.
+		const detail = (await res.text()).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+		throw new Error(`WooCommerce ${res.status}: ${detail.slice(0, 300)}`);
 	}
-	return res;
 }
 
 /** Petición a la API REST de WooCommerce. Exportada para la sincronización con Effi. */

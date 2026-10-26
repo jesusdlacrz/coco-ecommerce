@@ -163,6 +163,14 @@
 				);
 				return false;
 			}
+		} else if (quantity > product.stockQuantity) {
+			// Producto sin tallas ni colores: el stock es el del producto completo.
+			toast.error(
+				product.stockQuantity > 0
+					? `Solo quedan ${product.stockQuantity} unidades disponibles`
+					: 'Este producto está agotado'
+			);
+			return false;
 		}
 		return true;
 	}
@@ -221,7 +229,11 @@
 					onQuantityChange={handleQuantityChange}
 				/>
 
-				<ProductActions onAddToCart={handleAddToCart} onBuyNow={handleGoToPay} />
+				<ProductActions
+					onAddToCart={handleAddToCart}
+					onBuyNow={handleGoToPay}
+					soldOut={!product.inStock || product.stockQuantity <= 0}
+				/>
 
 				<ProductDetails {product} />
 			</div>

@@ -11,6 +11,7 @@ import { MIN_UNITS_PER_PRODUCT } from '$lib/cart/stores/cartStore';
 import { sortSizes } from '$lib/shared/model/sizes';
 import { invalidateProductsCache } from '$lib/server/products/cache';
 import { describeError } from '$lib/shared/utils/describeError';
+import { createHash } from 'node:crypto';
 import { fetchAllArticles } from './client';
 import { buildCatalog, type CatalogProduct, type CatalogVariant } from './catalog';
 
@@ -20,11 +21,22 @@ const META_KEY = '_effi_key';
 const META_PHOTOS = '_effi_photos';
 /** Ids de esas imágenes en WordPress: si ya no coinciden, la clienta las cambió a mano y se respetan. */
 const META_IMAGE_IDS = '_effi_image_ids';
+/**
+ * Huella de las variaciones tal como quedaron en la última sincronización
+ * exitosa (referencia, stock, precio, talla, color). Si no cambió, no hace
+ * falta consultar sus variaciones: con cientos de productos, revisarlas todas
+ * en cada pasada no cabe en los 60 s de una función de Vercel.
+ */
+const META_VARIANTS_HASH = '_effi_variants_hash';
 
 // Crear con fotos es lento (WordPress descarga cada imagen de Effi): lotes chicos.
 const CREATE_BATCH = 10;
 const UPDATE_BATCH = 50;
-const WRITE_TIMEOUT_MS = 120_000;
+const WRITE_TIMEOUT_MS = 30_000;
+// Una función de Vercel dura máximo 60 s. Pasado este tiempo desde el inicio
+// no se empieza trabajo nuevo (ver la etapa de escritura): queda margen para
+// terminar lo que esté en curso y responder.
+const TIME_BUDGET_MS = 40_000;
 
 type Status = 'publish' | 'draft';
 
@@ -43,6 +55,8 @@ interface WooAdminProduct {
 	images: { id: number }[];
 	attributes: { id: number; name: string; options: string[]; variation: boolean; visible: boolean }[];
 	meta_data: WooMeta[];
+	/** Ids de las variaciones (solo en productos variables). */
+	variations: number[];
 }
 
 interface WooAdminVariation {
@@ -85,6 +99,8 @@ export interface SyncReport {
 	skippedNoStock: number;
 	/** Productos que creó la sincronización y ya no corresponden a nada en Effi (a la papelera). */
 	trashed: string[];
+	/** Productos que no alcanzaron a procesarse por tiempo: los toma la próxima ejecución. */
+	pendingNextRun: number;
 	errors: string[];
 	durationMs: number;
 }
@@ -134,17 +150,22 @@ export async function syncEffiToWoo(
 		unchanged: 0,
 		skippedNoStock: 0,
 		trashed: [],
+		pendingNextRun: 0,
 		errors: [],
 		durationMs: 0
 	};
 
-	const [articles, wooProducts, reserved, attributes, categories] = await Promise.all([
-		fetchAllArticles(fetchFn),
-		wooRequestAll<WooAdminProduct>('/products?status=any', fetchFn),
-		fetchReservedBySku(fetchFn),
-		wooRequest<WooTerm[]>('/products/attributes', fetchFn),
-		wooRequestAll<WooTerm>('/products/categories', fetchFn)
-	]);
+	// Effi en paralelo con WordPress, pero las lecturas de WordPress una a la
+	// vez: el hosting compartido responde 503 si le llegan muchas juntas.
+	const articlesPromise = fetchAllArticles(fetchFn);
+	// Si una lectura de WordPress falla antes de esperar a Effi, esta promesa
+	// no debe quedar como rechazo sin manejar (en Node eso tumba el proceso).
+	articlesPromise.catch(() => {});
+	const wooProducts = await wooRequestAll<WooAdminProduct>('/products?status=any', fetchFn);
+	const reserved = await fetchReservedBySku(fetchFn);
+	const attributes = await wooRequest<WooTerm[]>('/products/attributes', fetchFn);
+	const categories = await wooRequestAll<WooTerm>('/products/categories', fetchFn);
+	const articles = await articlesPromise;
 	const catalog = buildCatalog(articles);
 	report.effiArticles = articles.length;
 	report.catalogProducts = catalog.length;
@@ -214,9 +235,33 @@ export async function syncEffiToWoo(
 	};
 
 	// ------------------------------------------------------- planificación
-	const creates: { product: CatalogProduct; payload: Record<string, unknown> }[] = [];
+	const creates: { product: CatalogProduct; payload: Record<string, unknown>; status: Status }[] = [];
 	const updates: { name: string; payload: Record<string, unknown>; photos?: string[] }[] = [];
-	const variableSyncs: { product: CatalogProduct; wooId: number }[] = [];
+	/**
+	 * Productos con variaciones a sincronizar. Su estado (publicado/oculto) NO se
+	 * toca en el lote del padre: se decide después de sincronizar las
+	 * variaciones, para que nunca quede publicado un producto vacío ($0, sin
+	 * tallas) si la ejecución se corta antes de crearlas.
+	 */
+	type VariableSync = {
+		product: CatalogProduct;
+		wooId: number;
+		status: Status;
+		prevStatus: string;
+		hash: string;
+	};
+	const variableSyncs: VariableSync[] = [];
+
+	/** Huella de lo que debe quedar en las variaciones (ver META_VARIANTS_HASH). */
+	const variantsHash = (p: CatalogProduct) =>
+		createHash('sha1')
+			.update(
+				p.variants
+					.map((v) => `${v.sku}:${available(v)}:${v.price}:${v.size ?? ''}:${v.color ?? ''}`)
+					.sort()
+					.join('|')
+			)
+			.digest('hex');
 
 	for (const p of catalog) {
 		const existing = existingByKey.get(p.key);
@@ -231,7 +276,9 @@ export async function syncEffiToWoo(
 			const status = decideStatus(p, p.photos.length > 0);
 			const base = {
 				name: p.name,
-				status,
+				// Un producto con variaciones nace oculto: se publica recién cuando
+				// sus variaciones existen (ver la etapa de variaciones).
+				status: p.kind === 'variable' ? 'draft' : status,
 				categories: await categoriesFor(p),
 				images: p.photos.map((src) => ({ src })),
 				meta_data: [
@@ -251,9 +298,10 @@ export async function syncEffiToWoo(
 								manage_stock: true,
 								stock_quantity: available(p.variants[0])
 							}
-						: { ...base, type: 'variable', attributes: parentAttributes(p) }
+						: { ...base, type: 'variable', attributes: parentAttributes(p) },
+				status
 			});
-			track(p, status);
+			if (p.kind === 'simple') track(p, status);
 			continue;
 		}
 
@@ -267,7 +315,7 @@ export async function syncEffiToWoo(
 
 		const status = decideStatus(p, hasImage);
 		const payload: Record<string, unknown> = {};
-		if (existing.status !== status) payload.status = status;
+		if (p.kind === 'simple' && existing.status !== status) payload.status = status;
 		if (replacePhotos) {
 			payload.images = p.photos.map((src) => ({ src }));
 			payload.meta_data = [{ key: META_PHOTOS, value: photosMeta }];
@@ -288,16 +336,30 @@ export async function syncEffiToWoo(
 				JSON.stringify(
 					list.map((a) => [a.id, a.options.map((o) => o.toLowerCase()).sort()]).sort()
 				);
-			if (optionsOf(attrs) !== optionsOf(existing.attributes.filter((a) => a.variation))) {
-				payload.attributes = attrs;
+			const attrsChanged = optionsOf(attrs) !== optionsOf(existing.attributes.filter((a) => a.variation));
+			if (attrsChanged) payload.attributes = attrs;
+
+			const hash = variantsHash(p);
+			const variationsUpToDate =
+				!attrsChanged &&
+				metaValue(existing, META_VARIANTS_HASH) === hash &&
+				existing.variations.length >= p.variants.length;
+			if (variationsUpToDate) {
+				// Sus variaciones ya están como dice Effi: no se consultan. Si solo
+				// cambió la publicación (ej. se le subió foto), va en el lote del padre.
+				if (existing.status !== status) {
+					payload.status = status;
+					track(p, status, existing.status);
+				}
+			} else {
+				variableSyncs.push({ product: p, wooId: existing.id, status, prevStatus: existing.status, hash });
 			}
-			variableSyncs.push({ product: p, wooId: existing.id });
 		}
 
 		if (Object.keys(payload).length) {
 			updates.push({ name: p.name, payload: { id: existing.id, ...payload }, photos: replacePhotos ? p.photos : undefined });
 			report.updated.push(p.name);
-			track(p, status, existing.status);
+			if (p.kind === 'simple') track(p, status, existing.status);
 		} else {
 			report.unchanged++;
 		}
@@ -323,43 +385,29 @@ export async function syncEffiToWoo(
 		}
 	}
 
-	report.created = creates.map((c) => c.product.name);
-
 	if (dryRun) {
+		report.created = creates.map((c) => c.product.name);
 		report.durationMs = Date.now() - started;
 		return report;
 	}
 
 	// ------------------------------------------------------------ escritura
+	// Orden por prioridad: primero lo rápido y que más importa para vender
+	// bien (stock, precio, ocultar lo agotado, variaciones), al final lo lento
+	// (crear productos, que descarga fotos). Una función de Vercel dura máximo
+	// 60 s: si se acaba el presupuesto, lo pendiente queda para la próxima
+	// ejecución (todo es idempotente) en vez de cortarse a la mitad.
+	const deadline = started + TIME_BUDGET_MS;
+	const outOfTime = () => Date.now() > deadline;
+
 	/** Guarda qué ids de imagen quedaron, para reconocer después si la clienta las cambió. */
 	const imageIdsMeta = (p: WooAdminProduct) => ({
 		id: p.id,
 		meta_data: [{ key: META_IMAGE_IDS, value: p.images.map((i) => i.id).join(',') }]
 	});
 	const imageMetaUpdates: Record<string, unknown>[] = [];
-	const createdVariables: { product: CatalogProduct; wooId: number }[] = [];
 
-	for (const group of chunk(creates, CREATE_BATCH)) {
-		try {
-			const res = await wooRequest<WooBatchResult>('/products/batch', fetchFn, {
-				method: 'POST',
-				body: { create: group.map((c) => c.payload) },
-				timeoutMs: WRITE_TIMEOUT_MS
-			});
-			(res.create ?? []).forEach((created, i) => {
-				const { product } = group[i];
-				if (created.error) {
-					report.errors.push(`Crear "${product.name}": ${created.error.message}`);
-					return;
-				}
-				if (created.images.length) imageMetaUpdates.push(imageIdsMeta(created));
-				if (product.kind === 'variable') createdVariables.push({ product, wooId: created.id });
-			});
-		} catch (err) {
-			report.errors.push(`Lote de creación (${group.map((c) => c.product.name).join(', ')}): ${describeError(err)}`);
-		}
-	}
-
+	// 1. Padres existentes: stock/precio de simples, estado, fotos y atributos.
 	for (const group of chunk(updates, UPDATE_BATCH)) {
 		try {
 			const res = await wooRequest<WooBatchResult>('/products/batch', fetchFn, {
@@ -376,7 +424,16 @@ export async function syncEffiToWoo(
 		}
 	}
 
-	// DELETE sin `force` = mover a la papelera (recuperable desde WordPress).
+	// 2. Variaciones de los productos que ya existen (y su publicación).
+	for (const sync of variableSyncs) {
+		if (outOfTime()) {
+			report.pendingNextRun++;
+			continue;
+		}
+		await syncVariations(sync);
+	}
+
+	// 3. Papelera. DELETE sin `force` = mover a la papelera (recuperable).
 	for (const product of toTrash) {
 		try {
 			await wooRequest(`/products/${product.id}`, fetchFn, { method: 'DELETE' });
@@ -385,6 +442,48 @@ export async function syncEffiToWoo(
 		}
 	}
 
+	// 4. Productos nuevos (lento: WordPress descarga cada foto de Effi).
+	const createdNames: string[] = [];
+	for (const group of chunk(creates, CREATE_BATCH)) {
+		if (outOfTime()) {
+			report.pendingNextRun += group.length;
+			continue;
+		}
+		try {
+			const res = await wooRequest<WooBatchResult>('/products/batch', fetchFn, {
+				method: 'POST',
+				body: { create: group.map((c) => c.payload) },
+				timeoutMs: WRITE_TIMEOUT_MS
+			});
+			const createdVariables: VariableSync[] = [];
+			(res.create ?? []).forEach((created, i) => {
+				const { product, status } = group[i];
+				if (created.error) {
+					report.errors.push(`Crear "${product.name}": ${created.error.message}`);
+					return;
+				}
+				createdNames.push(product.name);
+				if (created.images.length) imageMetaUpdates.push(imageIdsMeta(created));
+				if (product.kind === 'variable') {
+					createdVariables.push({
+						product,
+						wooId: created.id,
+						status,
+						prevStatus: 'draft',
+						hash: variantsHash(product)
+					});
+				}
+			});
+			// Las variaciones del lote se crean enseguida (sin esperar al resto):
+			// así un corte por tiempo no deja padres vacíos acumulados.
+			for (const sync of createdVariables) await syncVariations(sync);
+		} catch (err) {
+			report.errors.push(`Lote de creación (${group.map((c) => c.product.name).join(', ')}): ${describeError(err)}`);
+		}
+	}
+	report.created = createdNames;
+
+	// 5. Registro de ids de imagen (para respetar después las fotos subidas a mano).
 	for (const group of chunk(imageMetaUpdates, UPDATE_BATCH)) {
 		try {
 			await wooRequest('/products/batch', fetchFn, { method: 'POST', body: { update: group } });
@@ -393,8 +492,18 @@ export async function syncEffiToWoo(
 		}
 	}
 
-	// Variaciones: una por artículo de Effi, emparejadas por SKU (= referencia).
-	for (const { product, wooId } of [...createdVariables, ...variableSyncs]) {
+	invalidateProductsCache();
+	report.durationMs = Date.now() - started;
+	return report;
+
+	/**
+	 * Sincroniza las variaciones de un producto (una por artículo de Effi,
+	 * emparejadas por SKU = referencia) y SOLO después decide si se publica:
+	 * si algo falló o quedó sin variaciones, el producto queda oculto.
+	 */
+	async function syncVariations({ product, wooId, status, prevStatus, hash }: VariableSync) {
+		let ok = true;
+		let hasVariations = false;
 		try {
 			const current = await wooRequestAll<WooAdminVariation>(`/products/${wooId}/variations`, fetchFn);
 			const bySku = new Map(current.map((v) => [v.sku, v]));
@@ -430,6 +539,7 @@ export async function syncEffiToWoo(
 			for (const v of current) {
 				if (!catalogSkus.has(v.sku) && v.stock_quantity !== 0) update.push({ id: v.id, manage_stock: true, stock_quantity: 0 });
 			}
+			let createdCount = 0;
 			for (const part of chunk([...create.map((c) => ['create', c] as const), ...update.map((u) => ['update', u] as const)], 100)) {
 				const body = {
 					create: part.filter(([op]) => op === 'create').map(([, p]) => p),
@@ -440,21 +550,47 @@ export async function syncEffiToWoo(
 					body,
 					timeoutMs: WRITE_TIMEOUT_MS
 				});
-				for (const r of [...(res.create ?? []), ...(res.update ?? [])]) {
-					if (r.error) report.errors.push(`Variación de "${product.name}": ${r.error.message}`);
+				for (const r of res.create ?? []) {
+					if (r.error) {
+						ok = false;
+						report.errors.push(`Variación de "${product.name}": ${r.error.message}`);
+					} else createdCount++;
+				}
+				for (const r of res.update ?? []) {
+					if (r.error) {
+						ok = false;
+						report.errors.push(`Variación de "${product.name}": ${r.error.message}`);
+					}
 				}
 			}
+			hasVariations = current.length + createdCount > 0;
 			// El padre no cambió (se contó como "sin cambios") pero sus variaciones sí.
-			if ((create.length || update.length) && !report.updated.includes(product.name) && !report.created.includes(product.name)) {
+			if ((create.length || update.length) && prevStatus !== 'draft' && !report.updated.includes(product.name)) {
 				report.updated.push(product.name);
 				report.unchanged--;
 			}
 		} catch (err) {
+			ok = false;
 			report.errors.push(`Variaciones de "${product.name}": ${describeError(err)}`);
 		}
-	}
 
-	invalidateProductsCache();
-	report.durationMs = Date.now() - started;
-	return report;
+		// Publicar solo con las variaciones en su lugar; ante cualquier falla, oculto.
+		const finalStatus: Status = ok && hasVariations ? status : 'draft';
+		const done = ok && hasVariations;
+		// La huella se guarda solo si todo salió bien: así, ante una falla, la
+		// próxima pasada lo vuelve a revisar.
+		if (finalStatus === prevStatus && !done) return;
+		try {
+			await wooRequest(`/products/${wooId}`, fetchFn, {
+				method: 'PUT',
+				body: {
+					status: finalStatus,
+					...(done ? { meta_data: [{ key: META_VARIANTS_HASH, value: hash }] } : {})
+				}
+			});
+			track(product, finalStatus, prevStatus);
+		} catch (err) {
+			report.errors.push(`Estado de "${product.name}": ${describeError(err)}`);
+		}
+	}
 }

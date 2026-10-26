@@ -4,6 +4,7 @@ import { getCachedProducts, getCachedProduct } from '$lib/server/products/cache'
 import { getApprovedVendorBySlug, getVendorProductOverrides } from '$lib/server/vendors/repository';
 import { applyCommission, priceCatalog, isHidden, type VendorPricing } from './commission';
 import { displayPrice } from '$lib/shared/utils/price';
+import { MIN_UNITS_PER_PRODUCT } from '$lib/cart/stores/cartStore';
 
 // El objeto `VendorPricing` (comisión global + overrides) se arma y se
 // consume por completo dentro de esta función — nunca sale hacia una `load`
@@ -24,12 +25,28 @@ async function buildVendorPricing(
 	return { defaultCommissionPercent, overridesByProductId };
 }
 
+// Defensa en la tienda, independiente de cómo esté WooCommerce: aunque un
+// producto quede publicado mal (sin variaciones, precio en 0, agotado), nunca
+// se lista ni se cobra en $0.
+
+/** Se puede cobrar: tiene precio. */
+const hasPrice = (p: Product) => displayPrice(p) > 0;
+
+/**
+ * Se muestra en los listados: tiene precio y stock suficiente para cumplir el
+ * pedido mínimo por prenda (si no, nadie podría comprarlo).
+ */
+const isListable = (p: Product) =>
+	hasPrice(p) && p.inStock && p.stockQuantity >= MIN_UNITS_PER_PRODUCT;
+
 export async function loadHouseCatalog(fetchFn: typeof fetch): Promise<Product[]> {
-	return getCachedProducts(fetchFn);
+	return (await getCachedProducts(fetchFn)).filter(isListable);
 }
 
+/** La ficha sí se muestra agotada (alguien puede llegar por un enlace), pero nunca en $0. */
 export async function loadHouseProduct(id: string, fetchFn: typeof fetch): Promise<Product | null> {
-	return getCachedProduct(id, fetchFn);
+	const product = await getCachedProduct(id, fetchFn);
+	return product && hasPrice(product) ? product : null;
 }
 
 export async function loadVendorCatalog(
@@ -40,7 +57,7 @@ export async function loadVendorCatalog(
 	if (!vendor) return [];
 	const pricing = await buildVendorPricing(vendor.id, vendor.commissionPercent);
 	const products = await getCachedProducts(fetchFn);
-	return priceCatalog(products, pricing);
+	return priceCatalog(products, pricing).filter(isListable);
 }
 
 export async function loadVendorProduct(
@@ -53,7 +70,7 @@ export async function loadVendorProduct(
 	const pricing = await buildVendorPricing(vendor.id, vendor.commissionPercent);
 	if (isHidden(productId, pricing)) return null;
 	const product = await getCachedProduct(productId, fetchFn);
-	return product ? applyCommission(product, pricing) : null;
+	return product && hasPrice(product) ? applyCommission(product, pricing) : null;
 }
 
 // Misma revalidación que getVendorCartPrices() pero para el carrito de la
@@ -68,7 +85,8 @@ export async function getHouseCartPrices(
 	const result: Record<string, number | null> = {};
 	for (const id of productIds) {
 		const product = byId.get(id);
-		result[id] = product ? displayPrice(product) : null;
+		// Sin precio = "ya no disponible": el checkout rechaza en vez de cobrar $0.
+		result[id] = product && hasPrice(product) ? displayPrice(product) : null;
 	}
 	return result;
 }
@@ -91,7 +109,7 @@ export async function getVendorCartPrices(
 	const result: Record<string, number | null> = {};
 	for (const id of productIds) {
 		const product = byId.get(id);
-		if (!product || isHidden(id, pricing)) {
+		if (!product || !hasPrice(product) || isHidden(id, pricing)) {
 			result[id] = null;
 			continue;
 		}
