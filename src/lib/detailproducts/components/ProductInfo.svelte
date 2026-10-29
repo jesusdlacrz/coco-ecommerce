@@ -7,10 +7,18 @@
 	} from '$lib/shared/utils/price';
 	import type { Product } from '$lib/shared/model/products';
 
-	type Props = { product: Product };
-	let { product }: Props = $props();
+	type Props = {
+		product: Product;
+		/** Precio de la talla/color elegida (cada una puede costar distinto). Sin elección, el más bajo. */
+		selectedPrice?: number | null;
+	};
+	let { product, selectedPrice = null }: Props = $props();
 
-	const displayPrice = $derived(getDisplayPrice(product));
+	const displayPrice = $derived(selectedPrice ?? getDisplayPrice(product));
+	// "Desde" mientras no se haya elegido y haya tallas/colores con precios distintos.
+	const pricesVary = $derived(
+		new Set((product.variations ?? []).map((v) => v.price).filter((p) => p > 0)).size > 1
+	);
 	const originalPrice = $derived(strikePrice(product));
 	const savingsPct = $derived(originalPrice ? savingsPercent(displayPrice, originalPrice) : 0);
 </script>
@@ -33,7 +41,9 @@
 <div class="space-y-1">
 	<div class="flex flex-wrap items-center gap-3">
 		<span class="font-display text-3xl font-bold text-ink"
-			>{formatPrice(displayPrice)}</span
+			>{#if pricesVary && selectedPrice === null}<span
+					class="mr-1 font-body text-base font-normal text-muted-soft">Desde</span
+				>{/if}{formatPrice(displayPrice)}</span
 		>
 		{#if originalPrice}
 			<span class="font-body text-lg text-muted-faint line-through"

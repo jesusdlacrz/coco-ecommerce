@@ -3,7 +3,7 @@ import { getVariationStock } from '$lib/shared/model/stock';
 import { getCachedProducts, getCachedProduct } from '$lib/server/products/cache';
 import { getApprovedVendorBySlug, getVendorProductOverrides } from '$lib/server/vendors/repository';
 import { applyCommission, priceCatalog, isHidden, type VendorPricing } from './commission';
-import { displayPrice } from '$lib/shared/utils/price';
+import { displayPrice, priceForSelection } from '$lib/shared/utils/price';
 import { MIN_UNITS_PER_PRODUCT } from '$lib/cart/stores/cartStore';
 
 // El objeto `VendorPricing` (comisión global + overrides) se arma y se
@@ -73,49 +73,59 @@ export async function loadVendorProduct(
 	return product && hasPrice(product) ? applyCommission(product, pricing) : null;
 }
 
+/** Una línea del carrito: el precio depende de la talla/color, no solo del producto. */
+export interface CartPriceCheck {
+	productId: string;
+	size: string | null;
+	color: string | null;
+}
+
+/** Fichas completas (con precio por talla/color) de los productos de estas líneas. */
+async function productsFor(
+	checks: CartPriceCheck[],
+	fetchFn: typeof fetch
+): Promise<Map<string, Product | null>> {
+	const ids = [...new Set(checks.map((c) => c.productId))];
+	const products = await Promise.all(ids.map((id) => getCachedProduct(id, fetchFn)));
+	return new Map(ids.map((id, i) => [id, products[i]]));
+}
+
 // Misma revalidación que getVendorCartPrices() pero para el carrito de la
 // casa (sin vendedor/comisión) — la usa el checkout para nunca confiar en el
-// precio que venga del cliente.
+// precio que venga del cliente. Un resultado por línea, en el mismo orden;
+// `null` = ya no disponible (el checkout rechaza en vez de cobrar $0).
 export async function getHouseCartPrices(
-	productIds: string[],
+	checks: CartPriceCheck[],
 	fetchFn: typeof fetch
-): Promise<Record<string, number | null>> {
-	const products = await getCachedProducts(fetchFn);
-	const byId = new Map(products.map((p) => [p.id, p]));
-	const result: Record<string, number | null> = {};
-	for (const id of productIds) {
-		const product = byId.get(id);
-		// Sin precio = "ya no disponible": el checkout rechaza en vez de cobrar $0.
-		result[id] = product && hasPrice(product) ? displayPrice(product) : null;
-	}
-	return result;
+): Promise<(number | null)[]> {
+	const byId = await productsFor(checks, fetchFn);
+	return checks.map(({ productId, size, color }) => {
+		const product = byId.get(productId);
+		if (!product || !hasPrice(product)) return null;
+		const price = priceForSelection(product, size, color);
+		return price > 0 ? price : null;
+	});
 }
 
 // Revalida los precios de un carrito ya guardado en localStorage contra la
-// comisión VIGENTE del vendedor. `null` en el resultado significa "ya no
-// existe o está oculta" — el carrito debe eliminar esa prenda.
+// comisión VIGENTE del vendedor. Un resultado por línea; `null` significa "ya
+// no existe o está oculta" — el carrito debe eliminar esa prenda.
 export async function getVendorCartPrices(
 	vendorSlug: string,
-	productIds: string[],
+	checks: CartPriceCheck[],
 	fetchFn: typeof fetch
-): Promise<Record<string, number | null>> {
+): Promise<(number | null)[]> {
 	const vendor = await getApprovedVendorBySlug(vendorSlug);
-	if (!vendor) return Object.fromEntries(productIds.map((id) => [id, null]));
+	if (!vendor) return checks.map(() => null);
 
 	const pricing = await buildVendorPricing(vendor.id, vendor.commissionPercent);
-	const products = await getCachedProducts(fetchFn);
-	const byId = new Map(products.map((p) => [p.id, p]));
-
-	const result: Record<string, number | null> = {};
-	for (const id of productIds) {
-		const product = byId.get(id);
-		if (!product || !hasPrice(product) || isHidden(id, pricing)) {
-			result[id] = null;
-			continue;
-		}
-		result[id] = displayPrice(applyCommission(product, pricing));
-	}
-	return result;
+	const byId = await productsFor(checks, fetchFn);
+	return checks.map(({ productId, size, color }) => {
+		const product = byId.get(productId);
+		if (!product || !hasPrice(product) || isHidden(productId, pricing)) return null;
+		const price = priceForSelection(applyCommission(product, pricing), size, color);
+		return price > 0 ? price : null;
+	});
 }
 
 export interface CartStockCheck {
@@ -134,8 +144,11 @@ export async function getCartStock(
 	checks: CartStockCheck[],
 	fetchFn: typeof fetch
 ): Promise<number[]> {
-	const products = await getCachedProducts(fetchFn);
-	const byId = new Map(products.map((p) => [p.id, p]));
+	// Fichas completas (con stock por talla/color) solo de los productos del
+	// carrito: el listado cacheado ya no trae variaciones.
+	const ids = [...new Set(checks.map((c) => c.productId))];
+	const products = await Promise.all(ids.map((id) => getCachedProduct(id, fetchFn)));
+	const byId = new Map(ids.map((id, i) => [id, products[i]]));
 	return checks.map(({ productId, size, color }) => {
 		const product = byId.get(productId);
 		return product ? getVariationStock(product, size, color) : 0;

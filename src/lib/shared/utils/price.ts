@@ -23,6 +23,25 @@ export function displayPrice(product: Pick<Product, 'price' | 'wholesalePrice'>)
 	return product.wholesalePrice ?? product.price;
 }
 
+/**
+ * Precio que se cobra por una talla/color concreta. Dentro de un mismo
+ * producto puede variar (en Effi el Pantalón Dril gris vale menos que los
+ * demás colores): `displayPrice` da el MÁS BAJO, que sirve para el listado
+ * pero no para cobrar. El precio mayorista (ACF), si existe, aplica a todo
+ * el producto y manda.
+ */
+export function priceForSelection(
+	product: Pick<Product, 'price' | 'wholesalePrice' | 'variations'>,
+	size: string | null,
+	color: string | null
+): number {
+	if (product.wholesalePrice) return product.wholesalePrice;
+	const variation = product.variations?.find(
+		(v) => v.size === (size || null) && v.color === (color || null)
+	);
+	return variation && variation.price > 0 ? variation.price : product.price;
+}
+
 export function strikePrice(product: Pick<Product, 'price' | 'wholesalePrice'>): number | null {
 	// Un precio mayorista igual (o mayor) al regular no es un descuento real —
 	// mostrarlo tachado igual produce el "AHORRAS 0%" sin sentido.

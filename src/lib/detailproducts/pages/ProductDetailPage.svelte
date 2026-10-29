@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import type { Product } from '$lib/shared/model/products';
 	import { stockForCombo } from '$lib/shared/model/stock';
+	import { priceForSelection } from '$lib/shared/utils/price';
 	import ImageGallery from '$lib/detailproducts/components/ImageGallery.svelte';
 	import ProductInfo from '$lib/detailproducts/components/ProductInfo.svelte';
 	import ProductOptions from '$lib/detailproducts/components/ProductOptions.svelte';
@@ -77,6 +78,20 @@
 	// Estados del producto
 	let selectedSize = $state<string>('');
 	let selectedColor = $state<string>('');
+
+	// Precio de la combinación elegida (puede variar por talla/color). Mientras
+	// falte elegir algo, null: la ficha muestra "Desde" el más bajo.
+	const selectedPrice = $derived.by(() => {
+		if (!(product.variations ?? []).length) return null;
+		if ((product.sizes.length > 0 && !selectedSize) || (product.colors.length > 0 && !selectedColor)) {
+			return null;
+		}
+		return priceForSelection(
+			product,
+			product.sizes.length > 0 ? selectedSize : null,
+			product.colors.length > 0 ? selectedColor : null
+		);
+	});
 	let quantity = $state<number>(1);
 	let selectedImageIndex = $state<number>(0);
 
@@ -215,7 +230,7 @@
 
 			<!-- Información y opciones del producto -->
 			<div class="space-y-6">
-				<ProductInfo {product} />
+				<ProductInfo {product} {selectedPrice} />
 
 				<ProductOptions
 					sizes={product.sizes}

@@ -51,7 +51,12 @@ export function applyCommission(product: Product, pricing: VendorPricing): Produ
 		wholesalePrice:
 			product.wholesalePrice === undefined
 				? undefined
-				: priceWithCommission(product.wholesalePrice, percent)
+				: priceWithCommission(product.wholesalePrice, percent),
+		// Cada talla/color puede tener su propio precio: la comisión también.
+		variations: product.variations?.map((v) => ({
+			...v,
+			price: v.price > 0 ? priceWithCommission(v.price, percent) : v.price
+		}))
 	};
 }
 

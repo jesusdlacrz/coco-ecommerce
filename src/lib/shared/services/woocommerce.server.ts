@@ -274,6 +274,7 @@ function mapVariation(v: WooVariation): ProductVariation {
 		size: readVariationAttr(v.attributes, 'Talla', 'Tallas', 'Size', 'pa_talla'),
 		color: readVariationAttr(v.attributes, 'Color', 'Colores', 'pa_color'),
 		stock,
+		price: Number(v.regular_price) || 0,
 		inStock: stock > 0
 	};
 }
@@ -292,10 +293,15 @@ function mapWooProduct(woo: WooProduct, swatches: Map<string, string>, variation
 	// `stock_quantity` del padre actualizado en ese caso. Se agrega desde las
 	// variaciones cuando existen; si no (producto simple, o uno que todavía
 	// no se convirtió a variable), se cae al campo del producto.
+	//
+	// En el LISTADO no se piden variaciones (ver fetchProductsOrThrow): para un
+	// producto variable el total sale de `_effi_available`, que la
+	// sincronización con Effi deja en el padre. Sin ese dato (variable creado a
+	// mano) queda en 0 y no se lista hasta que tenga stock por producto.
 	const mappedVariations = variations.map(mapVariation);
 	const stockQuantity = mappedVariations.length
 		? mappedVariations.reduce((sum, v) => sum + (Number.isFinite(v.stock) ? v.stock : 0), 0)
-		: (woo.stock_quantity ?? 0);
+		: (woo.stock_quantity ?? readMetaNumber(woo.meta_data, '_effi_available') ?? 0);
 	const inStock = mappedVariations.length
 		? mappedVariations.some((v) => v.inStock)
 		: woo.stock_status === 'instock';
@@ -484,12 +490,11 @@ export async function fetchProductsOrThrow(fetchFn: typeof fetch = fetch): Promi
 		wooRequestAll<WooProduct>('/products?status=publish', fetchFn),
 		fetchColorSwatches(fetchFn)
 	]);
-	return Promise.all(
-		products.map(async (product) => {
-			const variations = product.type === 'variable' ? await fetchVariations(product.id, fetchFn) : [];
-			return mapWooProduct(product, swatches, variations);
-		})
-	);
+	// SIN variaciones: el listado no las necesita (precio mínimo, stock y
+	// tallas/colores vienen en el producto padre) y pedirlas costaba una
+	// consulta por producto — en el hosting compartido, ~50 s en frío. La
+	// ficha y el checkout las piden solo para su producto (getProductDetail).
+	return products.map((product) => mapWooProduct(product, swatches, []));
 }
 
 /**
@@ -513,6 +518,10 @@ export async function getProducts(fetchFn: typeof fetch = fetch): Promise<Produc
 /**
  * Devuelve un producto por su slug (nuestro `id`). `null` si no existe.
  * Si la API falla, intenta el producto de ejemplo con ese id.
+ */
+/**
+ * Un producto con todo (incluidas sus variaciones, con stock por talla/color).
+ * Lo usan la ficha y el checkout; el listado no (ver fetchProductsOrThrow).
  */
 export async function getProduct(
 	id: string,

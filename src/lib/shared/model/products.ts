@@ -12,6 +12,9 @@ export interface ProductVariation {
 	color: string | null;
 	stock: number;
 	inStock: boolean;
+	/** Precio normal de esta talla/color (0 si WooCommerce no lo tiene). Puede
+	 *  variar dentro del mismo producto (ej. un color más barato). */
+	price: number;
 }
 
 export interface Product {

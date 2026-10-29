@@ -44,13 +44,18 @@
 	$effect(() => {
 		if (!isOpen || store.kind !== 'vendor' || cartItems.length === 0) return;
 
-		const ids = [...new Set(cartItems.map((item) => item.productId))];
-		fetch(`${store.basePath}/carrito/revalidar?ids=${ids.map(encodeURIComponent).join(',')}`)
+		// Por línea (producto + talla + color): cada talla/color puede tener su precio.
+		const lines = cartItems.map(({ id, productId, size, color }) => ({ id, productId, size, color }));
+		fetch(`${store.basePath}/carrito/revalidar`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ items: lines })
+		})
 			.then((res) => res.json())
 			.then((data: { prices: Record<string, number | null> }) => {
 				const updates = new Map(Object.entries(data.prices));
 				const changed = cartItems.some((item) => {
-					const price = updates.get(item.productId);
+					const price = updates.get(item.id);
 					return price !== undefined && price !== item.price;
 				});
 				if (changed) {

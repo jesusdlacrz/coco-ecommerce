@@ -28,6 +28,11 @@ const META_IMAGE_IDS = '_effi_image_ids';
  * en cada pasada no cabe en los 60 s de una función de Vercel.
  */
 const META_VARIANTS_HASH = '_effi_variants_hash';
+/**
+ * Stock total disponible de un producto variable. El listado de la tienda no
+ * pide variaciones (serían ~50 s en frío en el hosting), así que lee este total.
+ */
+const META_AVAILABLE = '_effi_available';
 
 // Crear con fotos es lento (WordPress descarga cada imagen de Effi): lotes chicos.
 const CREATE_BATCH = 10;
@@ -351,6 +356,14 @@ export async function syncEffiToWoo(
 					payload.status = status;
 					track(p, status, existing.status);
 				}
+				// Productos sincronizados antes de existir este dato: se completa aquí.
+				const total = String(totalAvailable(p));
+				if (metaValue(existing, META_AVAILABLE) !== total) {
+					payload.meta_data = [
+						...((payload.meta_data as WooMeta[] | undefined) ?? []),
+						{ key: META_AVAILABLE, value: total }
+					];
+				}
 			} else {
 				variableSyncs.push({ product: p, wooId: existing.id, status, prevStatus: existing.status, hash });
 			}
@@ -585,7 +598,14 @@ export async function syncEffiToWoo(
 				method: 'PUT',
 				body: {
 					status: finalStatus,
-					...(done ? { meta_data: [{ key: META_VARIANTS_HASH, value: hash }] } : {})
+					...(done
+						? {
+								meta_data: [
+									{ key: META_VARIANTS_HASH, value: hash },
+									{ key: META_AVAILABLE, value: String(totalAvailable(product)) }
+								]
+							}
+						: {})
 				}
 			});
 			track(product, finalStatus, prevStatus);

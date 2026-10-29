@@ -1,7 +1,7 @@
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { Product, CartItem } from '$lib/shared/model/products';
-import { displayPrice, strikePrice } from '$lib/shared/utils/price';
+import { priceForSelection, strikePrice } from '$lib/shared/utils/price';
 
 // Clave histórica de la casa — se mantiene igual para no perder carritos
 // ya guardados en localStorage de antes de esta feature.
@@ -159,7 +159,8 @@ function createCartStore() {
 						id,
 						productId: product.id,
 						name: product.name,
-						price: displayPrice(product),
+						// El de esta talla/color, no el más bajo del producto.
+						price: priceForSelection(product, size, color),
 						originalPrice: strikePrice(product) ?? undefined,
 						image: product.images[0] || '',
 						category: product.category,
@@ -213,12 +214,13 @@ function createCartStore() {
 		// El precio en localStorage es caché, no la fuente de verdad: si el
 		// vendedor cambió su comisión, esto lo corrige. `null` en el mapa
 		// significa que la prenda ya no existe o fue ocultada — se elimina.
+		/** `updates`: id de LÍNEA del carrito → precio vigente (null = ya no disponible). */
 		applyPriceUpdates: (updates: Map<string, number | null>) => {
 			update((items) => {
 				const next = items
 					.map((item) => {
-						if (!updates.has(item.productId)) return item;
-						const price = updates.get(item.productId);
+						if (!updates.has(item.id)) return item;
+						const price = updates.get(item.id);
 						return price === null ? null : { ...item, price };
 					})
 					.filter((item): item is CartItem => item !== null);

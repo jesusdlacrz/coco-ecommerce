@@ -51,18 +51,41 @@ export async function getCachedProducts(fetchFn: typeof fetch = fetch): Promise<
 	return inflight;
 }
 
+// Fichas completas (con variaciones), una entrada por producto. El listado
+// ya no trae variaciones, así que la ficha y el checkout piden solo la del
+// producto que necesitan: una consulta (~1,5 s en frío) en vez del catálogo
+// entero con las de todos.
+const details = new Map<string, { product: Product | null; expiresAt: number }>();
+const detailsInflight = new Map<string, Promise<Product | null>>();
+
+/** Producto completo, con stock por talla/color. `null` si no existe o no está publicado. */
 export async function getCachedProduct(
 	id: string,
 	fetchFn: typeof fetch = fetch
 ): Promise<Product | null> {
-	const products = await getCachedProducts(fetchFn);
-	const hit = products.find((p) => p.id === id);
-	if (hit) return hit;
-	// Un producto recién publicado (ej. por la sincronización con Effi) puede no
-	// estar todavía en el listado cacheado — lo buscamos directo como último recurso.
-	return getProduct(id, fetchFn);
+	const hit = details.get(id);
+	if (hit && Date.now() < hit.expiresAt) return hit.product;
+
+	// Single-flight por producto: varias visitas a la vez = una consulta.
+	const pending = detailsInflight.get(id);
+	if (pending) return pending;
+
+	const request = (async () => {
+		try {
+			const product = await getProduct(id, fetchFn);
+			// `getProduct` devuelve null tanto si no existe como si WordPress
+			// falló: un null se cachea poco, para reintentar pronto.
+			details.set(id, { product, expiresAt: Date.now() + (product ? TTL_OK_MS : TTL_ERROR_MS) });
+			return product ?? hit?.product ?? null; // ante una falla, la versión anterior
+		} finally {
+			detailsInflight.delete(id);
+		}
+	})();
+	detailsInflight.set(id, request);
+	return request;
 }
 
 export function invalidateProductsCache(): void {
 	cache = null;
+	details.clear();
 }

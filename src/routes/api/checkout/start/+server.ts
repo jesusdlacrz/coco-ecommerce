@@ -63,15 +63,16 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 	const customer = body.customer;
 
 	// Nunca se confía en item.price del cliente: se recalcula contra el
-	// catálogo real (con la comisión vigente del vendedor, si aplica).
-	const productIds = items.map((item) => item.productId);
+	// catálogo real, por talla/color (pueden tener precios distintos), con la
+	// comisión vigente del vendedor si aplica.
+	const priceChecks = items.map(({ productId, size, color }) => ({ productId, size, color }));
 	const verifiedPrices = vendorSlug
-		? await getVendorCartPrices(vendorSlug, productIds, fetch)
-		: await getHouseCartPrices(productIds, fetch);
+		? await getVendorCartPrices(vendorSlug, priceChecks, fetch)
+		: await getHouseCartPrices(priceChecks, fetch);
 
 	const verifiedItems: CartItem[] = [];
-	for (const item of items) {
-		const price = verifiedPrices[item.productId];
+	for (const [index, item] of items.entries()) {
+		const price = verifiedPrices[index];
 		if (price === null || price === undefined) {
 			throw error(409, `"${item.name}" ya no está disponible. Actualiza tu carrito.`);
 		}
