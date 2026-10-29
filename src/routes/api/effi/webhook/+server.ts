@@ -5,6 +5,7 @@ import { syncEffiToWoo } from '$lib/server/effi/sync';
 import { runExclusive } from '$lib/server/effi/lock';
 import { hasBearer } from '$lib/server/effi/auth';
 import { describeError } from '$lib/shared/utils/describeError';
+import { alertSyncErrors, alertSyncFailure } from '$lib/server/effi/monitor';
 
 export const config = { maxDuration: 60 };
 
@@ -22,12 +23,14 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 	}
 	try {
 		const report = await runExclusive(() => syncEffiToWoo({ dryRun: false }, fetch));
+		if (report) await alertSyncErrors(report);
 		return json({ ok: true, queued: report === null });
 	} catch (err) {
 		// 500: que Effi lo reintente si su webhook reintenta. El detalle va en la
 		// respuesta (solo la ve quien tiene el secreto) para poder diagnosticar
 		// desde el historial de webhooks de Effi.
 		console.error(`[effi-webhook] Falló la sincronización (${describeError(err)}).`);
+		await alertSyncFailure(err);
 		throw error(500, `No se pudo sincronizar: ${describeError(err)}`);
 	}
 };

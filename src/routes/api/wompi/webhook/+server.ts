@@ -11,6 +11,10 @@ interface WompiWebhookPayload {
 	timestamp: number;
 }
 
+// Consulta WordPress (lento en el hosting compartido) y, al pagar, crea el
+// pedido: los 10 s por defecto de Vercel no siempre alcanzan.
+export const config = { maxDuration: 30 };
+
 export const POST: RequestHandler = async ({ request, fetch }) => {
 	const wompi = getWompiConfig();
 	if (!wompi) {

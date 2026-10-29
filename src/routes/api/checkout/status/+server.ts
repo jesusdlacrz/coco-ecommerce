@@ -4,6 +4,10 @@ import { getPendingCheckout } from '$lib/server/checkout/repository';
 import { reconcileWithWompi } from '$lib/server/checkout/fulfill';
 import { getWompiConfig } from '$lib/server/wompi/config';
 
+// Consulta WordPress (lento en el hosting compartido) y, al pagar, crea el
+// pedido: los 10 s por defecto de Vercel no siempre alcanzan.
+export const config = { maxDuration: 30 };
+
 export const GET: RequestHandler = async ({ url, fetch }) => {
 	const reference = url.searchParams.get('reference');
 	if (!reference) {

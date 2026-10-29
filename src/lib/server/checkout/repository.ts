@@ -1,4 +1,4 @@
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, or, gt, gte, inArray } from 'drizzle-orm';
 import { db } from '$lib/server/db/client';
 import { pendingCheckouts } from '$lib/server/db/schema';
 import type { CartItem } from '$lib/shared/model/products';
@@ -33,6 +33,70 @@ export async function createPendingCheckout(input: CreatePendingCheckoutInput): 
 		customerJson: JSON.stringify(input.customer),
 		amountInCents: input.amountInCents
 	});
+}
+
+/**
+ * Cuánto tiempo quedan apartadas las unidades de un pago iniciado y sin
+ * resolver. Cubre de sobra el tiempo normal de pagar en Wompi; si el cliente
+ * abandona, se liberan solas al vencer (no hay que limpiar nada).
+ */
+export const RESERVATION_MS = 30 * 60_000;
+
+/** Clave de una talla/color concreta de un producto, para sumar reservas. */
+export const stockKey = (productId: string, size: string | null, color: string | null) =>
+	`${productId}|${size ?? ''}|${color ?? ''}`;
+
+/**
+ * Unidades apartadas por pagos en curso: iniciados hace menos de
+ * RESERVATION_MS y todavía sin resolver ('pending', o 'processing' mientras se
+ * crea el pedido). Los aprobados ya descontaron el stock en WooCommerce, así
+ * que no se cuentan dos veces.
+ */
+export async function getReservedQuantities({
+	excludeEmail,
+	approvedSince
+}: {
+	excludeEmail?: string;
+	/**
+	 * Cuenta también los pagos APROBADOS desde este instante: su pedido puede
+	 * no estar reflejado todavía en el stock que se leyó de WordPress justo
+	 * antes (ver checkout/start), y sin esto esas unidades se ofrecerían dos veces.
+	 */
+	approvedSince?: number;
+} = {}): Promise<Map<string, number>> {
+	// Los pagos en curso del MISMO comprador no le cuentan: si abandonó un
+	// intento y vuelve a pagar, sus propias unidades apartadas no lo bloquean.
+	const ownEmail = excludeEmail?.trim().toLowerCase();
+	const inProgress = and(
+		inArray(pendingCheckouts.status, ['pending', 'processing']),
+		gt(pendingCheckouts.createdAt, new Date(Date.now() - RESERVATION_MS))
+	);
+	const rows = await db
+		.select({ cartJson: pendingCheckouts.cartJson, customerJson: pendingCheckouts.customerJson })
+		.from(pendingCheckouts)
+		.where(
+			approvedSince === undefined
+				? inProgress
+				: or(
+						inProgress,
+						and(
+							eq(pendingCheckouts.status, 'approved'),
+							gte(pendingCheckouts.updatedAt, new Date(approvedSince))
+						)
+					)
+		);
+	const reserved = new Map<string, number>();
+	for (const row of rows) {
+		if (ownEmail) {
+			const email = (JSON.parse(row.customerJson) as CheckoutCustomer).email?.trim().toLowerCase();
+			if (email === ownEmail) continue;
+		}
+		for (const item of JSON.parse(row.cartJson) as CartItem[]) {
+			const key = stockKey(item.productId, item.size, item.color);
+			reserved.set(key, (reserved.get(key) ?? 0) + item.quantity);
+		}
+	}
+	return reserved;
 }
 
 export type CheckoutStatus = 'pending' | 'processing' | 'approved' | 'declined';

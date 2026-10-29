@@ -7,7 +7,13 @@ import { productsBelowMinimum, describeShortfalls } from '$lib/cart/stores/cartS
 import { getHouseCartPrices, getVendorCartPrices, getCartStock } from '$lib/pricing/catalog.server';
 import { getWompiConfig } from '$lib/server/wompi/config';
 import { buildIntegritySignature } from '$lib/server/wompi/signature';
-import { createPendingCheckout, type CheckoutCustomer } from '$lib/server/checkout/repository';
+import {
+	createPendingCheckout,
+	getReservedQuantities,
+	stockKey,
+	type CheckoutCustomer
+} from '$lib/server/checkout/repository';
+import { withMutex, MutexBusyError } from '$lib/server/db/mutex';
 
 const CURRENCY = 'COP';
 
@@ -30,6 +36,10 @@ function isValidCustomer(customer: CheckoutCustomer | undefined): customer is Ch
 			customer.country?.trim()
 	);
 }
+
+// Consulta WordPress (lento en el hosting compartido) y, al pagar, crea el
+// pedido: los 10 s por defecto de Vercel no siempre alcanzan.
+export const config = { maxDuration: 30 };
 
 export const POST: RequestHandler = async ({ request, fetch }) => {
 	const wompi = getWompiConfig();
@@ -79,36 +89,62 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 		verifiedItems.push({ ...item, price });
 	}
 
-	// Nunca se confía en que el navegador haya bloqueado bien una talla/color
-	// agotado — se revalida contra el stock real de cada variación antes de
-	// generar la firma y cobrar. La cantidad del cliente se puede saltar con
-	// curl igual que el precio.
-	const stockLevels = await getCartStock(
-		verifiedItems.map((item) => ({ productId: item.productId, size: item.size, color: item.color })),
-		fetch
-	);
-	verifiedItems.forEach((item, index) => {
-		if (item.quantity > stockLevels[index]) {
-			const variant = [item.size, item.color].filter(Boolean).join(' / ');
-			throw error(
-				409,
-				`No hay suficiente stock de "${item.name}"${variant ? ` (${variant})` : ''}. Actualiza tu carrito.`
-			);
-		}
-	});
-
 	const subtotal = verifiedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 	const total = subtotal + SHIPPING_COST;
 	const amountInCents = Math.round(total * 100);
-
 	const reference = randomUUID();
-	await createPendingCheckout({
-		reference,
-		vendorSlug,
-		items: verifiedItems,
-		customer,
-		amountInCents
-	});
+
+	// Stock: revisar y APARTAR tiene que ser atómico entre compradores. Si
+	// dos personas pagan a la vez las últimas 4 unidades, sin esto ambas pasan
+	// la validación (el stock solo baja cuando Wompi aprueba) y se venden 8.
+	//
+	// 1. Stock fresco de WordPress (no el de la caché), FUERA del candado: tarda
+	//    segundos en el hosting y no debe hacer esperar a otros compradores.
+	// 2. Dentro del candado (rápido, solo la base): restar lo apartado por otros
+	//    pagos en curso y los aprobados después de la lectura del paso 1 (que
+	//    ese número todavía no refleja); si alcanza, apartar creando el pago
+	//    pendiente. Las reservas vencen solas (RESERVATION_MS).
+	// Nunca se confía en la cantidad del navegador: se puede saltar con curl.
+	const stockReadAt = Date.now();
+	const stockLevels = await getCartStock(
+		verifiedItems.map((item) => ({ productId: item.productId, size: item.size, color: item.color })),
+		fetch,
+		{ fresh: true }
+	);
+	try {
+		await withMutex('checkout-stock', async () => {
+			const reserved = await getReservedQuantities({
+				excludeEmail: customer.email,
+				approvedSince: stockReadAt
+			});
+			verifiedItems.forEach((item, index) => {
+				const heldByOthers = reserved.get(stockKey(item.productId, item.size, item.color)) ?? 0;
+				const available = stockLevels[index] - heldByOthers;
+				if (item.quantity <= available) return;
+				const variant = [item.size, item.color].filter(Boolean).join(' / ');
+				const label = `"${item.name}"${variant ? ` (${variant})` : ''}`;
+				throw error(
+					409,
+					item.quantity <= stockLevels[index]
+						? `Otro cliente está pagando las últimas unidades de ${label}. Si no completa el pago, se liberan en unos minutos.`
+						: `No hay suficiente stock de ${label}. Actualiza tu carrito.`
+				);
+			});
+
+			await createPendingCheckout({
+				reference,
+				vendorSlug,
+				items: verifiedItems,
+				customer,
+				amountInCents
+			});
+		});
+	} catch (err) {
+		if (err instanceof MutexBusyError) {
+			throw error(503, 'Hay muchas personas pagando en este momento. Intenta de nuevo en unos segundos.');
+		}
+		throw err;
+	}
 
 	const signature = buildIntegritySignature(reference, amountInCents, CURRENCY, wompi.integritySecret);
 

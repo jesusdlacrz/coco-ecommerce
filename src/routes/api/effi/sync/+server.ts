@@ -5,6 +5,7 @@ import { syncEffiToWoo } from '$lib/server/effi/sync';
 import { hasBearer } from '$lib/server/effi/auth';
 import { runExclusive } from '$lib/server/effi/lock';
 import { describeError } from '$lib/shared/utils/describeError';
+import { alertSyncErrors, alertSyncFailure, checkEffiKeyExpiry } from '$lib/server/effi/monitor';
 
 // La sincronización completa recorre todo Effi y todo WooCommerce.
 export const config = { maxDuration: 60 };
@@ -17,8 +18,10 @@ export const GET: RequestHandler = async ({ request, url, fetch }) => {
 	if (!hasBearer(request, env.CRON_SECRET)) {
 		throw error(401, 'No autorizado');
 	}
+	const dryRun = url.searchParams.get('dry') === '1';
+	// La tarea diaria también revisa que la API key de Effi no esté por vencer.
+	if (!dryRun) await checkEffiKeyExpiry();
 	try {
-		const dryRun = url.searchParams.get('dry') === '1';
 		// La simulación no escribe nada: no necesita el candado.
 		const report = dryRun
 			? await syncEffiToWoo({ dryRun }, fetch)
@@ -32,9 +35,11 @@ export const GET: RequestHandler = async ({ request, url, fetch }) => {
 				`publicados ${report.published.length}, ocultados ${report.hidden.length}, errores ${report.errors.length}` +
 				(report.dryRun ? ' (simulación)' : '')
 		);
+		if (!report.dryRun) await alertSyncErrors(report);
 		return json(report);
 	} catch (err) {
 		console.error(`[effi-sync] Falló la sincronización (${describeError(err)}).`);
+		if (!dryRun) await alertSyncFailure(err);
 		throw error(500, describeError(err));
 	}
 };

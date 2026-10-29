@@ -2,9 +2,7 @@
 // (el sufijo ".server.ts" impide que SvelteKit lo incluya en el bundle del
 // cliente, manteniendo las API keys fuera del navegador).
 import { env } from '$env/dynamic/private';
-import { dev } from '$app/environment';
 import type { Color, Product, ProductVariation } from '$lib/shared/model/products';
-import { sampleProducts } from '$lib/dataProducts/products';
 import { describeError } from '$lib/shared/utils/describeError';
 
 // ------------------------------------------------------------------ tipos Woo
@@ -498,52 +496,26 @@ export async function fetchProductsOrThrow(fetchFn: typeof fetch = fetch): Promi
 }
 
 /**
- * Devuelve todos los productos publicados. Si WooCommerce no está configurado
- * (falta el .env) o la API no responde, cae a los productos de ejemplo para que
- * el sitio nunca se rompa durante el setup. El fallo se registra en consola.
+ * Un producto con todo (incluidas sus variaciones, con stock por talla/color),
+ * sin respaldo: `null` = no existe o no está publicado; si WordPress falla,
+ * LANZA. Así quien llama puede distinguir "no existe" de "no se pudo saber"
+ * (ver la copia de respaldo en `$lib/server/products/cache`).
  */
-export async function getProducts(fetchFn: typeof fetch = fetch): Promise<Product[]> {
-	try {
-		return await fetchProductsOrThrow(fetchFn);
-	} catch (err) {
-		if (err instanceof WooNotConfiguredError) {
-			console.warn('[woocommerce] Sin configurar — usando productos de ejemplo.');
-		} else {
-			console.error(`[woocommerce] Error al traer productos (${describeError(err)}). Usando ejemplos.`);
-		}
-		return sampleProducts;
-	}
-}
-
-/**
- * Devuelve un producto por su slug (nuestro `id`). `null` si no existe.
- * Si la API falla, intenta el producto de ejemplo con ese id.
- */
-/**
- * Un producto con todo (incluidas sus variaciones, con stock por talla/color).
- * Lo usan la ficha y el checkout; el listado no (ver fetchProductsOrThrow).
- */
-export async function getProduct(
+export async function fetchProductOrThrow(
 	id: string,
 	fetchFn: typeof fetch = fetch
 ): Promise<Product | null> {
 	if (!getConfig()) {
-		return sampleProducts.find((p) => p.id === id) ?? null;
+		throw new WooNotConfiguredError('WooCommerce no configurado');
 	}
-	try {
-		const [matches, swatches] = await Promise.all([
-			wooRequest<WooProduct[]>(`/products?slug=${encodeURIComponent(id)}&status=publish`, fetchFn),
-			fetchColorSwatches(fetchFn)
-		]);
-		if (!matches.length) return null;
-		const product = matches[0];
-		const variations = product.type === 'variable' ? await fetchVariations(product.id, fetchFn) : [];
-		return mapWooProduct(product, swatches, variations);
-	} catch (err) {
-		console.error(`[woocommerce] Error al traer el producto "${id}" (${describeError(err)}).`);
-		// Solo en local: en producción un producto de ejemplo se podría cobrar.
-		return dev ? (sampleProducts.find((p) => p.id === id) ?? null) : null;
-	}
+	const [matches, swatches] = await Promise.all([
+		wooRequest<WooProduct[]>(`/products?slug=${encodeURIComponent(id)}&status=publish`, fetchFn),
+		fetchColorSwatches(fetchFn)
+	]);
+	if (!matches.length) return null;
+	const product = matches[0];
+	const variations = product.type === 'variable' ? await fetchVariations(product.id, fetchFn) : [];
+	return mapWooProduct(product, swatches, variations);
 }
 
 // ------------------------------------------------------------------- pedidos

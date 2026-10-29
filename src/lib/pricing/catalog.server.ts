@@ -1,6 +1,6 @@
 import type { Product } from '$lib/shared/model/products';
 import { getVariationStock } from '$lib/shared/model/stock';
-import { getCachedProducts, getCachedProduct } from '$lib/server/products/cache';
+import { getCachedProducts, getCachedProduct, getFreshProduct } from '$lib/server/products/cache';
 import { getApprovedVendorBySlug, getVendorProductOverrides } from '$lib/server/vendors/repository';
 import { applyCommission, priceCatalog, isHidden, type VendorPricing } from './commission';
 import { displayPrice, priceForSelection } from '$lib/shared/utils/price';
@@ -135,19 +135,19 @@ export interface CartStockCheck {
 }
 
 // El stock (a diferencia del precio) es el mismo sin importar el vendedor —
-// es la misma prenda física. Se usa desde el checkout para rechazar antes de
-// cobrar una cantidad que ya no existe en esa talla/color; es sobre la
-// caché, así que un cambio de stock hecho en WordPress hace efecto en el
-// checkout con el mismo retraso que ya tiene el catálogo (ver
-// `$lib/server/products/cache`), no en tiempo real.
+// es la misma prenda física. Por defecto sale de la caché (hasta 5 min de
+// desfase: suficiente para la vista del carrito); con `fresh` se consulta
+// WordPress en el momento — lo usa el checkout justo antes de cobrar.
 export async function getCartStock(
 	checks: CartStockCheck[],
-	fetchFn: typeof fetch
+	fetchFn: typeof fetch,
+	{ fresh = false }: { fresh?: boolean } = {}
 ): Promise<number[]> {
 	// Fichas completas (con stock por talla/color) solo de los productos del
 	// carrito: el listado cacheado ya no trae variaciones.
 	const ids = [...new Set(checks.map((c) => c.productId))];
-	const products = await Promise.all(ids.map((id) => getCachedProduct(id, fetchFn)));
+	const load = fresh ? getFreshProduct : getCachedProduct;
+	const products = await Promise.all(ids.map((id) => load(id, fetchFn)));
 	const byId = new Map(ids.map((id, i) => [id, products[i]]));
 	return checks.map(({ productId, size, color }) => {
 		const product = byId.get(productId);

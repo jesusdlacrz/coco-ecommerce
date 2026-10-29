@@ -9,7 +9,7 @@
 import { wooRequest, wooRequestAll } from '$lib/shared/services/woocommerce.server';
 import { MIN_UNITS_PER_PRODUCT } from '$lib/cart/stores/cartStore';
 import { sortSizes } from '$lib/shared/model/sizes';
-import { invalidateProductsCache } from '$lib/server/products/cache';
+import { invalidateProductsCache, getCachedProducts } from '$lib/server/products/cache';
 import { describeError } from '$lib/shared/utils/describeError';
 import { createHash } from 'node:crypto';
 import { fetchAllArticles } from './client';
@@ -506,6 +506,15 @@ export async function syncEffiToWoo(
 	}
 
 	invalidateProductsCache();
+	// Recarga el catálogo, que además renueva la copia de respaldo en la base:
+	// así hay una copia reciente aunque nadie visite la tienda.
+	if (!outOfTime()) {
+		try {
+			await getCachedProducts(fetchFn);
+		} catch (err) {
+			report.errors.push(`Renovar la copia del catálogo: ${describeError(err)}`);
+		}
+	}
 	report.durationMs = Date.now() - started;
 	return report;
 

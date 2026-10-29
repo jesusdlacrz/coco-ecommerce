@@ -69,7 +69,10 @@ BLUSA TY190    TY190                                 → producto simple
 | `CRON_SECRET` | Protege `/api/effi/sync`. Vercel lo envía solo en la tarea diaria |
 | `EFFI_WEBHOOK_SECRET` | Protege `/api/effi/webhook`. Va en la cabecera del webhook en Effi |
 
-Las tres van en `.env` (local) y en Vercel → Settings → Environment Variables
+| `ALERT_EMAIL_TO` | Correo que recibe las alertas (ver "Alertas" abajo). Con el remitente por defecto de Resend solo puede ser el correo dueño de la cuenta de Resend. **No** usar el buzón de la tienda |
+| `EFFI_API_KEY_EXPIRES` | Opcional. Fecha de vencimiento de la API key (`AAAA-MM-DD`, 360 días desde que se creó/renovó). Con ella llega un aviso 15 días antes |
+
+Van en `.env` (local) y en Vercel → Settings → Environment Variables
 (Production).
 
 ## Cuándo se sincroniza
@@ -165,3 +168,62 @@ exige definiciones contables de la clienta antes de automatizarlo:
       perfil limitado (consultar artículos; crear órdenes de venta en fase 2)
       y usar su API key en vez de la del usuario principal.
 - [ ] Renovar la API key antes de que venza (360 días).
+
+---
+
+## Robustez: qué pasa cuando algo falla
+
+### Si WordPress (Hostinger) se cae
+
+Cada lectura exitosa de WordPress guarda una copia del catálogo y de cada
+ficha en la base propia (Turso, tabla `product_snapshots`). Si WordPress no
+responde, la tienda muestra esa copia: los clientes siguen viendo y
+navegando los productos, sin importar cuánto dure la caída. La
+sincronización con Effi renueva la copia al terminar, así que siempre hay una
+reciente aunque nadie visite la tienda. Llega la alerta "WordPress no
+responde".
+
+Mientras WordPress está caído, los pagos se aprueban pero el pedido no se
+puede crear: se crea solo cuando WordPress vuelve (Wompi reintenta y la
+página de confirmación vuelve a consultar). Si no, llega la alerta "Pago
+aprobado SIN pedido" con los datos para crearlo a mano.
+
+Código: `src/lib/server/products/snapshot.ts` y `cache.ts`.
+
+### Dos compradores por las mismas últimas unidades
+
+Al iniciar el pago, las unidades quedan **apartadas 30 minutos**. Revisar el
+stock y apartarlo es atómico entre compradores (candado en la base,
+`src/lib/server/db/mutex.ts`): si quedan 6 y dos personas piden 4 a la vez,
+una aparta y la otra ve "Otro cliente está pagando las últimas unidades…".
+Si el pago se abandona, las unidades se liberan solas al vencer. Los intentos
+del mismo comprador (mismo correo) no lo bloquean a él mismo.
+
+El stock se consulta fresco a WordPress al pagar (no el de la caché), y se
+descuentan también los pagos aprobados en ese mismo instante.
+
+Código: `src/routes/api/checkout/start/+server.ts` y
+`getReservedQuantities` en `src/lib/server/checkout/repository.ts`.
+
+### Alertas
+
+Llegan a `ALERT_EMAIL_TO`, como mucho una vez por intervalo para no llenar el
+buzón:
+
+| Alerta | Cuándo | Se repite cada |
+| --- | --- | --- |
+| Pago aprobado SIN pedido | Un cliente pagó y no se pudo crear el pedido | 1 h por pago |
+| WordPress no responde | La tienda está mostrando la copia guardada | 3 h |
+| API key de Effi vencida | Effi rechaza la llave (401) | 1 día |
+| API key de Effi por vencer | Faltan ≤ 15 días (`EFFI_API_KEY_EXPIRES`) | 3 días (1 día al final) |
+| Falló la sincronización | No llegó a terminar | 6 h |
+| Sincronización con errores | Terminó, pero algunos productos fallaron | 12 h |
+
+Sin `ALERT_EMAIL_TO` (o sin `RESEND_API_KEY`), las alertas quedan solo en los
+logs de Vercel. Código: `src/lib/server/alerts.ts`.
+
+### Probar la caída de WordPress en local
+
+En `.claude/launch.json` hay una configuración `dev-wordpress-caido` que
+levanta la tienda en el puerto 5175 apuntando a un WordPress inexistente: el
+catálogo y las fichas ya visitadas deben seguir viéndose.

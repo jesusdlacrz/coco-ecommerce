@@ -17,6 +17,7 @@ import {
 	type CreateOrderLineItem
 } from '$lib/shared/services/woocommerce.server';
 import { describeError } from '$lib/shared/utils/describeError';
+import { alert, ALERT_EVERY } from '$lib/server/alerts';
 
 // Estados terminales negativos de Wompi. 'PENDING' NO está aquí a propósito:
 // métodos async (PSE, transferencia) pasan primero por PENDING y después
@@ -155,6 +156,23 @@ export async function applyWompiTransaction(
 		await releasePendingCheckout(transaction.reference);
 		console.error(
 			`[wompi] Error creando el pedido para "${transaction.reference}" (${describeError(err)}).`
+		);
+		// El cliente YA PAGÓ: se reintenta solo (Wompi reenvía el aviso y la
+		// página de confirmación vuelve a consultar), pero si sigue fallando
+		// alguien tiene que enterarse. Una alerta por pago, como mucho cada hora.
+		const items = checkout.items
+			.map((i) => `- ${i.name}${i.size ? ` talla ${i.size}` : ''}${i.color ? ` ${i.color}` : ''} x${i.quantity}`)
+			.join('\n');
+		await alert(
+			`order-failed:${transaction.reference}`,
+			'Pago aprobado SIN pedido en WooCommerce',
+			`Un cliente pagó pero no se pudo crear su pedido en WooCommerce. Se sigue reintentando solo; si este correo se repite, el pedido no se ha creado.\n\n` +
+				`Cliente: ${checkout.customer.firstName} ${checkout.customer.lastName} — ${checkout.customer.email} — ${checkout.customer.phone}\n` +
+				`Total: $${(checkout.amountInCents / 100).toLocaleString('es-CO')}\n` +
+				`Referencia Wompi: ${transaction.reference}\n\nPrendas:\n${items}\n\n` +
+				`Error: ${describeError(err)}\n\n` +
+				`Si WordPress está caído, el pedido se creará cuando vuelva. Si no, crearlo a mano en WooCommerce con estos datos (el pago está en el panel de Wompi con esa referencia).`,
+			{ every: ALERT_EVERY.HOUR }
 		);
 		throw err;
 	}
