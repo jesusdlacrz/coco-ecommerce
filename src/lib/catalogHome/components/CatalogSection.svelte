@@ -12,7 +12,8 @@
 	let { products }: { products: Product[] } = $props();
 
 	// =================== STATE ===================
-	let activeTab = $state<Category>('men');
+	// Mujeres por defecto (es el grueso del catálogo); `?category=` en la URL manda.
+	let activeTab = $state<Category>('women');
 
 	// =================== DERIVED DATA ===================
 	const menProducts = $derived(products.filter((p) => p.gender === 'men'));
